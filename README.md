@@ -1,16 +1,93 @@
-# React + Vite
+# KeyCraft Retro — Мастерская кастомных клавиатур
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Интерактивный интернет-магазин и конфигуратор кастомных механических клавиатур ручной сборки. Лабораторная работа по веб-программированию (3 курс).
 
-Currently, two official plugins are available:
+[![Vercel Deploy](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fqwerty-ll%2Fkeycraft-retro)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## Возможности проекта
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+1. **Интерактивная послойная 3D-архитектура клавиатуры**:
+   - 6 детальных векторных компонентов: PBT кейкапы, свитчи Gateron Oil King, латунный плейт (Brass), шумоизоляция Poron XRD, печатная плата Hot-Swap PCB с золотыми дорожками и корпус из массива ореха.
+   - Плавный 3D-параллакс от положения курсора мыши.
+   - Ползунок разнесения компонентов: от `В сборе (0%)` до `По слоям (100%)`.
+   - Инспекция любого компонента: при клике выбранная деталь плавно приподнимается вверх и вперёд (`+50px`), а остальные слои мягко приглушаются.
 
-## Expanding the Oxlint configuration
+2. **Многостраничная навигация**:
+   - **Главная** (`#home`): интерактивная 3D-презентация флагмана, промо-карусель предложений, шорткаты категорий, манифест мастерской.
+   - **Каталог товаров** (`#catalog`): витрина 24 уникальных товаров с фильтрацией по категориям, цене, сортировкой, пагинацией и переключением вида.
+   - **Страница товара (PDP)** (`#product/:id`): детальная карточка товара с фото, выбором свитчей, количеством, таблицей характеристик, комплектацией, отзывами и похожими товарами.
+   - **Избранное** (`#favorites`): сохранение товаров с бейджем в шапке и возможностью перенести всё в корзину в 1 клик.
+   - **Корзина и оформление заказа**: выезжающая шторка, промокод `VINTAGE10`, модальное окно оформления заказа.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+3. **Каталог товаров: Сетка vs Построчно**:
+   - Переключатель отображения: карточками (сетка в 3 колонки) или широкими строками во всю ширину.
+   - На мобильных устройствах переключатель скрывается для максимального удобства.
+
+4. **100% автономность и адаптивность**:
+   - Все 24 изображения товаров и промо-слайды — авторская локальная векторная графика (SVG) без внешних зависимостей.
+   - Полная адаптация под мобильные устройства: бургер-меню и фиксированная нижняя навигационная панель (Bottom Bar).
+
+---
+
+## Запуск проекта на любом компьютере
+
+### Требования
+- [Node.js](https://nodejs.org/) (версия 18 или новее)
+- Git
+
+### Шаги установки и запуска
+
+```bash
+# 1. Клонируйте репозиторий
+git clone https://github.com/qwerty-ll/keycraft-retro.git
+
+# 2. Перейдите в папку проекта
+cd keycraft-retro
+
+# 3. Установите зависимости
+npm install
+
+# 4. Запустите локальный сервер разработки
+npm run dev
+```
+
+После запуска откройте в браузере: `http://localhost:5173/`
+
+### Сборка для продакшена
+
+```bash
+npm run build
+```
+Собранные оптимизированные статические файлы будут находиться в директории `dist/`.
+
+---
+
+## Развёртывание на Vercel (Деплой в 1 клик)
+
+### Способ 1: Через веб-интерфейс Vercel (самый простой)
+1. Перейдите на [vercel.com](https://vercel.com/) и войдите в аккаунт через GitHub.
+2. Нажмите **«Add New...»** → **«Project»**.
+3. В списке репозиториев выберите `qwerty-ll/keycraft-retro` и нажмите **«Import»**.
+4. Параметры определяются автоматически:
+   - **Framework Preset**: `Vite`
+   - **Build Command**: `npm run build`
+   - **Output Directory**: `dist`
+5. Нажмите **«Deploy»**. Через 30 секунд ваш сайт будет доступен в интернете по бесплатному HTTPS-адресу (`https://keycraft-retro-*.vercel.app`).
+
+### Способ 2: Через Vercel CLI
+```bash
+npx vercel
+```
+Следуйте подсказкам в терминале для привязки к аккаунту.
+
+---
+
+## Стек технологий
+
+- **React 18**
+- **Vite 8**
+- **Tailwind CSS**
+- **Lucide React** (иконки)
+- **CSS 3D Transforms** (`preserve-3d`, `perspective`)
