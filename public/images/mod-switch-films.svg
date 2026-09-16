@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300">
+    <rect width="400" height="300" fill="#F4EFE6"/>
+    <g filter="drop-shadow(0 8px 14px rgba(0,0,0,0.16))">
+      <rect x="80" y="55" width="240" height="190" rx="6" fill="#F9F6ED" stroke="#DED6C5" stroke-width="2"/>
+      <g fill="none" stroke="#2B6CB0" stroke-width="2">
+        <rect x="105" y="75" width="22" height="22" rx="3"/><circle cx="116" cy="86" r="4" fill="#2B6CB0"/>
+        <rect x="137" y="75" width="22" height="22" rx="3"/><circle cx="148" cy="86" r="4" fill="#2B6CB0"/>
+        <rect x="169" y="75" width="22" height="22" rx="3"/><circle cx="180" cy="86" r="4" fill="#2B6CB0"/>
+        <rect x="201" y="75" width="22" height="22" rx="3"/><circle cx="212" cy="86" r="4" fill="#2B6CB0"/>
+        <rect x="233" y="75" width="22" height="22" rx="3"/><circle cx="244" cy="86" r="4" fill="#2B6CB0"/>
+        <rect x="265" y="75" width="22" height="22" rx="3"/><circle cx="276" cy="86" r="4" fill="#2B6CB0"/>
+        <rect x="105" y="110" width="22" height="22" rx="3"/><circle cx="116" cy="121" r="4" fill="#2B6CB0"/>
+        <rect x="137" y="110" width="22" height="22" rx="3"/><circle cx="148" cy="121" r="4" fill="#2B6CB0"/>
+        <rect x="169" y="110" width="22" height="22" rx="3"/><circle cx="180" cy="121" r="4" fill="#2B6CB0"/>
+        <rect x="201" y="110" width="22" height="22" rx="3"/><circle cx="212" cy="121" r="4" fill="#2B6CB0"/>
+        <rect x="233" y="110" width="22" height="22" rx="3"/><circle cx="244" cy="121" r="4" fill="#2B6CB0"/>
+        <rect x="265" y="110" width="22" height="22" rx="3"/><circle cx="276" cy="121" r="4" fill="#2B6CB0"/>
+        <rect x="105" y="145" width="22" height="22" rx="3"/><circle cx="116" cy="156" r="4" fill="#2B6CB0"/>
+        <rect x="137" y="145" width="22" height="22" rx="3"/><circle cx="148" cy="156" r="4" fill="#2B6CB0"/>
+        <rect x="169" y="145" width="22" height="22" rx="3"/><circle cx="180" cy="156" r="4" fill="#2B6CB0"/>
+        <rect x="201" y="145" width="22" height="22" rx="3"/><circle cx="212" cy="156" r="4" fill="#2B6CB0"/>
+        <rect x="233" y="145" width="22" height="22" rx="3"/><circle cx="244" cy="156" r="4" fill="#2B6CB0"/>
+        <rect x="265" y="145" width="22" height="22" rx="3"/><circle cx="276" cy="156" r="4" fill="#2B6CB0"/>
+      </g>
+      <g transform="translate(190, 190) rotate(15)">
+        <rect x="0" y="0" width="24" height="24" rx="3" fill="rgba(43, 108, 176, 0.3)" stroke="#2B6CB0" stroke-width="2"/>
+        <circle cx="12" cy="12" r="4" fill="#2B6CB0"/>
+      </g>
+    </g>
+    <text x="200" y="275" font-family="monospace" font-size="11" font-weight="bold" fill="#2B6CB0" text-anchor="middle">DESKEYS SWITCH FILMS (120 PCS, 0.3MM)</text>
+  </svg>

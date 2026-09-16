@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300">
+    <rect width="400" height="300" fill="#F4EFE6"/>
+    <g filter="drop-shadow(0 8px 14px rgba(0,0,0,0.18))">
+      <circle cx="180" cy="140" r="70" fill="#D9A05B" stroke="#B87F3B" stroke-width="2"/>
+      <circle cx="180" cy="140" r="40" fill="#F4EFE6" stroke="#CBB99F" stroke-width="2"/>
+      <circle cx="180" cy="140" r="35" fill="#8C6E52"/>
+      <circle cx="180" cy="140" r="30" fill="#F4EFE6"/>
+      <path d="M225 90 L320 90 L310 120 L235 120 Z" fill="#E8B270" stroke="#C48E4B" stroke-width="1.5"/>
+      <text x="275" y="108" font-family="monospace" font-size="9" font-weight="bold" fill="#6E4416" text-anchor="middle">ANTI-STATIC</text>
+    </g>
+    <text x="200" y="265" font-family="monospace" font-size="11" font-weight="bold" fill="#785025" text-anchor="middle">ТЕРМОСТОЙКИЙ TEMPEST TAPE MOD (50M)</text>
+  </svg>

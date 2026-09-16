@@ -1,0 +1,167 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 780" width="680" height="780">
+  <defs>
+    <linearGradient id="bgExp" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FAF7F2"/>
+      <stop offset="100%" stop-color="#EFE8DC"/>
+    </linearGradient>
+
+    <linearGradient id="brassPlate" x1="0%" y1="0%" x2="100%" y2="50%">
+      <stop offset="0%" stop-color="#FCE8B3"/>
+      <stop offset="50%" stop-color="#D4AA50"/>
+      <stop offset="100%" stop-color="#936D22"/>
+    </linearGradient>
+
+    <linearGradient id="walnutCase" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6F462B"/>
+      <stop offset="40%" stop-color="#4F2D18"/>
+      <stop offset="100%" stop-color="#2D170B"/>
+    </linearGradient>
+
+    <linearGradient id="pcbGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#22272E"/>
+      <stop offset="100%" stop-color="#141619"/>
+    </linearGradient>
+
+    <linearGradient id="foamGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#383634"/>
+      <stop offset="100%" stop-color="#201E1D"/>
+    </linearGradient>
+
+    <filter id="layerShadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#1A120B" flood-opacity="0.2"/>
+    </filter>
+  </defs>
+
+  <rect width="680" height="780" rx="16" fill="url(#bgExp)"/>
+
+  <g stroke="#C2A882" stroke-width="1.2" stroke-dasharray="4 4" opacity="0.6">
+    <line x1="340" y1="90" x2="340" y2="600"/>
+    <line x1="140" y1="170" x2="140" y2="670"/>
+    <line x1="540" y1="170" x2="540" y2="670"/>
+    <line x1="340" y1="250" x2="340" y2="730"/>
+  </g>
+
+  <g id="layer-1-keycaps" transform="translate(0, 20)" filter="url(#layerShadow)">
+    <polygon points="340,70 540,150 340,230 140,150" fill="#FAF6EE" stroke="#DFD4C0" stroke-width="1.5"/>
+    <polygon points="140,150 340,230 340,242 140,162" fill="#D3C8B4"/>
+    <polygon points="340,230 540,150 540,162 340,242" fill="#BAAF9B"/>
+
+    <g opacity="0.85">
+      <polygon points="180,140 210,152 195,165 165,153" fill="#C2622D"/>
+      <polygon points="215,142 245,154 230,167 200,155" fill="#EFE8D8"/>
+      <polygon points="250,144 280,156 265,169 235,157" fill="#EFE8D8"/>
+      <polygon points="285,146 315,158 300,171 270,159" fill="#EFE8D8"/>
+      <polygon points="320,148 350,160 335,173 305,161" fill="#EFE8D8"/>
+      <polygon points="355,150 385,162 370,175 340,163" fill="#EFE8D8"/>
+      <polygon points="390,152 420,164 405,177 375,165" fill="#EFE8D8"/>
+      <polygon points="425,154 455,166 440,179 410,167" fill="#EFE8D8"/>
+      <polygon points="460,156 490,168 475,181 445,169" fill="#789A82"/>
+
+      <polygon points="220,162 260,178 245,191 205,175" fill="#EFE8D8"/>
+      <polygon points="265,164 380,210 365,223 250,177" fill="#F4EFE2"/>
+      <polygon points="385,166 430,184 415,197 370,179" fill="#C2622D"/>
+    </g>
+
+    <line x1="540" y1="150" x2="610" y2="120" stroke="#7A6855" stroke-width="1.2"/>
+    <circle cx="610" cy="120" r="3" fill="#C2622D"/>
+    <text x="618" y="117" font-family="monospace" font-size="11" font-weight="bold" fill="#2E261F">СЛОЙ 1: PBT КЕЙКАПЫ</text>
+    <text x="618" y="130" font-family="sans-serif" font-size="9.5" fill="#736454">Сублимация • Cherry профиль 1.5мм</text>
+  </g>
+
+  <g id="layer-2-switches" transform="translate(0, 130)" filter="url(#layerShadow)">
+    <polygon points="340,75 530,150 340,225 150,150" fill="#262320" stroke="#3D3833" stroke-width="1.5"/>
+    <polygon points="150,150 340,225 340,234 150,159" fill="#1C1A18"/>
+    <polygon points="340,225 530,150 530,159 340,234" fill="#151312"/>
+
+    <g fill="#121110" stroke="#E2C178" stroke-width="0.8">
+      <circle cx="240" cy="155" r="4.5"/>
+      <circle cx="280" cy="165" r="4.5"/>
+      <circle cx="320" cy="175" r="4.5"/>
+      <circle cx="360" cy="165" r="4.5"/>
+      <circle cx="400" cy="155" r="4.5"/>
+      <circle cx="440" cy="145" r="4.5"/>
+
+      <circle cx="260" cy="180" r="4.5"/>
+      <circle cx="300" cy="190" r="4.5"/>
+      <circle cx="340" cy="180" r="4.5"/>
+      <circle cx="380" cy="170" r="4.5"/>
+      <circle cx="420" cy="160" r="4.5"/>
+    </g>
+
+    <line x1="150" y1="150" x2="70" y2="150" stroke="#7A6855" stroke-width="1.2"/>
+    <circle cx="70" cy="150" r="3" fill="#C2622D"/>
+    <text x="65" y="145" font-family="monospace" font-size="11" font-weight="bold" fill="#2E261F" text-anchor="end">СЛОЙ 2: СВИТЧИ</text>
+    <text x="65" y="158" font-family="sans-serif" font-size="9.5" fill="#736454" text-anchor="end">Gateron Oil King • Заводская смазка</text>
+  </g>
+
+  <g id="layer-3-plate" transform="translate(0, 235)" filter="url(#layerShadow)">
+    <polygon points="340,75 535,150 340,225 145,150" fill="url(#brassPlate)" stroke="#A47B2C" stroke-width="1.2"/>
+    <polygon points="145,150 340,225 340,233 145,158" fill="#88641E"/>
+    <polygon points="340,225 535,150 535,158 340,233" fill="#6B4D13"/>
+
+    <g fill="#1C1812" opacity="0.6">
+      <rect x="235" y="148" width="10" height="10" rx="1.5" transform="skewY(14)"/>
+      <rect x="275" y="148" width="10" height="10" rx="1.5" transform="skewY(14)"/>
+      <rect x="315" y="148" width="10" height="10" rx="1.5" transform="skewY(14)"/>
+      <rect x="355" y="148" width="10" height="10" rx="1.5" transform="skewY(14)"/>
+      <rect x="395" y="148" width="10" height="10" rx="1.5" transform="skewY(14)"/>
+      <rect x="435" y="148" width="10" height="10" rx="1.5" transform="skewY(14)"/>
+    </g>
+
+    <line x1="535" y1="150" x2="610" y2="150" stroke="#7A6855" stroke-width="1.2"/>
+    <circle cx="610" cy="150" r="3" fill="#D4AA50"/>
+    <text x="618" y="147" font-family="monospace" font-size="11" font-weight="bold" fill="#2E261F">СЛОЙ 3: ЛАТУННЫЙ ПЛЕЙТ</text>
+    <text x="618" y="160" font-family="sans-serif" font-size="9.5" fill="#736454">CNC Brass 1.5мм • Gasket Mount ушки</text>
+  </g>
+
+  <g id="layer-4-foam" transform="translate(0, 325)" filter="url(#layerShadow)">
+    <polygon points="340,75 530,150 340,225 150,150" fill="url(#foamGrad)" stroke="#4A4744" stroke-width="1"/>
+    <polygon points="150,150 340,225 340,232 150,157" fill="#1C1B1A"/>
+    <polygon points="340,225 530,150 530,157 340,232" fill="#141312"/>
+
+    <g fill="#D48B38" opacity="0.9">
+      <rect x="190" y="125" width="12" height="4" rx="1" transform="rotate(22, 190, 125)"/>
+      <rect x="470" y="125" width="12" height="4" rx="1" transform="rotate(-22, 470, 125)"/>
+      <rect x="230" y="200" width="12" height="4" rx="1" transform="rotate(-22, 230, 200)"/>
+      <rect x="430" y="200" width="12" height="4" rx="1" transform="rotate(22, 430, 200)"/>
+    </g>
+
+    <line x1="150" y1="150" x2="70" y2="150" stroke="#7A6855" stroke-width="1.2"/>
+    <circle cx="70" cy="150" r="3" fill="#D48B38"/>
+    <text x="65" y="145" font-family="monospace" font-size="11" font-weight="bold" fill="#2E261F" text-anchor="end">СЛОЙ 4: ШУМОИЗОЛЯЦИЯ</text>
+    <text x="65" y="158" font-family="sans-serif" font-size="9.5" fill="#736454" text-anchor="end">Японский Poron 3.5мм + силикон</text>
+  </g>
+
+  <g id="layer-5-pcb" transform="translate(0, 415)" filter="url(#layerShadow)">
+    <polygon points="340,75 530,150 340,225 150,150" fill="url(#pcbGrad)" stroke="#3A4048" stroke-width="1.2"/>
+    <polygon points="150,150 340,225 340,232 150,157" fill="#131518"/>
+    <polygon points="340,225 530,150 530,157 340,232" fill="#0D0E10"/>
+
+    <g stroke="#C5A059" stroke-width="0.8" fill="none" opacity="0.7">
+      <path d="M220 145 L320 185 L420 145"/>
+      <path d="M250 160 L330 192 L410 160"/>
+      <circle cx="340" cy="140" r="5" fill="#C5A059"/>
+      <rect x="335" y="72" width="10" height="5" fill="#C0C0C0" stroke="#777" stroke-width="0.5"/>
+    </g>
+
+    <line x1="530" y1="150" x2="610" y2="150" stroke="#7A6855" stroke-width="1.2"/>
+    <circle cx="610" cy="150" r="3" fill="#3A7BC8"/>
+    <text x="618" y="147" font-family="monospace" font-size="11" font-weight="bold" fill="#2E261F">СЛОЙ 5: ПЛАТА HOT-SWAP</text>
+    <text x="618" y="160" font-family="sans-serif" font-size="9.5" fill="#736454">5-pin сокеты TTC • RGB подсветка</text>
+  </g>
+
+  <g id="layer-6-case" transform="translate(0, 505)" filter="url(#layerShadow)">
+    <polygon points="340,70 545,150 340,230 135,150" fill="url(#walnutCase)" stroke="#4A2914" stroke-width="1.8"/>
+    <polygon points="135,150 340,230 340,255 135,175" fill="#3D1F0D"/>
+    <polygon points="340,230 545,150 545,175 340,255" fill="#251207"/>
+
+    <polygon points="340,82 525,150 340,218 155,150" fill="#261307" stroke="#4A2914" stroke-width="1"/>
+
+    <polygon points="340,135 390,153 340,172 290,153" fill="url(#brassPlate)" opacity="0.85"/>
+
+    <line x1="135" y1="165" x2="70" y2="165" stroke="#7A6855" stroke-width="1.2"/>
+    <circle cx="70" cy="165" r="3" fill="#6F462B"/>
+    <text x="65" y="160" font-family="monospace" font-size="11" font-weight="bold" fill="#2E261F" text-anchor="end">СЛОЙ 6: МАССИВ ОРЕХА</text>
+    <text x="65" y="173" font-family="sans-serif" font-size="9.5" fill="#736454" text-anchor="end">Американский орех • Латунный утяжелитель</text>
+  </g>
+</svg>

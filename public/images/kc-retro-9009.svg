@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300">
+    <rect width="400" height="300" fill="#F2ECE1"/>
+    <g filter="drop-shadow(0 8px 14px rgba(40,35,30,0.18))">
+      <rect x="45" y="50" width="310" height="200" rx="12" fill="#E5DDD0" stroke="#D1C6B4" stroke-width="2"/>
+      <rect x="58" y="65" width="28" height="32" rx="4" fill="#B33939"/>
+      <text x="72" y="84" font-family="sans-serif" font-size="9" font-weight="bold" fill="#FFF" text-anchor="middle">ESC</text>
+      <g fill="#FDFCF7" stroke="#DFD7C7" stroke-width="1">
+        <rect x="92" y="65" width="24" height="32" rx="4"/>
+        <rect x="120" y="65" width="24" height="32" rx="4"/>
+        <rect x="148" y="65" width="24" height="32" rx="4"/>
+        <rect x="176" y="65" width="24" height="32" rx="4"/>
+        <rect x="204" y="65" width="24" height="32" rx="4"/>
+        <rect x="232" y="65" width="24" height="32" rx="4"/>
+        <rect x="260" y="65" width="24" height="32" rx="4"/>
+        <rect x="288" y="65" width="24" height="32" rx="4"/>
+      </g>
+      <rect x="316" y="65" width="28" height="32" rx="4" fill="#3D5A45"/>
+      <text x="330" y="84" font-family="sans-serif" font-size="8" font-weight="bold" fill="#FFF" text-anchor="middle">DEL</text>
+      <g fill="#FDFCF7" stroke="#DFD7C7" stroke-width="1">
+        <rect x="58" y="105" width="34" height="32" rx="4" fill="#D3CBC0"/>
+        <rect x="96" y="105" width="24" height="32" rx="4"/>
+        <rect x="124" y="105" width="24" height="32" rx="4"/>
+        <rect x="152" y="105" width="24" height="32" rx="4"/>
+        <rect x="180" y="105" width="24" height="32" rx="4"/>
+        <rect x="208" y="105" width="24" height="32" rx="4"/>
+        <rect x="236" y="105" width="24" height="32" rx="4"/>
+        <rect x="264" y="105" width="24" height="32" rx="4"/>
+        <rect x="292" y="105" width="52" height="32" rx="4" fill="#3D5A45"/>
+      </g>
+      <text x="318" y="124" font-family="sans-serif" font-size="9" font-weight="bold" fill="#FFF" text-anchor="middle">ENTER</text>
+      <g fill="#D3CBC0" stroke="#BEB5A6" stroke-width="1">
+        <rect x="58" y="145" width="38" height="32" rx="4"/>
+        <rect x="100" y="145" width="28" height="32" rx="4"/>
+        <rect x="132" y="145" width="136" height="32" rx="5" fill="#FDFCF7"/>
+        <rect x="272" y="145" width="28" height="32" rx="4"/>
+        <rect x="304" y="145" width="40" height="32" rx="4" fill="#B33939"/>
+      </g>
+      <rect x="120" y="190" width="160" height="32" rx="5" fill="#3D5A45" stroke="#2C4232" stroke-width="1"/>
+      <text x="200" y="210" font-family="monospace" font-size="10" font-weight="bold" fill="#FFF" text-anchor="middle">RETRO 9009 ACCENT 6.25u</text>
+    </g>
+  </svg>

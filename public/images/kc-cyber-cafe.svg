@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300">
+    <rect width="400" height="300" fill="#F4EFE6"/>
+    <g filter="drop-shadow(0 8px 14px rgba(50,30,10,0.18))">
+      <rect x="45" y="50" width="310" height="200" rx="12" fill="#E8DED1" stroke="#D1C3B2" stroke-width="2"/>
+      <rect x="58" y="65" width="28" height="32" rx="6" fill="#3D291D"/>
+      <text x="72" y="84" font-family="sans-serif" font-size="9" font-weight="bold" fill="#EFE8DD" text-anchor="middle">ESC</text>
+      <g fill="#FFFDF8" stroke="#E0D3C1" stroke-width="1">
+        <rect x="92" y="65" width="24" height="32" rx="6"/>
+        <rect x="120" y="65" width="24" height="32" rx="6"/>
+        <rect x="148" y="65" width="24" height="32" rx="6"/>
+        <rect x="176" y="65" width="24" height="32" rx="6"/>
+        <rect x="204" y="65" width="24" height="32" rx="6"/>
+        <rect x="232" y="65" width="24" height="32" rx="6"/>
+        <rect x="260" y="65" width="24" height="32" rx="6"/>
+        <rect x="288" y="65" width="24" height="32" rx="6"/>
+      </g>
+      <rect x="316" y="65" width="28" height="32" rx="6" fill="#C48855"/>
+      <text x="330" y="84" font-family="sans-serif" font-size="8" font-weight="bold" fill="#FFF" text-anchor="middle">CAFÉ</text>
+      <rect x="58" y="105" width="36" height="32" rx="6" fill="#C48855"/>
+      <g fill="#FFFDF8" stroke="#E0D3C1" stroke-width="1">
+        <rect x="98" y="105" width="24" height="32" rx="6"/>
+        <rect x="126" y="105" width="24" height="32" rx="6"/>
+        <rect x="154" y="105" width="24" height="32" rx="6"/>
+        <rect x="182" y="105" width="24" height="32" rx="6"/>
+        <rect x="210" y="105" width="24" height="32" rx="6"/>
+        <rect x="238" y="105" width="24" height="32" rx="6"/>
+        <rect x="266" y="105" width="24" height="32" rx="6"/>
+      </g>
+      <rect x="294" y="105" width="50" height="32" rx="6" fill="#3D291D"/>
+      <text x="319" y="124" font-family="sans-serif" font-size="9" font-weight="bold" fill="#EFE8DD" text-anchor="middle">BREW</text>
+      <rect x="110" y="150" width="180" height="34" rx="7" fill="#C48855" stroke="#A86E3E" stroke-width="1"/>
+      <text x="200" y="172" font-family="monospace" font-size="11" font-weight="bold" fill="#FFF" text-anchor="middle">WARM COFFEE BAR XDA</text>
+      <text x="200" y="215" font-family="monospace" font-size="10" font-weight="bold" fill="#5C4231" text-anchor="middle">PBT MATTE FINISH</text>
+    </g>
+  </svg>

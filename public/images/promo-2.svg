@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 500" width="1200" height="500">
+  <defs>
+    <linearGradient id="p2bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#21262B"/>
+      <stop offset="50%" stop-color="#181B1E"/>
+      <stop offset="100%" stop-color="#0E1012"/>
+    </linearGradient>
+    <filter id="p2shadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="16" stdDeviation="20" flood-color="#000" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+  <rect width="1200" height="500" fill="url(#p2bg)"/>
+  <g opacity="0.06" stroke="#48BB78" stroke-width="1">
+    <line x1="0" y1="125" x2="1200" y2="125"/>
+    <line x1="0" y1="250" x2="1200" y2="250"/>
+    <line x1="0" y1="375" x2="1200" y2="375"/>
+    <line x1="300" y1="0" x2="300" y2="500"/>
+    <line x1="600" y1="0" x2="600" y2="500"/>
+    <line x1="900" y1="0" x2="900" y2="500"/>
+  </g>
+  <g transform="translate(720, 100)" filter="url(#p2shadow)">
+    <rect x="0" y="0" width="400" height="270" rx="16" fill="#2E3339" stroke="#434952" stroke-width="2"/>
+    <rect x="12" y="12" width="376" height="246" rx="10" fill="#1C1F23"/>
+    <g transform="translate(30, 30)">
+      <rect x="0" y="0" width="65" height="65" rx="8" fill="#E6DFC8" stroke="#B8B097" stroke-width="2"/>
+      <rect x="6" y="6" width="53" height="53" rx="6" fill="#F4EFE0"/>
+      <text x="32" y="38" font-family="monospace" font-size="24" font-weight="bold" fill="#3D372E" text-anchor="middle">ESC</text>
+      <rect x="80" y="0" width="65" height="65" rx="8" fill="#789A82" stroke="#55755E" stroke-width="2"/>
+      <rect x="86" y="6" width="53" height="53" rx="6" fill="#8CAFA2"/>
+      <text x="112" y="38" font-family="monospace" font-size="24" font-weight="bold" fill="#1B3323" text-anchor="middle">F1</text>
+      <rect x="160" y="0" width="65" height="65" rx="8" fill="#D67B6E" stroke="#A95549" stroke-width="2"/>
+      <rect x="166" y="6" width="53" height="53" rx="6" fill="#E48E82"/>
+      <text x="192" y="38" font-family="monospace" font-size="24" font-weight="bold" fill="#421A15" text-anchor="middle">F2</text>
+      <rect x="240" y="0" width="65" height="65" rx="8" fill="#789A82" stroke="#55755E" stroke-width="2"/>
+      <rect x="246" y="6" width="53" height="53" rx="6" fill="#8CAFA2"/>
+      <text x="272" y="38" font-family="monospace" font-size="24" font-weight="bold" fill="#1B3323" text-anchor="middle">F3</text>
+    </g>
+    <g transform="translate(30, 115)">
+      <rect x="0" y="0" width="65" height="65" rx="8" fill="#E6DFC8" stroke="#B8B097" stroke-width="2"/>
+      <rect x="6" y="6" width="53" height="53" rx="6" fill="#F4EFE0"/>
+      <text x="32" y="38" font-family="monospace" font-size="24" font-weight="bold" fill="#3D372E" text-anchor="middle">A</text>
+      <rect x="80" y="0" width="65" height="65" rx="8" fill="#E6DFC8" stroke="#B8B097" stroke-width="2"/>
+      <rect x="86" y="6" width="53" height="53" rx="6" fill="#F4EFE0"/>
+      <text x="112" y="38" font-family="monospace" font-size="24" font-weight="bold" fill="#3D372E" text-anchor="middle">S</text>
+      <rect x="160" y="0" width="65" height="65" rx="8" fill="#E6DFC8" stroke="#B8B097" stroke-width="2"/>
+      <rect x="166" y="6" width="53" height="53" rx="6" fill="#F4EFE0"/>
+      <text x="192" y="38" font-family="monospace" font-size="24" font-weight="bold" fill="#3D372E" text-anchor="middle">D</text>
+      <rect x="240" y="0" width="95" height="65" rx="8" fill="#D67B6E" stroke="#A95549" stroke-width="2"/>
+      <rect x="246" y="6" width="83" height="53" rx="6" fill="#E48E82"/>
+      <text x="287" y="38" font-family="monospace" font-size="20" font-weight="bold" fill="#421A15" text-anchor="middle">ENTER</text>
+    </g>
+  </g>
+  <circle cx="920" cy="220" r="140" fill="#789A82" opacity="0.12" filter="blur(40px)"/>
+</svg>

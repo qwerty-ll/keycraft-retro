@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300">
+    <rect width="400" height="300" fill="#F4EFE6"/>
+    <g filter="drop-shadow(0 8px 16px rgba(0,0,0,0.22))">
+      <rect x="110" y="100" width="80" height="80" rx="10" fill="#C2622D" stroke="#9C4A1D" stroke-width="2"/>
+      <rect x="120" y="110" width="60" height="60" rx="6" fill="#A84E1B"/>
+      <rect x="126" y="118" width="6" height="10" rx="1" fill="#E2E8F0"/>
+      <rect x="168" y="118" width="6" height="10" rx="1" fill="#E2E8F0"/>
+      <rect x="126" y="152" width="6" height="10" rx="1" fill="#E2E8F0"/>
+      <rect x="168" y="152" width="6" height="10" rx="1" fill="#E2E8F0"/>
+      <text x="150" y="145" font-family="monospace" font-size="10" font-weight="bold" fill="#FFF" text-anchor="middle">MX</text>
+      <rect x="210" y="100" width="80" height="80" rx="10" fill="#C2622D" stroke="#9C4A1D" stroke-width="2"/>
+      <rect x="220" y="110" width="60" height="60" rx="6" fill="#A84E1B"/>
+      <rect x="228" y="135" width="6" height="16" rx="1" fill="#E2E8F0"/>
+      <rect x="266" y="135" width="6" height="16" rx="1" fill="#E2E8F0"/>
+      <text x="250" y="145" font-family="monospace" font-size="10" font-weight="bold" fill="#FFF" text-anchor="middle">BOX</text>
+      <circle cx="190" cy="120" r="3" fill="#CBD5E1"/>
+      <circle cx="210" cy="120" r="3" fill="#CBD5E1"/>
+      <circle cx="190" cy="160" r="3" fill="#CBD5E1"/>
+      <circle cx="210" cy="160" r="3" fill="#CBD5E1"/>
+    </g>
+    <text x="200" y="260" font-family="monospace" font-size="11" font-weight="bold" fill="#9C4A1D" text-anchor="middle">АЛЮМИНИЕВЫЙ СВИТЧ-ОПЕНЕР 2-В-1</text>
+  </svg>

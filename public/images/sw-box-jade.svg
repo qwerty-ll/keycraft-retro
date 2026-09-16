@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300">
+    <rect width="400" height="300" fill="#F4EFE6"/>
+    <g filter="drop-shadow(0 10px 18px rgba(0,0,0,0.18))">
+      <rect x="140" y="130" width="120" height="85" rx="8" fill="#FBFBF9" stroke="#DDD" stroke-width="2"/>
+      <path d="M150 130 L165 85 L235 85 L250 130 Z" fill="rgba(235, 245, 240, 0.75)" stroke="#BDD4C8" stroke-width="1.5"/>
+      <rect x="182" y="58" width="36" height="38" rx="3" fill="#2E9E6C" stroke="#1D784F" stroke-width="1.5"/>
+      <rect x="187" y="63" width="26" height="28" rx="1.5" fill="#38B37D"/>
+      <rect x="196" y="66" width="8" height="22" rx="1" fill="#1C6B45"/>
+      <rect x="189" y="73" width="22" height="8" rx="1" fill="#1C6B45"/>
+      <path d="M158 140 L168 140 L170 160 L160 160 Z" fill="#A8B5B0"/>
+      <rect x="165" y="215" width="4" height="30" rx="1" fill="#C99E52"/>
+      <rect x="230" y="215" width="4" height="25" rx="1" fill="#C99E52"/>
+      <rect x="193" y="215" width="14" height="20" rx="2" fill="#FFF"/>
+    </g>
+    <text x="200" y="275" font-family="monospace" font-size="12" font-weight="bold" fill="#246949" text-anchor="middle">KAILH BOX JADE (CLICKY)</text>
+  </svg>

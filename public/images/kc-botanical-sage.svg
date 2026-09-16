@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300">
+    <rect width="400" height="300" fill="#EAEFEA"/>
+    <g filter="drop-shadow(0 8px 14px rgba(30,45,35,0.18))">
+      <rect x="45" y="50" width="310" height="200" rx="12" fill="#DFE8DF" stroke="#CCD8CC" stroke-width="2"/>
+      <g fill="#6B8E71" stroke="#547359" stroke-width="1">
+        <rect x="58" y="65" width="28" height="32" rx="4"/>
+        <circle cx="72" cy="81" r="5" fill="#C5DAC7"/>
+        <rect x="316" y="65" width="28" height="32" rx="4"/>
+      </g>
+      <g fill="#F7FAF7" stroke="#D3E0D4" stroke-width="1">
+        <rect x="92" y="65" width="24" height="32" rx="4"/>
+        <rect x="120" y="65" width="24" height="32" rx="4"/>
+        <rect x="148" y="65" width="24" height="32" rx="4"/>
+        <rect x="176" y="65" width="24" height="32" rx="4"/>
+        <rect x="204" y="65" width="24" height="32" rx="4"/>
+        <rect x="232" y="65" width="24" height="32" rx="4"/>
+        <rect x="260" y="65" width="24" height="32" rx="4"/>
+        <rect x="288" y="65" width="24" height="32" rx="4"/>
+      </g>
+      <rect x="58" y="105" width="36" height="32" rx="4" fill="#3B5940"/>
+      <g fill="#F7FAF7" stroke="#D3E0D4" stroke-width="1">
+        <rect x="98" y="105" width="24" height="32" rx="4"/>
+        <rect x="126" y="105" width="24" height="32" rx="4"/>
+        <rect x="154" y="105" width="24" height="32" rx="4"/>
+        <rect x="182" y="105" width="24" height="32" rx="4"/>
+        <rect x="210" y="105" width="24" height="32" rx="4"/>
+        <rect x="238" y="105" width="24" height="32" rx="4"/>
+        <rect x="266" y="105" width="24" height="32" rx="4"/>
+      </g>
+      <rect x="294" y="105" width="50" height="32" rx="4" fill="#3B5940"/>
+      <text x="319" y="124" font-family="sans-serif" font-size="9" font-weight="bold" fill="#FFF" text-anchor="middle">ENTER</text>
+      <rect x="110" y="150" width="180" height="34" rx="5" fill="#6B8E71" stroke="#507056" stroke-width="1"/>
+      <path d="M140 167 Q170 160 200 167 Q230 174 260 167" stroke="#D6E8D8" stroke-width="2" fill="none"/>
+      <circle cx="160" cy="162" r="3" fill="#D6E8D8"/>
+      <circle cx="180" cy="166" r="3" fill="#D6E8D8"/>
+      <circle cx="210" cy="168" r="3" fill="#D6E8D8"/>
+      <circle cx="230" cy="172" r="3" fill="#D6E8D8"/>
+      <text x="200" y="215" font-family="monospace" font-size="11" font-weight="bold" fill="#3B5940" text-anchor="middle">BOTANICAL GARDEN PBT DYESUB</text>
+    </g>
+  </svg>

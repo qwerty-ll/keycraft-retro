@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300">
+    <defs>
+      <linearGradient id="walnutGrain" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#654321"/>
+        <stop offset="30%" stop-color="#4A2F16"/>
+        <stop offset="60%" stop-color="#5A3A1C"/>
+        <stop offset="100%" stop-color="#36200D"/>
+      </linearGradient>
+      <filter id="wristShadow" x="-5%" y="-5%" width="115%" height="130%">
+        <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#261408" flood-opacity="0.25"/>
+      </filter>
+    </defs>
+    <rect width="400" height="300" fill="#F4EFE6"/>
+    <g filter="url(#wristShadow)">
+      <polygon points="50,110 350,110 345,175 55,175" fill="url(#walnutGrain)" stroke="#3E240F" stroke-width="1.5"/>
+      <path d="M65 125 Q180 118 335 128" stroke="#7A522A" stroke-width="1.8" fill="none" opacity="0.6"/>
+      <path d="M75 140 Q210 132 325 142" stroke="#3D2411" stroke-width="1.5" fill="none" opacity="0.7"/>
+      <path d="M60 155 Q190 148 340 158" stroke="#7A522A" stroke-width="2" fill="none" opacity="0.6"/>
+      <path d="M85 168 Q240 162 315 169" stroke="#3D2411" stroke-width="1.2" fill="none" opacity="0.7"/>
+      <polygon points="55,175 345,175 345,190 55,190" fill="#2E190A" stroke="#1A0D04" stroke-width="1"/>
+      <ellipse cx="200" cy="130" rx="90" ry="12" fill="white" opacity="0.08"/>
+    </g>
+    <text x="200" y="245" font-family="monospace" font-size="12" font-weight="bold" fill="#4A2F16" text-anchor="middle">ПОДСТАВКА ИЗ МАССИВА КАВКАЗСКОГО ОРЕХА</text>
+    <text x="200" y="265" font-family="monospace" font-size="9" fill="#7A522A" text-anchor="middle">РУЧНАЯ ПОЛИРОВКА ВОСКОМ • 8° ЭРГОНОМИЧНЫЙ НАКЛОН</text>
+  </svg>

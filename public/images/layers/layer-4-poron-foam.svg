@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 140" width="520" height="140">
+  <defs>
+    <linearGradient id="foamTexture" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#363432"/>
+      <stop offset="100%" stop-color="#21201E"/>
+    </linearGradient>
+  </defs>
+  <g fill="#D98A32">
+    <rect x="68" y="1" width="28" height="6" rx="2"/>
+    <rect x="178" y="1" width="28" height="6" rx="2"/>
+    <rect x="308" y="1" width="28" height="6" rx="2"/>
+    <rect x="418" y="1" width="28" height="6" rx="2"/>
+    <rect x="68" y="133" width="28" height="6" rx="2"/>
+    <rect x="178" y="133" width="28" height="6" rx="2"/>
+    <rect x="308" y="133" width="28" height="6" rx="2"/>
+    <rect x="418" y="133" width="28" height="6" rx="2"/>
+    <rect x="1" y="44" width="6" height="22" rx="2"/>
+    <rect x="1" y="84" width="6" height="22" rx="2"/>
+    <rect x="513" y="44" width="6" height="22" rx="2"/>
+    <rect x="513" y="84" width="6" height="22" rx="2"/>
+  </g>
+  <rect x="6" y="5" width="508" height="130" rx="8" fill="url(#foamTexture)" stroke="#4A4744" stroke-width="1.2"/>
+  <g fill="#141312" opacity="0.85">
+    <g transform="translate(18, 14)">
+      <circle cx="8" cy="7" r="4"/><circle cx="34" cy="7" r="4"/><circle cx="59" cy="7" r="4"/><circle cx="84" cy="7" r="4"/><circle cx="109" cy="7" r="4"/>
+      <circle cx="138" cy="7" r="4"/><circle cx="163" cy="7" r="4"/><circle cx="188" cy="7" r="4"/><circle cx="213" cy="7" r="4"/><circle cx="242" cy="7" r="4"/>
+      <circle cx="267" cy="7" r="4"/><circle cx="292" cy="7" r="4"/><circle cx="317" cy="7" r="4"/><circle cx="346" cy="7" r="4"/><circle cx="371" cy="7" r="4"/><circle cx="396" cy="7" r="4"/><circle cx="421" cy="7" r="4"/>
+    </g>
+    <g transform="translate(18, 37)">
+      <circle cx="8" cy="7" r="4"/><circle cx="35" cy="7" r="4"/><circle cx="62" cy="7" r="4"/><circle cx="89" cy="7" r="4"/><circle cx="116" cy="7" r="4"/>
+      <circle cx="143" cy="7" r="4"/><circle cx="170" cy="7" r="4"/><circle cx="197" cy="7" r="4"/><circle cx="224" cy="7" r="4"/><circle cx="251" cy="7" r="4"/>
+      <circle cx="278" cy="7" r="4"/><circle cx="305" cy="7" r="4"/><circle cx="332" cy="7" r="4"/><circle cx="368" cy="7" r="4"/><circle cx="421" cy="7" r="4"/>
+    </g>
+    <g transform="translate(18, 60)">
+      <circle cx="8" cy="7" r="4"/><circle cx="45" cy="7" r="4"/><circle cx="72" cy="7" r="4"/><circle cx="99" cy="7" r="4"/><circle cx="126" cy="7" r="4"/>
+      <circle cx="153" cy="7" r="4"/><circle cx="180" cy="7" r="4"/><circle cx="207" cy="7" r="4"/><circle cx="234" cy="7" r="4"/><circle cx="261" cy="7" r="4"/>
+      <circle cx="288" cy="7" r="4"/><circle cx="315" cy="7" r="4"/><circle cx="342" cy="7" r="4"/><circle cx="383" cy="7" r="4"/><circle cx="421" cy="7" r="4"/>
+    </g>
+    <g transform="translate(18, 83)">
+      <circle cx="8" cy="7" r="4"/><circle cx="51" cy="7" r="4"/><circle cx="78" cy="7" r="4"/><circle cx="105" cy="7" r="4"/><circle cx="132" cy="7" r="4"/>
+      <circle cx="159" cy="7" r="4"/><circle cx="186" cy="7" r="4"/><circle cx="213" cy="7" r="4"/><circle cx="240" cy="7" r="4"/><circle cx="267" cy="7" r="4"/>
+      <circle cx="294" cy="7" r="4"/><circle cx="321" cy="7" r="4"/><circle cx="378" cy="7" r="4"/><circle cx="421" cy="7" r="4"/>
+    </g>
+    <g transform="translate(18, 106)">
+      <circle cx="8" cy="7" r="4"/><circle cx="43" cy="7" r="4"/><circle cx="74" cy="7" r="4"/>
+      <circle cx="188" cy="7" r="5"/><rect x="110" y="4" width="150" height="6" rx="3"/>
+      <circle cx="303" cy="7" r="4"/><circle cx="332" cy="7" r="4"/><circle cx="361" cy="7" r="4"/>
+      <circle cx="393" cy="7" r="4"/><circle cx="420" cy="7" r="4"/><circle cx="447" cy="7" r="4"/>
+    </g>
+  </g>
+</svg>

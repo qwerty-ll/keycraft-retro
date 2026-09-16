@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300">
+    <rect width="400" height="300" fill="#F4EFE6"/>
+    <g filter="drop-shadow(0 10px 18px rgba(0,0,0,0.18))">
+      <rect x="140" y="130" width="120" height="85" rx="8" fill="#EFECE4" stroke="#D3CEBE" stroke-width="2"/>
+      <rect x="135" y="145" width="5" height="20" rx="1.5" fill="#DDD7C7"/>
+      <rect x="260" y="145" width="5" height="20" rx="1.5" fill="#DDD7C7"/>
+      <path d="M150 130 L165 85 L235 85 L250 130 Z" fill="#F8F6F0" stroke="#DFD9CA" stroke-width="1.5"/>
+      <rect x="180" y="120" width="40" height="8" rx="2" fill="#E0DAD0"/>
+      <rect x="185" y="60" width="30" height="35" rx="3" fill="#D99B61"/>
+      <rect x="178" y="70" width="44" height="14" rx="2" fill="#E2A66D"/>
+      <rect x="193" y="55" width="14" height="44" rx="2" fill="#E2A66D"/>
+      <path d="M198 62 L202 62 L202 74 L214 74 L214 78 L202 78 L202 90 L198 90 L198 78 L186 78 L186 74 L198 74 Z" fill="#A86F3B"/>
+      <rect x="165" y="215" width="4" height="30" rx="1" fill="#C88E4B"/>
+      <rect x="230" y="215" width="4" height="25" rx="1" fill="#C88E4B"/>
+      <rect x="193" y="215" width="14" height="20" rx="2" fill="#EFECE4"/>
+    </g>
+    <text x="200" y="275" font-family="monospace" font-size="12" font-weight="bold" fill="#6B5949" text-anchor="middle">GAZZEW BOBA U4T (TACTILE)</text>
+  </svg>
