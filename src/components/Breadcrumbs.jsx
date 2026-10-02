@@ -1,8 +1,8 @@
-// «Хлебные крошки»: Главная › Каталог › Категория
+// путь главная каталог категория
 import { ChevronRight, Home } from 'lucide-react';
 import { CATEGORIES } from '../data/products';
 
-// Стили ссылок и разделитель-стрелка
+// стили
 const linkClass = 'hover:text-vintage-accent transition-colors py-1 px-1.5 rounded hover:bg-cream-200';
 const activeClass = 'text-vintage-dark font-bold underline decoration-vintage-accent underline-offset-4';
 const separator = (

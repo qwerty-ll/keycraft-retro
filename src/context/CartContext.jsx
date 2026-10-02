@@ -1,22 +1,22 @@
-// Корзина для всего сайта: товары, промокод, итоги, заказ, всплывашки
+// корзина для всего сайта
 import { createContext, useContext, useState } from 'react';
 import { PROMOCODES } from '../data/products';
 import { usePersistentState } from '../hooks/usePersistentState';
 import { useTimedValue } from '../hooks/useTimedValue';
 
-// «Канал», через который корзина доступна любому компоненту
+// общий доступ к корзине
 const CartContext = createContext();
 
-// Бесплатная доставка от 5000 ₽, иначе 350 ₽
+// условия доставки
 const FREE_DELIVERY_FROM = 5000;
 const DELIVERY_PRICE = 350;
 
-// Вариант по умолчанию — первый из списка
+// вариант товара по умолчанию
 const defaultOption = (product) => product.options?.[0] ?? 'Стандарт';
 
-// Провайдер: хранит корзину и раздаёт её всем вложенным компонентам
+// корзина
 export function CartProvider({ children }) {
-  // Корзина и промокод сохраняются в localStorage, остальное — только в памяти
+  // корзина и промокод сохраняются в браузере
   const [cartItems, setCartItems] = usePersistentState('keycraft_retro_cart_v1', []);
   const [appliedPromo, setAppliedPromo] = usePersistentState('keycraft_retro_promo_v1', null);
   const [promoError, setPromoError] = useState('');
@@ -24,13 +24,13 @@ export function CartProvider({ children }) {
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [toast, setToast] = useTimedValue(2500);
 
-  // Тост «добавлено» — только когда корзина закрыта (иначе всё и так видно)
+  // показать уведомление
   const showToast = (text) => {
     if (!isCartOpen) setToast({ text, id: Date.now() });
   };
   const hideToast = () => setToast(null);
 
-  // silent: место вызова само показывает результат (счётчик на карточке и т.п.)
+  // добавить товар в корзину
   const addToCart = (product, quantity = 1, selectedOption = null, { silent = false } = {}) => {
     const opt = selectedOption || defaultOption(product);
     const id = `${product.id}-${opt}`;
@@ -43,17 +43,17 @@ export function CartProvider({ children }) {
     if (!silent) showToast(`«${product.title}» добавлен в корзину`);
   };
 
-  // Сколько штук товара в корзине (по всем вариантам)
+  // сколько штук товара в корзине
   const productQty = (productId) =>
     cartItems.reduce((acc, item) => (item.product.id === productId ? acc + item.quantity : acc), 0);
 
-  // Минус одна штука товара — с последней добавленной позиции
+  // убрать одну штуку
   const decrementProduct = (productId) => {
     const item = cartItems.findLast((i) => i.product.id === productId);
     if (item) updateQuantity(item.id, -1);
   };
 
-  // Изменить количество позиции; если стало 0 — позиция удаляется
+  // изменить количество
   const updateQuantity = (cartItemId, delta) => {
     setCartItems((prev) =>
       prev
@@ -62,18 +62,18 @@ export function CartProvider({ children }) {
     );
   };
 
-  // Удалить позицию целиком
+  // удалить товар
   const removeFromCart = (cartItemId) => {
     setCartItems((prev) => prev.filter((item) => item.id !== cartItemId));
   };
 
-  // Очистить корзину вместе с промокодом
+  // очистить корзину
   const clearCart = () => {
     setCartItems([]);
     setAppliedPromo(null);
   };
 
-  // Проверить промокод (регистр не важен) и применить
+  // проверить промокод
   const applyPromo = (code) => {
     const cleanCode = (code || '').trim().toUpperCase();
     if (!PROMOCODES[cleanCode]) {
@@ -85,13 +85,13 @@ export function CartProvider({ children }) {
     return true;
   };
 
-  // Убрать промокод
+  // убрать промокод
   const removePromo = () => {
     setAppliedPromo(null);
     setPromoError('');
   };
 
-  // Итоги считаем на лету из корзины, а не храним отдельно
+  // итоги корзины
   const totalItems = cartItems.reduce((acc, item) => acc + item.quantity, 0);
   const subtotal = cartItems.reduce((acc, item) => acc + item.product.price * item.quantity, 0);
   const discountAmount = appliedPromo ? Math.round((subtotal * appliedPromo.discountPercent) / 100) : 0;
@@ -99,7 +99,7 @@ export function CartProvider({ children }) {
   const deliveryCost = subtotal >= FREE_DELIVERY_FROM ? 0 : DELIVERY_PRICE;
   const freeDeliveryLeft = Math.max(0, FREE_DELIVERY_FROM - subtotal);
 
-  // Оформить заказ: собрать данные, сохранить в браузере, очистить корзину
+  // оформить заказ
   const createOrder = (customerData) => {
     const newOrder = {
       orderNumber: `KC-${Math.floor(100000 + Math.random() * 900000)}`,
@@ -123,7 +123,7 @@ export function CartProvider({ children }) {
     return newOrder;
   };
 
-  // Отдаём наружу всё, что доступно через useCart()
+  // отдаём корзину наружу
   return (
     <CartContext.Provider value={{
       cartItems, addToCart, updateQuantity, removeFromCart, clearCart, productQty, decrementProduct,
@@ -137,7 +137,7 @@ export function CartProvider({ children }) {
   );
 }
 
-// Короткий способ достать корзину в любом компоненте
+// достать корзину
 export function useCart() {
   return useContext(CartContext);
 }

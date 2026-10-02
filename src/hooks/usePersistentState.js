@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 
-// useState, синхронизированный с localStorage (или sessionStorage)
+// состояние которое сохраняется в браузере
 export function usePersistentState(key, initial, storage = localStorage) {
-  // При первом показе читаем сохранённое значение
+  // читаем сохранённое
   const [value, setValue] = useState(() => {
     try {
       const saved = storage.getItem(key);
@@ -12,7 +12,7 @@ export function usePersistentState(key, initial, storage = localStorage) {
     }
   });
 
-  // При каждом изменении записываем значение обратно
+  // сохраняем при изменении
   useEffect(() => {
     try {
       storage.setItem(key, JSON.stringify(value));

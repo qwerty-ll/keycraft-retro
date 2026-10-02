@@ -1,14 +1,14 @@
-// Окно оформления заказа: форма → чек
+// оформление заказа
 import { useState } from 'react';
 import { X, CheckCircle2, Printer, ArrowRight, ShieldCheck } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import confetti from 'canvas-confetti';
 import { rub } from '../utils/format';
 
-// Общий стиль полей ввода
+// стиль полей
 const inputClass = 'w-full bg-stone-50 border rounded-lg p-2 text-xs focus:outline-none focus:bg-white';
 
-// Поле формы: подпись, ввод и текст ошибки
+// поле формы
 function Field({ label, error, type = 'text', ...props }) {
   return (
     <div>
@@ -22,7 +22,7 @@ function Field({ label, error, type = 'text', ...props }) {
 export function CheckoutModal() {
   const { isCheckoutOpen, setIsCheckoutOpen, cartItems, discountAmount, totalPrice, deliveryCost, appliedPromo, createOrder } = useCart();
 
-  // Данные формы одним объектом
+  // данные формы
   const [formData, setFormData] = useState({
     fullName: '',
     phone: '',
@@ -32,30 +32,30 @@ export function CheckoutModal() {
     deliveryMethod: 'cdek',
   });
 
-  // Готовый заказ (для чека) и ошибки полей
+  // готовый заказ и ошибки формы
   const [completedOrder, setCompletedOrder] = useState(null);
   const [errors, setErrors] = useState({});
 
-  // Окно закрыто — ничего не рисуем
+  // окно закрыто
   if (!isCheckoutOpen) return null;
 
-  // Закрыть окно и забыть чек
+  // закрыть окно
   const close = () => {
     setIsCheckoutOpen(false);
     setCompletedOrder(null);
   };
 
-  // Самовывоз из мастерской — без оплаты доставки
+  // при самовывозе доставка бесплатная
   const delivery = formData.deliveryMethod === 'pickup' ? 0 : deliveryCost;
 
-  // Всё, что нужно полю: значение, ошибка и обработчик ввода
+  // данные для поля формы
   const field = (name) => ({
     value: formData[name],
     error: errors[name],
     onChange: (e) => setFormData({ ...formData, [name]: e.target.value }),
   });
 
-  // Простая проверка обязательных полей
+  // проверка формы
   const validate = () => {
     const errs = {};
     if (!formData.fullName.trim()) errs.fullName = 'Укажите ваше имя';
@@ -66,7 +66,7 @@ export function CheckoutModal() {
     return Object.keys(errs).length === 0;
   };
 
-  // Отправка: проверить, создать заказ, показать чек и конфетти
+  // отправка заказа
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!validate()) return;

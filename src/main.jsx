@@ -1,10 +1,10 @@
-// Точка входа: подключаем стили и рисуем приложение в <div id="root">
+// точка входа
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
 
-// StrictMode в разработке дважды запускает код, чтобы ловить ошибки
+// запускаем приложение
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <App />

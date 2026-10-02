@@ -1,13 +1,13 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 
-// Значение, которое само исчезает через ms миллисекунд (тосты, «Добавлено ✓»)
+// значение которое само пропадает через время
 export function useTimedValue(ms) {
   const [value, setValue] = useState(null);
-  // id таймера; при удалении компонента таймер отменяется
+  // тут хранится таймер
   const timer = useRef();
   useEffect(() => () => clearTimeout(timer.current), []);
 
-  // Показать значение и запустить отсчёт заново
+  // показать и запустить таймер
   const show = useCallback((next = true) => {
     setValue(next);
     clearTimeout(timer.current);

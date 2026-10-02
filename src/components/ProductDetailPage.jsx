@@ -1,4 +1,4 @@
-// Страница одного товара
+// страница товара
 import { useState } from 'react';
 import { ArrowLeft, Star, ShoppingBag, Heart, Check, ShieldCheck, Truck, Wrench, Package, CheckCircle2 } from 'lucide-react';
 import { PRODUCTS } from '../data/products';
@@ -8,14 +8,14 @@ import { useTimedValue } from '../hooks/useTimedValue';
 import { ProductList } from './Catalog/ProductCard';
 import { rub } from '../utils/format';
 
-// Три плашки преимуществ под фото
+// преимущества
 const VALUE_BADGES = [
   [ShieldCheck, 'Гарантия 12 мес.', 'Сервис мастерской'],
   [Truck, 'Быстрая доставка', 'СДЭК по всей РФ'],
   [Wrench, 'Ручная сборка', 'Контроль качества'],
 ];
 
-// Что лежит в коробке
+// комплектация
 const BOX_CONTENTS = (title) => [
   `Фирменная кастомная клавиатура KeyCraft ${title}`,
   'Витой авиатор-кабель USB Type-C в нейлоновой оплетке (1.8м)',
@@ -24,7 +24,7 @@ const BOX_CONTENTS = (title) => [
   'Гарантийный талон мастерской с индивидуальным номером сборки',
 ];
 
-// Отзывы-заглушки (одинаковые для всех товаров)
+// отзывы
 const SAMPLE_REVIEWS = [
   {
     author: 'Александр В.',
@@ -51,9 +51,9 @@ export function ProductDetailPage({
   const { addToCart, productQty, setIsCartOpen } = useCart();
   const { isFavorite, toggleFavorite } = useFavorites();
 
-  // Ищем товар по id; если не нашли — показываем первый
+  // ищем товар
   const product = PRODUCTS.find((p) => p.id === productId) || PRODUCTS[0];
-  // Выбранный вариант, количество, «Добавлено!» и открытая вкладка
+  // вариант количество и открытая вкладка
   const [selectedOption, setSelectedOption] = useState(product.options?.[0] ?? null);
   const [quantity, setQuantity] = useState(1);
   const [isAddedRecently, flashAdded] = useTimedValue(1800);
@@ -62,20 +62,20 @@ export function ProductDetailPage({
   const favorited = isFavorite(product.id);
   const inCart = productQty(product.id);
   const handleToggleFav = () => toggleFavorite(product.id);
-  // Положить в корзину и на секунду показать «Добавлено!»
+  // добавить в корзину
   const handleAddToCart = () => {
     addToCart(product, quantity, selectedOption, { silent: true });
     flashAdded();
   };
 
-  // Сначала товары той же категории, затем остальные — всего 3
+  // похожие товары
   const others = PRODUCTS.filter((p) => p.id !== product.id);
   const relatedProducts = [
     ...others.filter((p) => p.category === product.category),
     ...others.filter((p) => p.category !== product.category),
   ].slice(0, 3);
 
-  // Названия вкладок
+  // вкладки
   const tabs = [
     ['specs', 'Характеристики'],
     ['box', 'Комплектация'],
@@ -85,7 +85,7 @@ export function ProductDetailPage({
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-8">
       
-      {/* Кнопка «назад» и путь */}
+      {/* кнопка назад */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <button
           onClick={onBackToCatalog}
@@ -109,10 +109,10 @@ export function ProductDetailPage({
         </div>
       </div>
 
-      {/* Основной блок: фото слева, покупка справа */}
+      {/* основной блок */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
         
-        {/* Фото и преимущества */}
+        {/* фото */}
         <div className="lg:col-span-6 space-y-4">
           <div className="relative w-full bg-white rounded-2xl border border-stone-300 overflow-hidden shadow-sm flex items-center justify-center p-4 sm:p-6 group">
             <img
@@ -136,7 +136,7 @@ export function ProductDetailPage({
             </button>
           </div>
 
-          {/* Три плашки преимуществ */}
+          {/* преимущества */}
           <div className="grid grid-cols-3 gap-2.5 text-center">
             {VALUE_BADGES.map(([Icon, title, text]) => (
               <div key={title} className="p-2.5 rounded-xl bg-white border border-stone-200 space-y-1">
@@ -148,7 +148,7 @@ export function ProductDetailPage({
           </div>
         </div>
 
-        {/* Название, цена, варианты, покупка */}
+        {/* правая колонка */}
         <div className="lg:col-span-6 space-y-5">
           
           <div>
@@ -170,7 +170,7 @@ export function ProductDetailPage({
             </p>
           </div>
 
-          {/* Цена */}
+          {/* цена */}
           <div className="p-4 rounded-xl bg-white border border-stone-200 shadow-sm flex items-baseline gap-3 flex-wrap">
             <div className="font-mono font-bold text-2xl sm:text-3xl text-stone-900">
               {rub(product.price)}
@@ -191,7 +191,7 @@ export function ProductDetailPage({
             </div>
           </div>
 
-          {/* Выбор варианта (например, свитчей) */}
+          {/* выбор варианта */}
           {product.options?.length > 0 && (
             <div className="space-y-2">
               <label className="block text-xs font-mono font-semibold text-stone-700">
@@ -219,11 +219,11 @@ export function ProductDetailPage({
             </div>
           )}
 
-          {/* Количество и кнопка «в корзину» */}
+          {/* количество и кнопка в корзину */}
           <div className="space-y-3 pt-2">
             <div className="flex items-center gap-3">
               
-              {/* Счётчик − N + */}
+              {/* счётчик */}
               <div className="flex items-center border border-stone-300 rounded-lg bg-white h-11 px-1">
                 <button
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
@@ -243,7 +243,7 @@ export function ProductDetailPage({
                 </button>
               </div>
 
-              {/* Кнопка добавления */}
+              {/* кнопка в корзину */}
               <button
                 onClick={handleAddToCart}
                 className={`flex-1 h-11 px-6 rounded-lg text-sm font-mono font-bold transition-all shadow-sm flex items-center justify-center gap-2 ${
@@ -265,7 +265,7 @@ export function ProductDetailPage({
                 )}
               </button>
 
-              {/* Сердечко */}
+              {/* сердечко */}
               <button
                 onClick={handleToggleFav}
                 className={`h-11 w-11 rounded-lg border flex items-center justify-center transition-all ${
@@ -301,10 +301,10 @@ export function ProductDetailPage({
 
       </div>
 
-      {/* Вкладки: характеристики / комплектация / отзывы */}
+      {/* вкладки */}
       <div className="pt-6 border-t border-stone-200">
         
-        {/* Кнопки вкладок */}
+        {/* кнопки вкладок */}
         <div className="flex items-center gap-2 border-b border-stone-200 pb-2 flex-wrap">
           {tabs.map(([id, label]) => (
             <button
@@ -319,7 +319,7 @@ export function ProductDetailPage({
           ))}
         </div>
 
-        {/* Вкладка «Характеристики» */}
+        {/* характеристики */}
         {activeTab === 'specs' && (
           <div className="py-6 max-w-3xl">
             <div className="bg-white rounded-xl border border-stone-200 overflow-hidden divide-y divide-stone-100">
@@ -337,7 +337,7 @@ export function ProductDetailPage({
           </div>
         )}
 
-        {/* Вкладка «Комплектация» */}
+        {/* комплектация */}
         {activeTab === 'box' && (
           <div className="py-6 max-w-3xl">
             <div className="bg-white rounded-xl border border-stone-200 p-5 space-y-3">
@@ -357,7 +357,7 @@ export function ProductDetailPage({
           </div>
         )}
 
-        {/* Вкладка «Отзывы» */}
+        {/* отзывы */}
         {activeTab === 'reviews' && (
           <div className="py-6 space-y-4 max-w-3xl">
             {SAMPLE_REVIEWS.map((rev) => (
@@ -386,7 +386,7 @@ export function ProductDetailPage({
 
       </div>
 
-      {/* Похожие товары */}
+      {/* похожие товары */}
       <div className="pt-8 border-t border-stone-200 space-y-4">
         <div>
           <h2 className="text-lg sm:text-xl font-bold font-retro text-stone-900">

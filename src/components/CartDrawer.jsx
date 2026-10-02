@@ -1,4 +1,4 @@
-// Выезжающая панель корзины
+// панель корзины
 import { useState, useEffect } from 'react';
 import { X, Trash2, ShoppingBag, ArrowRight, Tag, Check, AlertCircle, Minus, Plus, Truck } from 'lucide-react';
 import { useCart } from '../context/CartContext';
@@ -12,11 +12,11 @@ export function CartDrawer({ onOpenProduct, onOpenCatalog }) {
     setIsCheckoutOpen,
   } = useCart();
 
-  // Текст в поле промокода
+  // текст промокода
   const [promoInput, setPromoInput] = useState('');
   const close = () => setIsCartOpen(false);
 
-  // Esc закрывает корзину, фон не скроллится
+  // закрытие по esc и запрет прокрутки страницы под корзиной
   useEffect(() => {
     if (!isCartOpen) return;
     const onKey = (e) => e.key === 'Escape' && setIsCartOpen(false);
@@ -28,16 +28,16 @@ export function CartDrawer({ onOpenProduct, onOpenCatalog }) {
     };
   }, [isCartOpen, setIsCartOpen]);
 
-  // Корзина закрыта — ничего не рисуем
+  // корзина закрыта
   if (!isCartOpen) return null;
 
-  // Отправка промокода (без перезагрузки страницы)
+  // применить промокод
   const handleApplyPromo = (e) => {
     e.preventDefault();
     if (applyPromo(promoInput)) setPromoInput('');
   };
 
-  // Закрыть корзину и выполнить действие (открыть товар, каталог…)
+  // закрыть корзину и перейти
   const goTo = (fn) => () => {
     close();
     fn();
@@ -47,7 +47,7 @@ export function CartDrawer({ onOpenProduct, onOpenCatalog }) {
     <div className="fixed inset-0 z-50 select-none">
       <div className="absolute inset-0 bg-stone-900/60" onClick={close} />
 
-      {/* Панель: на мобильных — во всю ширину, на десктопе — 448px справа */}
+      {/* панель */}
       <div className="absolute inset-y-0 right-0 w-full sm:max-w-md bg-white sm:border-l border-stone-200 shadow-2xl flex flex-col">
         <div className="p-4 border-b border-stone-200 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -87,7 +87,7 @@ export function CartDrawer({ onOpenProduct, onOpenCatalog }) {
                 </button>
               </div>
 
-              {/* Позиции корзины */}
+              {/* товары в корзине */}
               {cartItems.map((item) => (
                 <div key={item.id} className="p-3 rounded-xl border border-stone-200 bg-stone-50/70 flex gap-3 items-center">
                   <button onClick={goTo(() => onOpenProduct(item.product.id))} className="shrink-0" aria-label="Открыть товар">
@@ -136,7 +136,7 @@ export function CartDrawer({ onOpenProduct, onOpenCatalog }) {
 
         {cartItems.length > 0 && (
           <div className="p-4 border-t border-stone-200 bg-white space-y-3">
-            {/* Сколько осталось до бесплатной доставки */}
+            {/* сколько до бесплатной доставки */}
             <div className="text-[11px] font-mono text-stone-600 space-y-1">
               <div className="flex items-center gap-1.5">
                 <Truck className="w-3.5 h-3.5 text-vintage-accent" />
@@ -153,7 +153,7 @@ export function CartDrawer({ onOpenProduct, onOpenCatalog }) {
             </div>
 
             <div className="space-y-1">
-              {/* Промокод: применён или поле ввода */}
+              {/* промокод */}
               {appliedPromo ? (
                 <div className="flex items-center justify-between p-2 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-900 text-xs font-mono">
                   <div className="flex items-center gap-1.5">

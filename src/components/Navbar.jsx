@@ -1,16 +1,16 @@
-// Шапка сайта и нижняя панель навигации на телефоне
+// шапка сайта
 import { ShoppingBag, Search, Bot, X, ShieldCheck, Heart, Home, Grid } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useFavorites } from '../context/FavoritesContext';
 
-// Пункты меню — один список для шапки и нижней панели
+// пункты меню
 const NAV_ITEMS = [
   { page: 'home', label: 'Главная', Icon: Home },
   { page: 'catalog', label: 'Каталог', Icon: Grid },
   { page: 'favorites', label: 'Избранное', Icon: Heart },
 ];
 
-// Поле поиска в шапке (десктоп)
+// поле поиска
 function SearchInput({ value, onChange, onClear }) {
   return (
     <div className="relative">
@@ -31,19 +31,19 @@ function SearchInput({ value, onChange, onClear }) {
   );
 }
 
-// Шапка: логотип, меню, поиск, помощник, корзина
+// шапка
 export function Navbar({ currentPage = 'home', onNavigate, searchQuery, setSearchQuery, onOpenChatBot }) {
   const { totalItems, setIsCartOpen } = useCart();
   const { favoritesCount } = useFavorites();
   const handleNavClick = (page) => onNavigate(page);
 
-  // На мобильных поиск живёт в каталоге: переходим туда и ставим фокус в поле
+  // поиск на телефоне
   const openMobileSearch = () => {
     onNavigate('catalog');
     setTimeout(() => document.getElementById('mobile-search')?.focus(), 50);
   };
 
-  // Ввод в поиск сразу открывает каталог
+  // поиск открывает каталог
   const searchProps = {
     value: searchQuery,
     onChange: (e) => {
@@ -53,7 +53,7 @@ export function Navbar({ currentPage = 'home', onNavigate, searchQuery, setSearc
     onClear: () => setSearchQuery(''),
   };
 
-  // Иконка пункта меню (у «Избранного» сердце краснеет, если есть товары)
+  // иконка пункта меню
   const navIcon = ({ page, Icon }, size) => (
     <Icon className={`${size} ${page === 'favorites' && favoritesCount > 0 ? 'text-red-500 fill-red-500' : ''}`} />
   );
@@ -62,7 +62,7 @@ export function Navbar({ currentPage = 'home', onNavigate, searchQuery, setSearc
   return (
     <>
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-stone-200 transition-all">
-        {/* Верхний инфо-баннер */}
+        {/* верхняя полоска */}
         <div className="bg-stone-900 text-stone-200 text-xs py-1.5 px-4 font-mono flex items-center justify-between">
           <div className="flex items-center gap-2 min-w-0">
             <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse shrink-0"></span>
@@ -89,7 +89,7 @@ export function Navbar({ currentPage = 'home', onNavigate, searchQuery, setSearc
             </div>
           </button>
 
-          {/* Десктопное меню */}
+          {/* меню */}
           <nav className="hidden md:flex items-center gap-1 lg:gap-2">
             {NAV_ITEMS.map((item) => (
               <button
@@ -147,7 +147,7 @@ export function Navbar({ currentPage = 'home', onNavigate, searchQuery, setSearc
 
       </header>
 
-      {/* Нижняя панель навигации на мобильных */}
+      {/* нижняя панель на телефоне */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-stone-300 py-1.5 px-3 flex items-center justify-around shadow-lg select-none">
         {NAV_ITEMS.map((item) => (
           <button
@@ -175,7 +175,7 @@ export function Navbar({ currentPage = 'home', onNavigate, searchQuery, setSearc
   );
 }
 
-// Красный кружок с числом на нижней панели
+// кружок с числом
 function MobileBadge({ bg, children }) {
   return (
     <span className={`absolute -top-0.5 right-1.5 ${bg} text-white text-[9px] font-bold px-1 rounded-full min-w-[14px] text-center`}>

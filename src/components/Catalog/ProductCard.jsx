@@ -1,10 +1,10 @@
-// Карточка товара в двух видах: плиткой и строкой
+// карточка товара
 import { ShoppingBag, Star, Heart, ArrowRight, Minus, Plus } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useFavorites } from '../../context/FavoritesContext';
 import { rub } from '../../utils/format';
 
-// Сетка или список карточек
+// список карточек
 export function ProductList({ products, layout = 'grid', onOpenProduct }) {
   return (
     <div className={layout === 'grid' ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5' : 'flex flex-col gap-4'}>
@@ -15,7 +15,7 @@ export function ProductList({ products, layout = 'grid', onOpenProduct }) {
   );
 }
 
-// Одна карточка: берёт корзину и избранное из контекстов
+// одна карточка
 export function ProductCard({ product, onOpenProduct, layout = 'grid' }) {
   const { addToCart, productQty, decrementProduct } = useCart();
   const { isFavorite, toggleFavorite } = useFavorites();
@@ -23,7 +23,7 @@ export function ProductCard({ product, onOpenProduct, layout = 'grid' }) {
   const inCart = productQty(product.id);
   const isList = layout === 'list';
 
-  // Кнопки внутри карточки не должны открывать страницу товара
+  // клик по кнопке не открывает товар
   const stop = (fn) => (e) => {
     e.stopPropagation();
     fn();
@@ -31,7 +31,7 @@ export function ProductCard({ product, onOpenProduct, layout = 'grid' }) {
   const add = stop(() => addToCart(product, 1, null, { silent: true }));
   const handleToggleFav = stop(() => toggleFavorite(product.id));
 
-  // Плашка и сердечко поверх фото
+  // плашка и сердечко на фото
   const imageOverlays = (
     <>
       {product.badge && (
@@ -51,7 +51,7 @@ export function ProductCard({ product, onOpenProduct, layout = 'grid' }) {
 
   const image = <img src={product.image} alt={product.title} className="w-full h-full object-cover" loading="lazy" />;
 
-  // Звёздочка с рейтингом
+  // рейтинг
   const rating = (
     <div className="flex items-center gap-1 text-amber-600 font-semibold">
       <Star className="w-3 h-3 fill-amber-500 text-amber-500" />
@@ -60,7 +60,7 @@ export function ProductCard({ product, onOpenProduct, layout = 'grid' }) {
     </div>
   );
 
-  // Цена и старая цена
+  // цена
   const price = (
     <div className={isList ? 'sm:text-right' : ''}>
       <div className={`font-mono font-bold text-stone-900 ${isList ? 'text-lg sm:text-xl' : 'text-base'}`}>
@@ -74,7 +74,7 @@ export function ProductCard({ product, onOpenProduct, layout = 'grid' }) {
     </div>
   );
 
-  // До добавления — кнопка «В корзину», после — счётчик «− N +»
+  // кнопка в корзину или счётчик
   const cartButton = inCart === 0 ? (
     <button
       onClick={add}
@@ -102,13 +102,13 @@ export function ProductCard({ product, onOpenProduct, layout = 'grid' }) {
     </div>
   );
 
-  // Если товар в корзине — подсвечиваем рамку
+  // рамка у товара в корзине
   const cardClass = `card-retro card-retro-hover overflow-hidden bg-white group select-none cursor-pointer transition-all border ${
     inCart ? 'border-vintage-accent/50 ring-1 ring-vintage-accent/30' : 'border-stone-200'
   }`;
   const open = () => onOpenProduct?.(product.id);
 
-  // Вид «строкой»
+  // вид строкой
   if (isList) {
     return (
       <div onClick={open} className={`${cardClass} flex flex-col sm:flex-row items-stretch p-3 sm:p-4 gap-4`}>

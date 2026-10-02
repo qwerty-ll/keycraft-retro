@@ -1,9 +1,9 @@
-// Панель фильтров каталога (сама ничего не хранит — всё через props)
+// панель фильтров
 import { RotateCcw, SlidersHorizontal, LayoutGrid, List } from 'lucide-react';
 import { CATEGORIES } from '../../data/products';
 import { rub } from '../../utils/format';
 
-// Варианты сортировки в выпадающем списке
+// варианты сортировки
 const SORT_OPTIONS = [
   ['popular', 'По популярности'],
   ['price-asc', 'Сначала дешевле'],
@@ -11,13 +11,13 @@ const SORT_OPTIONS = [
   ['rating', 'По рейтингу'],
 ];
 
-// Два вида каталога
+// сетка и список
 const VIEW_MODES = [
   { id: 'grid', Icon: LayoutGrid, label: 'Сетка', aria: 'Сетка товаров' },
   { id: 'list', Icon: List, label: 'Построчно', aria: 'Список товаров' },
 ];
 
-// Переключатель «Сетка / Список» (каталог и избранное)
+// переключатель сетка список
 export function ViewModeToggle({ viewMode, onChange, className = 'flex', showLabels = false }) {
   return (
     <div className={`${className} items-center p-0.5 rounded-lg border border-stone-300 bg-stone-50`}>
@@ -39,7 +39,7 @@ export function ViewModeToggle({ viewMode, onChange, className = 'flex', showLab
   );
 }
 
-// Панель: категории, цена, сортировка, вид, сброс
+// панель фильтров
 export function FilterBar({
   selectedCategory,
   onSelectCategory,
@@ -53,12 +53,12 @@ export function FilterBar({
   viewMode,
   onViewModeChange,
 }) {
-  // Включён ли хоть один фильтр (тогда показываем «Сброс»)
+  // включён ли какой нибудь фильтр
   const isFiltered = selectedCategory !== 'all' || priceLimit < maxPrice;
 
   return (
     <div className="space-y-3 mb-6">
-      {/* Категории (горизонтальный скролл на мобильных) */}
+      {/* категории */}
       <div className="flex items-center gap-1.5 overflow-x-auto pb-1.5 no-scrollbar select-none">
         {CATEGORIES.map((cat) => {
           const isActive = selectedCategory === cat.id;

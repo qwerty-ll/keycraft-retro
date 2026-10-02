@@ -1,4 +1,4 @@
-// Каталог: поиск, фильтры, сортировка и страницы товаров
+// каталог товаров
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { PackageSearch, Search, X } from 'lucide-react';
 import { usePersistentState } from '../../hooks/usePersistentState';
@@ -7,10 +7,10 @@ import { FilterBar } from './FilterBar';
 import { ProductList } from './ProductCard';
 import { Pagination } from './Pagination';
 
-// Максимум для ползунка цены
+// максимальная цена
 const MAX_PRICE = Math.max(...PRODUCTS.map((p) => p.price), 25000);
 
-// Правила сортировки: как сравнивать два товара
+// сортировка
 const SORTERS = {
   popular: (a, b) => b.reviewsCount - a.reviewsCount,
   'price-asc': (a, b) => a.price - b.price,
@@ -18,11 +18,11 @@ const SORTERS = {
   rating: (a, b) => b.rating - a.rating,
 };
 
-// Подходит ли товар под поисковый запрос
+// подходит ли товар под поиск
 const matchesQuery = (p, q) =>
   [p.title, p.description, p.categoryName].some((field) => field.toLowerCase().includes(q));
 
-// Серая заглушка карточки, пока «грузится»
+// заглушка пока грузится
 function ProductSkeleton() {
   return (
     <div className="card-retro p-4 flex flex-col justify-between bg-white border border-stone-200 animate-pulse">
@@ -44,11 +44,11 @@ function ProductSkeleton() {
   );
 }
 
-// Настройки каталога по умолчанию
+// настройки по умолчанию
 const DEFAULT_VIEW = { sortBy: 'popular', priceLimit: 25000, currentPage: 1, itemsPerPage: 6, viewMode: 'grid' };
 
 export function Catalog({ selectedCategory, onSelectCategory, searchQuery, onSearchChange, onOpenProduct }) {
-  // Настройки каталога переживают переход на товар и обратно (в пределах вкладки)
+  // настройки каталога сохраняются
   const [view, setView] = usePersistentState('keycraft_catalog_view', DEFAULT_VIEW, sessionStorage);
   const { sortBy, priceLimit, currentPage, itemsPerPage, viewMode } = view;
   const set = (key) => (value) => setView((v) => ({ ...v, [key]: value }));
@@ -56,7 +56,7 @@ export function Catalog({ selectedCategory, onSelectCategory, searchQuery, onSea
     ['sortBy', 'priceLimit', 'currentPage', 'itemsPerPage', 'viewMode'].map(set);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Сменили фильтр — прыгаем на 1-ю страницу и коротко показываем «скелетоны»
+  // при смене фильтра на первую страницу
   const filterKey = JSON.stringify([selectedCategory, searchQuery, sortBy, priceLimit]);
   const prevFilterKey = useRef(filterKey);
   useEffect(() => {
@@ -68,7 +68,7 @@ export function Catalog({ selectedCategory, onSelectCategory, searchQuery, onSea
     return () => clearTimeout(timer);
   }, [filterKey, setView]);
 
-  // Фильтруем товары (пересчёт только когда меняются фильтры)
+  // фильтр товаров
   const filteredProducts = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();
     return PRODUCTS.filter((p) =>
@@ -78,15 +78,15 @@ export function Catalog({ selectedCategory, onSelectCategory, searchQuery, onSea
     );
   }, [selectedCategory, searchQuery, priceLimit]);
 
-  // Сортируем копию списка
+  // сортировка
   const sortedProducts = useMemo(() => [...filteredProducts].sort(SORTERS[sortBy]), [filteredProducts, sortBy]);
 
-  // Вырезаем товары текущей страницы
+  // товары текущей страницы
   const totalPages = Math.ceil(sortedProducts.length / itemsPerPage);
   const start = (currentPage - 1) * itemsPerPage;
   const pageProducts = sortedProducts.slice(start, start + itemsPerPage);
 
-  // Сбросить всё к начальным значениям
+  // сбросить фильтры
   const handleResetFilters = () => {
     onSelectCategory('all');
     onSearchChange('');
@@ -103,7 +103,7 @@ export function Catalog({ selectedCategory, onSelectCategory, searchQuery, onSea
           Кастомные механические клавиатуры, свитчи, кейкапы и аксессуары ручной сборки
         </p>
 
-        {/* Поиск на мобильных (на десктопе он в шапке) */}
+        {/* поиск на телефоне */}
         <div className="relative mt-3 md:hidden">
           <input
             id="mobile-search"

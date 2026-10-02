@@ -1,4 +1,4 @@
-// Чат-бот: отвечает по заготовленным сценариям, не нейросеть
+// чат бот
 import { useState, useRef, useEffect } from 'react';
 import { X, Send, Bot, ShoppingBag, Check } from 'lucide-react';
 import { PRODUCTS } from '../data/products';
@@ -6,15 +6,15 @@ import { useCart } from '../context/CartContext';
 import { useTimedValue } from '../hooks/useTimedValue';
 import { rub } from '../utils/format';
 
-// Найти товары по списку id
+// найти товары
 const byIds = (...ids) => ids.map((id) => PRODUCTS.find((p) => p.id === id)).filter(Boolean);
 
-// Тексты кнопок-подсказок
+// подсказки
 const FIRST_BUILD = 'Собрать первую клавиатуру 🎹';
 const QUIET = 'Тихий сетап для работы 🌙';
 const THOCK = 'Хочу глубокий Thock 🔊';
 
-// Приветствие бота при открытии
+// приветствие бота
 const INITIAL_MESSAGES = [{
   id: 1,
   sender: 'bot',
@@ -22,7 +22,7 @@ const INITIAL_MESSAGES = [{
   options: [FIRST_BUILD, QUIET, 'Линейные свитчи для игр ⚡', 'Как смазывать свитчи? 🧪'],
 }];
 
-// Сценарии: ключевые слова → ответ, товары, подсказки
+// сценарии бота
 const RULES = [
   {
     keys: ['первую', 'собрать'],
@@ -56,7 +56,7 @@ const RULES = [
   },
 ];
 
-// Подобрать ответ: сначала сценарий, потом поиск по товарам, потом общий ответ
+// ответ бота
 function botReply(query) {
   const q = query.toLowerCase();
   const rule = RULES.find((r) => r.keys.some((k) => q.includes(k)));
@@ -76,23 +76,23 @@ function botReply(query) {
 
 export function ClackBotModal({ isOpen, onClose, onOpenProduct }) {
   const { addToCart } = useCart();
-  // Ссылка на конец чата — чтобы прокручивать вниз
+  // конец чата
   const messagesEndRef = useRef(null);
   const [inputVal, setInputVal] = useState('');
   const [addedId, flashAdded] = useTimedValue(1800);
   const [messages, setMessages] = useState(INITIAL_MESSAGES);
 
-  // При новом сообщении плавно прокручиваем чат вниз
+  // прокрутка чата вниз
   useEffect(() => {
     if (!isOpen) return;
     const t = setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
     return () => clearTimeout(t);
   }, [isOpen, messages]);
 
-  // Чат закрыт — ничего не рисуем
+  // чат закрыт
   if (!isOpen) return null;
 
-  // Отправить вопрос и через 0.3 с добавить ответ бота
+  // отправить сообщение
   const handleSend = (textToSend = null) => {
     const query = (textToSend || inputVal).trim();
     if (!query) return;
@@ -104,7 +104,7 @@ export function ClackBotModal({ isOpen, onClose, onOpenProduct }) {
     }, 300);
   };
 
-  // Кнопка корзины прямо в чате
+  // добавить в корзину из чата
   const handleAddDirect = (prod) => {
     addToCart(prod, 1, null, { silent: true });
     flashAdded(prod.id);
