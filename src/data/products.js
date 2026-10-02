@@ -1,3 +1,4 @@
+// категории
 export const CATEGORIES = [
   { id: 'all', name: 'Все товары', icon: 'Sparkles', count: 24 },
   { id: 'keyboards', name: 'Готовые клавиатуры', icon: 'Keyboard', count: 4 },
@@ -10,6 +11,7 @@ export const CATEGORIES = [
   { id: 'wristrests', name: 'Подставки под запястья', icon: 'Maximize2', count: 1 },
 ];
 
+// список всех товаров
 export const PRODUCTS = [
   {
     id: 'kb-lumina-75',
@@ -514,6 +516,7 @@ export const PRODUCTS = [
   }
 ];
 
+// слайды карусели
 export const PROMO_SLIDES = [
   {
     id: 'promo-1',
@@ -550,6 +553,7 @@ export const PROMO_SLIDES = [
   }
 ];
 
+// промокоды
 export const PROMOCODES = {
   'VINTAGE10': { discountPercent: 10, description: 'Скидка 10% на первый заказ' },
   'THOCK20': { discountPercent: 20, description: 'Скидка 20% для ценителей глубокого звука' },

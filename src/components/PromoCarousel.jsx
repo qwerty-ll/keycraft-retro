@@ -1,30 +1,32 @@
-import React, { useState, useEffect } from 'react';
+// карусель акций
+import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Sparkles, Eye, ShoppingBag } from 'lucide-react';
 import { PROMO_SLIDES, PRODUCTS } from '../data/products';
 import { useCart } from '../context/CartContext';
 
-export function PromoCarousel({ onQuickView }) {
+// сколько слайдов
+const SLIDES = PROMO_SLIDES.length;
+
+export function PromoCarousel({ onOpenProduct }) {
+  // текущий слайд и пауза
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const { addToCart } = useCart();
 
+  // каждые 5 секунд следующий слайд
   useEffect(() => {
     if (isPaused) return;
     const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % PROMO_SLIDES.length);
+      setCurrentIndex((prev) => (prev + 1) % SLIDES);
     }, 5000);
     return () => clearInterval(interval);
   }, [isPaused]);
 
-  const handlePrev = () => {
-    setCurrentIndex((prev) => (prev - 1 + PROMO_SLIDES.length) % PROMO_SLIDES.length);
-  };
-
-  const handleNext = () => {
-    setCurrentIndex((prev) => (prev + 1) % PROMO_SLIDES.length);
-  };
+  // листать слайды
+  const step = (delta) => setCurrentIndex((prev) => (prev + delta + SLIDES) % SLIDES);
 
   const currentSlide = PROMO_SLIDES[currentIndex];
+  // товар слайда
   const linkedProduct = PRODUCTS.find(p => p.id === currentSlide.productId);
 
   return (
@@ -39,14 +41,14 @@ export function PromoCarousel({ onQuickView }) {
 
         <div className="flex items-center gap-1.5">
           <button
-            onClick={handlePrev}
+            onClick={() => step(-1)}
             className="p-1.5 rounded-lg border border-stone-300 bg-white hover:bg-stone-50 transition-colors"
             aria-label="Предыдущий слайд"
           >
             <ChevronLeft className="w-4 h-4 text-stone-700" />
           </button>
           <button
-            onClick={handleNext}
+            onClick={() => step(1)}
             className="p-1.5 rounded-lg border border-stone-300 bg-white hover:bg-stone-50 transition-colors"
             aria-label="Следующий слайд"
           >
@@ -88,10 +90,7 @@ export function PromoCarousel({ onQuickView }) {
             {linkedProduct && (
               <>
                 <button
-                  onClick={() => {
-                    if (onOpenProduct) onOpenProduct(linkedProduct.id);
-                    else if (onQuickView) onQuickView(linkedProduct);
-                  }}
+                  onClick={() => onOpenProduct(linkedProduct.id)}
                   className="btn-retro text-xs py-2 px-3.5 bg-white text-stone-900 hover:bg-stone-100 flex items-center gap-1.5 shadow-sm"
                 >
                   <Eye className="w-3.5 h-3.5 text-vintage-accent" />

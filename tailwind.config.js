@@ -33,7 +33,21 @@ export default {
         'clean': '0 2px 8px rgba(0, 0, 0, 0.06)',
         'clean-hover': '0 8px 20px rgba(0, 0, 0, 0.08)',
         'card': '0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.04)',
-      }
+      },
+      keyframes: {
+        'toast-in': {
+          from: { opacity: '0', transform: 'translateY(12px)' },
+          to: { opacity: '1', transform: 'translateY(0)' },
+        },
+        pop: {
+          '0%, 100%': { transform: 'scale(1)' },
+          '40%': { transform: 'scale(1.35)' },
+        },
+      },
+      animation: {
+        'toast-in': 'toast-in 0.2s ease-out',
+        pop: 'pop 0.3s ease-out',
+      },
     },
   },
   plugins: [],

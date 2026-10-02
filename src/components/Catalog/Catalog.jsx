@@ -1,112 +1,133 @@
-import React, { useState, useMemo, useEffect } from 'react';
+// каталог товаров
+import { useState, useMemo, useEffect, useRef } from 'react';
+import { PackageSearch, Search, X } from 'lucide-react';
+import { usePersistentState } from '../../hooks/usePersistentState';
 import { PRODUCTS } from '../../data/products';
 import { FilterBar } from './FilterBar';
-import { ProductCard } from './ProductCard';
-import { CatalogSkeletons } from './ProductSkeleton';
+import { ProductList } from './ProductCard';
 import { Pagination } from './Pagination';
-import { PackageSearch } from 'lucide-react';
 
-export function Catalog({ 
-  selectedCategory, 
-  onSelectCategory, 
-  searchQuery, 
-  onOpenProduct,
-  onQuickView 
-}) {
-  const [sortBy, setSortBy] = useState('popular');
-  const [priceLimit, setPriceLimit] = useState(25000);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(6);
+// максимальная цена
+const MAX_PRICE = Math.max(...PRODUCTS.map((p) => p.price), 25000);
+
+// сортировка
+const SORTERS = {
+  popular: (a, b) => b.reviewsCount - a.reviewsCount,
+  'price-asc': (a, b) => a.price - b.price,
+  'price-desc': (a, b) => b.price - a.price,
+  rating: (a, b) => b.rating - a.rating,
+};
+
+// подходит ли товар под поиск
+const matchesQuery = (p, q) =>
+  [p.title, p.description, p.categoryName].some((field) => field.toLowerCase().includes(q));
+
+// заглушка пока грузится
+function ProductSkeleton() {
+  return (
+    <div className="card-retro p-4 flex flex-col justify-between bg-white border border-stone-200 animate-pulse">
+      <div className="w-full h-48 sm:h-52 bg-stone-100 rounded-lg mb-3.5" />
+      <div className="flex items-center justify-between gap-2 mb-2">
+        <div className="h-4 w-24 bg-stone-200 rounded" />
+        <div className="h-4 w-16 bg-stone-100 rounded" />
+      </div>
+      <div className="space-y-1.5 mb-3">
+        <div className="h-5 w-5/6 bg-stone-200 rounded" />
+        <div className="h-5 w-3/5 bg-stone-100 rounded" />
+      </div>
+      <div className="h-6 w-28 bg-stone-100 rounded-full mb-4" />
+      <div className="flex items-center justify-between pt-3 border-t border-stone-100">
+        <div className="h-6 w-20 bg-stone-200 rounded" />
+        <div className="h-8 w-20 bg-stone-200 rounded-lg" />
+      </div>
+    </div>
+  );
+}
+
+// настройки по умолчанию
+const DEFAULT_VIEW = { sortBy: 'popular', priceLimit: 25000, currentPage: 1, itemsPerPage: 6, viewMode: 'grid' };
+
+export function Catalog({ selectedCategory, onSelectCategory, searchQuery, onSearchChange, onOpenProduct }) {
+  // настройки каталога сохраняются
+  const [view, setView] = usePersistentState('keycraft_catalog_view', DEFAULT_VIEW, sessionStorage);
+  const { sortBy, priceLimit, currentPage, itemsPerPage, viewMode } = view;
+  const set = (key) => (value) => setView((v) => ({ ...v, [key]: value }));
+  const [setSortBy, setPriceLimit, setCurrentPage, setItemsPerPage, setViewMode] =
+    ['sortBy', 'priceLimit', 'currentPage', 'itemsPerPage', 'viewMode'].map(set);
   const [isLoading, setIsLoading] = useState(false);
-  const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'list'
 
+  // при смене фильтра на первую страницу
+  const filterKey = JSON.stringify([selectedCategory, searchQuery, sortBy, priceLimit]);
+  const prevFilterKey = useRef(filterKey);
   useEffect(() => {
-    setCurrentPage(1);
-
+    if (prevFilterKey.current === filterKey) return;
+    prevFilterKey.current = filterKey;
+    setView((v) => ({ ...v, currentPage: 1 }));
     setIsLoading(true);
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 220);
+    const timer = setTimeout(() => setIsLoading(false), 220);
     return () => clearTimeout(timer);
-  }, [selectedCategory, searchQuery, sortBy, priceLimit]);
+  }, [filterKey, setView]);
 
-  const maxCatalogPrice = useMemo(() => {
-    return Math.max(...PRODUCTS.map(p => p.price), 25000);
-  }, []);
-
+  // фильтр товаров
   const filteredProducts = useMemo(() => {
-    return PRODUCTS.filter((item) => {
-      if (searchQuery) {
-        const q = searchQuery.toLowerCase().trim();
-        const matchTitle = item.title.toLowerCase().includes(q);
-        const matchDesc = item.description.toLowerCase().includes(q);
-        const matchCat = item.categoryName.toLowerCase().includes(q);
-        if (!matchTitle && !matchDesc && !matchCat) {
-          return false;
-        }
-      }
-
-      if (selectedCategory !== 'all' && item.category !== selectedCategory) {
-        return false;
-      }
-
-      if (item.price > priceLimit) {
-        return false;
-      }
-
-      return true;
-    });
+    const q = searchQuery.toLowerCase().trim();
+    return PRODUCTS.filter((p) =>
+      (!q || matchesQuery(p, q)) &&
+      (selectedCategory === 'all' || p.category === selectedCategory) &&
+      p.price <= priceLimit
+    );
   }, [selectedCategory, searchQuery, priceLimit]);
 
-  const sortedProducts = useMemo(() => {
-    const list = [...filteredProducts];
-    switch (sortBy) {
-      case 'price-asc':
-        return list.sort((a, b) => a.price - b.price);
-      case 'price-desc':
-        return list.sort((a, b) => b.price - a.price);
-      case 'rating':
-        return list.sort((a, b) => b.rating - a.rating);
-      case 'popular':
-      default:
-        return list.sort((a, b) => b.reviewsCount - a.reviewsCount);
-    }
-  }, [filteredProducts, sortBy]);
+  // сортировка
+  const sortedProducts = useMemo(() => [...filteredProducts].sort(SORTERS[sortBy]), [filteredProducts, sortBy]);
 
+  // товары текущей страницы
   const totalPages = Math.ceil(sortedProducts.length / itemsPerPage);
-  const paginatedProducts = useMemo(() => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    return sortedProducts.slice(startIndex, startIndex + itemsPerPage);
-  }, [sortedProducts, currentPage, itemsPerPage]);
+  const start = (currentPage - 1) * itemsPerPage;
+  const pageProducts = sortedProducts.slice(start, start + itemsPerPage);
 
+  // сбросить фильтры
   const handleResetFilters = () => {
     onSelectCategory('all');
-    setPriceLimit(maxCatalogPrice);
-    setSortBy('popular');
+    onSearchChange('');
+    setView((v) => ({ ...v, priceLimit: MAX_PRICE, sortBy: 'popular' }));
   };
 
   return (
     <section id="catalog-section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      
-      {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <div>
-          <h2 className="text-xl sm:text-2xl font-bold font-retro text-stone-900">
-            Каталог товаров
-          </h2>
-          <p className="text-xs text-stone-500 font-sans mt-0.5">
-            Кастомные механические клавиатуры, свитчи, кейкапы и аксессуары ручной сборки
-          </p>
+      <div className="mb-4">
+        <h2 className="text-xl sm:text-2xl font-bold font-retro text-stone-900">
+          Каталог товаров
+        </h2>
+        <p className="text-xs text-stone-500 font-sans mt-0.5">
+          Кастомные механические клавиатуры, свитчи, кейкапы и аксессуары ручной сборки
+        </p>
+
+        {/* поиск на телефоне */}
+        <div className="relative mt-3 md:hidden">
+          <input
+            id="mobile-search"
+            type="text"
+            value={searchQuery}
+            onChange={(e) => onSearchChange(e.target.value)}
+            placeholder="Поиск комплектующих..."
+            className="w-full bg-white border border-stone-300 rounded-lg py-2.5 pl-9 pr-9 text-sm focus:outline-none focus:ring-1 focus:ring-vintage-accent"
+          />
+          <Search className="w-4 h-4 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          {searchQuery && (
+            <button onClick={() => onSearchChange('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400" aria-label="Очистить поиск">
+              <X className="w-4 h-4" />
+            </button>
+          )}
         </div>
       </div>
 
-      {/* Filter and View Options */}
       <FilterBar
         selectedCategory={selectedCategory}
         onSelectCategory={onSelectCategory}
         sortBy={sortBy}
         onSortChange={setSortBy}
-        maxPrice={maxCatalogPrice}
+        maxPrice={MAX_PRICE}
         priceLimit={priceLimit}
         onPriceLimitChange={setPriceLimit}
         totalFound={filteredProducts.length}
@@ -115,47 +136,28 @@ export function Catalog({
         onViewModeChange={setViewMode}
       />
 
-      {/* Product List/Grid View */}
       {isLoading ? (
-        <CatalogSkeletons count={itemsPerPage} />
-      ) : paginatedProducts.length > 0 ? (
-        viewMode === 'grid' ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {paginatedProducts.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                layout="grid"
-                onOpenProduct={onOpenProduct}
-                onQuickView={onQuickView}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="flex flex-col gap-4">
-            {paginatedProducts.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                layout="list"
-                onOpenProduct={onOpenProduct}
-                onQuickView={onQuickView}
-              />
-            ))}
-          </div>
-        )
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {Array.from({ length: itemsPerPage }, (_, i) => <ProductSkeleton key={i} />)}
+        </div>
+      ) : pageProducts.length > 0 ? (
+        <>
+          <ProductList products={pageProducts} layout={viewMode} onOpenProduct={onOpenProduct} />
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+            itemsPerPage={itemsPerPage}
+            onItemsPerPageChange={setItemsPerPage}
+          />
+        </>
       ) : (
-        /* Empty State */
-        <div className="border border-stone-200 bg-white rounded-xl p-8 text-center max-w-sm mx-auto my-8 space-y-3 shadow-xs">
+        <div className="border border-stone-200 bg-white rounded-xl p-8 text-center max-w-sm mx-auto my-8 space-y-3">
           <div className="w-12 h-12 rounded-full bg-stone-100 flex items-center justify-center mx-auto text-stone-400">
             <PackageSearch className="w-6 h-6" />
           </div>
-          <h3 className="text-base font-bold text-stone-800">
-            Ничего не найдено
-          </h3>
-          <p className="text-xs text-stone-500">
-            Попробуйте сбросить фильтры или изменить поисковый запрос.
-          </p>
+          <h3 className="text-base font-bold text-stone-800">Ничего не найдено</h3>
+          <p className="text-xs text-stone-500">Попробуйте сбросить фильтры или изменить поисковый запрос.</p>
           <button
             onClick={handleResetFilters}
             className="btn-retro text-xs py-1.5 px-3 bg-stone-900 text-white hover:bg-stone-800"
@@ -163,17 +165,6 @@ export function Catalog({
             Сбросить фильтры
           </button>
         </div>
-      )}
-
-      {/* Pagination */}
-      {!isLoading && paginatedProducts.length > 0 && (
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={setCurrentPage}
-          itemsPerPage={itemsPerPage}
-          onItemsPerPageChange={setItemsPerPage}
-        />
       )}
     </section>
   );

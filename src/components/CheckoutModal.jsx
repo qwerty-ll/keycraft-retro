@@ -1,11 +1,28 @@
-import React, { useState, useEffect } from 'react';
+// оформление заказа
+import { useState } from 'react';
 import { X, CheckCircle2, Printer, ArrowRight, ShieldCheck } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import confetti from 'canvas-confetti';
+import { rub } from '../utils/format';
+
+// стиль полей
+const inputClass = 'w-full bg-stone-50 border rounded-lg p-2 text-xs focus:outline-none focus:bg-white';
+
+// поле формы
+function Field({ label, error, type = 'text', ...props }) {
+  return (
+    <div>
+      <label className="block text-xs font-mono text-stone-600 mb-1">{label}</label>
+      <input type={type} {...props} className={`${inputClass} ${error ? 'border-red-500' : 'border-stone-300'}`} />
+      {error && <p className="text-[10px] text-red-500 font-mono mt-0.5">{error}</p>}
+    </div>
+  );
+}
 
 export function CheckoutModal() {
-  const { isCheckoutOpen, setIsCheckoutOpen, cartItems, subtotal, discountAmount, totalPrice, appliedPromo, createOrder } = useCart();
+  const { isCheckoutOpen, setIsCheckoutOpen, cartItems, discountAmount, totalPrice, deliveryCost, appliedPromo, createOrder } = useCart();
 
+  // данные формы
   const [formData, setFormData] = useState({
     fullName: '',
     phone: '',
@@ -13,23 +30,32 @@ export function CheckoutModal() {
     city: 'Москва',
     address: '',
     deliveryMethod: 'cdek',
-    comment: '',
   });
 
+  // готовый заказ и ошибки формы
   const [completedOrder, setCompletedOrder] = useState(null);
   const [errors, setErrors] = useState({});
 
-  useEffect(() => {
-    if (!isCheckoutOpen) {
-      setCompletedOrder(null);
-    }
-  }, [isCheckoutOpen]);
-
+  // окно закрыто
   if (!isCheckoutOpen) return null;
 
-  const deliveryCost = subtotal >= 5000 ? 0 : 350;
-  const finalSum = totalPrice + deliveryCost;
+  // закрыть окно
+  const close = () => {
+    setIsCheckoutOpen(false);
+    setCompletedOrder(null);
+  };
 
+  // при самовывозе доставка бесплатная
+  const delivery = formData.deliveryMethod === 'pickup' ? 0 : deliveryCost;
+
+  // данные для поля формы
+  const field = (name) => ({
+    value: formData[name],
+    error: errors[name],
+    onChange: (e) => setFormData({ ...formData, [name]: e.target.value }),
+  });
+
+  // проверка формы
   const validate = () => {
     const errs = {};
     if (!formData.fullName.trim()) errs.fullName = 'Укажите ваше имя';
@@ -40,41 +66,23 @@ export function CheckoutModal() {
     return Object.keys(errs).length === 0;
   };
 
+  // отправка заказа
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!validate()) return;
 
-    const order = createOrder({
-      ...formData,
-      deliveryCost,
-    });
-
-    setCompletedOrder(order);
-
-    try {
-      confetti({
-        particleCount: 50,
-        spread: 60,
-        origin: { y: 0.6 },
-        colors: ['#C2622D', '#D97706', '#262320'],
-      });
-    } catch (e) {
-
-    }
-  };
-
-  const handlePrint = () => {
-    window.print();
+    setCompletedOrder(createOrder({ ...formData, deliveryCost: delivery }));
+    confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 }, colors: ['#C2622D', '#D97706', '#262320'] });
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-stone-900/60 backdrop-blur-xs flex items-center justify-center p-4 select-none animate-fadeIn">
-      <div className="fixed inset-0" onClick={() => setIsCheckoutOpen(false)} />
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-stone-900/60 flex items-center justify-center p-4 select-none">
+      <div className="fixed inset-0" onClick={close} />
 
       <div className="relative w-full max-w-xl bg-white border border-stone-200 rounded-2xl shadow-xl overflow-hidden z-10 my-6">
         
         <button
-          onClick={() => setIsCheckoutOpen(false)}
+          onClick={close}
           className="absolute top-3.5 right-3.5 p-1.5 rounded-lg border border-stone-200 hover:bg-stone-100 text-stone-600 transition-colors z-20"
         >
           <X className="w-4 h-4" />
@@ -95,123 +103,43 @@ export function CheckoutModal() {
 
             <form onSubmit={handleSubmit} className="space-y-3.5">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-mono text-stone-600 mb-1">
-                    ФИО *
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.fullName}
-                    onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                    placeholder="Иван Иванов"
-                    className={`w-full bg-stone-50 border rounded-lg p-2 text-xs focus:outline-none focus:bg-white ${
-                      errors.fullName ? 'border-red-500' : 'border-stone-300'
-                    }`}
-                  />
-                  {errors.fullName && <p className="text-[10px] text-red-500 font-mono mt-0.5">{errors.fullName}</p>}
-                </div>
-
-                <div>
-                  <label className="block text-xs font-mono text-stone-600 mb-1">
-                    Телефон *
-                  </label>
-                  <input
-                    type="tel"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    placeholder="+7 (999) 123-45-67"
-                    className={`w-full bg-stone-50 border rounded-lg p-2 text-xs focus:outline-none focus:bg-white ${
-                      errors.phone ? 'border-red-500' : 'border-stone-300'
-                    }`}
-                  />
-                  {errors.phone && <p className="text-[10px] text-red-500 font-mono mt-0.5">{errors.phone}</p>}
-                </div>
+                <Field {...field('fullName')} label="ФИО *" placeholder="Иван Иванов" />
+                <Field {...field('phone')} label="Телефон *" type="tel" placeholder="+7 (999) 123-45-67" />
               </div>
-
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-mono text-stone-600 mb-1">
-                    Email *
-                  </label>
-                  <input
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    placeholder="example@mail.ru"
-                    className={`w-full bg-stone-50 border rounded-lg p-2 text-xs focus:outline-none focus:bg-white ${
-                      errors.email ? 'border-red-500' : 'border-stone-300'
-                    }`}
-                  />
-                  {errors.email && <p className="text-[10px] text-red-500 font-mono mt-0.5">{errors.email}</p>}
-                </div>
-
-                <div>
-                  <label className="block text-xs font-mono text-stone-600 mb-1">
-                    Город
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.city}
-                    onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                    className="w-full bg-stone-50 border border-stone-300 rounded-lg p-2 text-xs focus:outline-none focus:bg-white"
-                  />
-                </div>
+                <Field {...field('email')} label="Email *" type="email" placeholder="example@mail.ru" />
+                <Field {...field('city')} label="Город" />
               </div>
-
-              <div>
-                <label className="block text-xs font-mono text-stone-600 mb-1">
-                  Адрес доставки / Пункт СДЭК *
-                </label>
-                <input
-                  type="text"
-                  value={formData.address}
-                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                  placeholder="ул. Ленина, 10 или пункт выдачи"
-                  className={`w-full bg-stone-50 border rounded-lg p-2 text-xs focus:outline-none focus:bg-white ${
-                    errors.address ? 'border-red-500' : 'border-stone-300'
-                  }`}
-                />
-                {errors.address && <p className="text-[10px] text-red-500 font-mono mt-0.5">{errors.address}</p>}
-              </div>
+              <Field {...field('address')} label="Адрес доставки / Пункт СДЭК *" placeholder="ул. Ленина, 10 или пункт выдачи" />
 
               <div>
                 <label className="block text-xs font-mono text-stone-600 mb-1.5">
                   Способ получения:
                 </label>
                 <div className="grid grid-cols-2 gap-2.5">
-                  <label className={`p-2.5 rounded-lg border cursor-pointer flex items-center gap-2 text-xs font-mono ${
-                    formData.deliveryMethod === 'cdek' ? 'border-stone-900 bg-stone-50' : 'border-stone-200 bg-white'
-                  }`}>
-                    <input
-                      type="radio"
-                      name="delivery"
-                      value="cdek"
-                      checked={formData.deliveryMethod === 'cdek'}
-                      onChange={() => setFormData({ ...formData, deliveryMethod: 'cdek' })}
-                      className="accent-vintage-accent"
-                    />
-                    <div>
-                      <div className="font-semibold">СДЭК / Курьер</div>
-                      <div className="text-[10px] text-stone-500">{deliveryCost === 0 ? 'Бесплатно' : '350 ₽'}</div>
-                    </div>
-                  </label>
-
-                  <label className={`p-2.5 rounded-lg border cursor-pointer flex items-center gap-2 text-xs font-mono ${
-                    formData.deliveryMethod === 'pickup' ? 'border-stone-900 bg-stone-50' : 'border-stone-200 bg-white'
-                  }`}>
-                    <input
-                      type="radio"
-                      name="delivery"
-                      value="pickup"
-                      checked={formData.deliveryMethod === 'pickup'}
-                      onChange={() => setFormData({ ...formData, deliveryMethod: 'pickup' })}
-                      className="accent-vintage-accent"
-                    />
-                    <div>
-                      <div className="font-semibold">Самовывоз</div>
-                      <div className="text-[10px] text-stone-500">Мастерская (0 ₽)</div>
-                    </div>
-                  </label>
+                  {[
+                    ['cdek', 'СДЭК / Курьер', deliveryCost ? rub(deliveryCost) : 'Бесплатно'],
+                    ['pickup', 'Самовывоз', 'Мастерская (0 ₽)'],
+                  ].map(([method, title, note]) => (
+                    <label
+                      key={method}
+                      className={`p-2.5 rounded-lg border cursor-pointer flex items-center gap-2 text-xs font-mono ${
+                        formData.deliveryMethod === method ? 'border-stone-900 bg-stone-50' : 'border-stone-200 bg-white'
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="delivery"
+                        checked={formData.deliveryMethod === method}
+                        onChange={() => setFormData({ ...formData, deliveryMethod: method })}
+                        className="accent-vintage-accent"
+                      />
+                      <div>
+                        <div className="font-semibold">{title}</div>
+                        <div className="text-[10px] text-stone-500">{note}</div>
+                      </div>
+                    </label>
+                  ))}
                 </div>
               </div>
 
@@ -223,12 +151,16 @@ export function CheckoutModal() {
                 {discountAmount > 0 && (
                   <div className="flex justify-between text-emerald-700">
                     <span>Скидка ({appliedPromo?.code}):</span>
-                    <span>-{discountAmount.toLocaleString('ru-RU')} ₽</span>
+                    <span>-{rub(discountAmount)}</span>
                   </div>
                 )}
+                <div className="flex justify-between text-stone-600">
+                  <span>Доставка:</span>
+                  <span>{delivery ? rub(delivery) : 'Бесплатно'}</span>
+                </div>
                 <div className="flex justify-between text-stone-900 font-bold pt-1 border-t border-stone-200 text-sm">
                   <span>Итого к оплате:</span>
-                  <span className="text-vintage-accent">{finalSum.toLocaleString('ru-RU')} ₽</span>
+                  <span className="text-vintage-accent">{rub(totalPrice + delivery)}</span>
                 </div>
               </div>
 
@@ -268,24 +200,24 @@ export function CheckoutModal() {
                     <div>
                       <div className="font-medium text-stone-900">{item.product.title}</div>
                       <div className="text-[10px] text-stone-500">
-                        {item.quantity} шт. x {item.product.price} ₽
+                        {item.quantity} шт. × {rub(item.product.price)}
                       </div>
                     </div>
                     <div className="font-semibold text-stone-900">
-                      {(item.product.price * item.quantity).toLocaleString('ru-RU')} ₽
+                      {rub(item.product.price * item.quantity)}
                     </div>
                   </div>
                 ))}
               </div>
 
               <div className="border-t border-stone-200 pt-2 space-y-0.5 text-right text-stone-700">
-                <div>Подытог: {completedOrder.subtotal.toLocaleString('ru-RU')} ₽</div>
+                <div>Подытог: {rub(completedOrder.subtotal)}</div>
                 {completedOrder.discountAmount > 0 && (
-                  <div className="text-emerald-700">Скидка: -{completedOrder.discountAmount.toLocaleString('ru-RU')} ₽</div>
+                  <div className="text-emerald-700">Скидка: -{rub(completedOrder.discountAmount)}</div>
                 )}
-                <div>Доставка: {completedOrder.customer.deliveryCost === 0 ? 'Бесплатно' : `${completedOrder.customer.deliveryCost} ₽`}</div>
+                <div>Доставка: {completedOrder.customer.deliveryCost ? rub(completedOrder.customer.deliveryCost) : 'Бесплатно'}</div>
                 <div className="text-sm font-bold text-stone-900 pt-1 border-t border-stone-200">
-                  ИТОГО: {(completedOrder.totalPrice + completedOrder.customer.deliveryCost).toLocaleString('ru-RU')} ₽
+                  ИТОГО: {rub(completedOrder.totalPrice + completedOrder.customer.deliveryCost)}
                 </div>
               </div>
 
@@ -297,7 +229,7 @@ export function CheckoutModal() {
 
             <div className="flex items-center gap-2.5">
               <button
-                onClick={handlePrint}
+                onClick={() => window.print()}
                 className="btn-retro text-xs py-2 px-3 flex items-center justify-center gap-1.5 flex-1"
               >
                 <Printer className="w-3.5 h-3.5" />
@@ -305,7 +237,7 @@ export function CheckoutModal() {
               </button>
 
               <button
-                onClick={() => setIsCheckoutOpen(false)}
+                onClick={close}
                 className="btn-retro-primary text-xs py-2 px-3 flex-1 text-center"
               >
                 В магазин

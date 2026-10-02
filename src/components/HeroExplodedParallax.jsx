@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+// главный экран с 3d клавиатурой
+import { useState, useEffect, useRef } from 'react';
 import { ArrowDown, Layers, Wrench, CheckCircle, SlidersHorizontal, Eye, EyeOff } from 'lucide-react';
 import {
   LayerKeycapsSvg,
@@ -9,6 +10,7 @@ import {
   LayerWalnutCaseSvg,
 } from './HeroKeyboard3D';
 
+// слои клавиатуры
 const KEYBOARD_LAYERS = [
   {
     id: 'keycaps',
@@ -96,56 +98,61 @@ const KEYBOARD_LAYERS = [
   },
 ];
 
+// кнопки собрать наполовину разобрать
+const PRESETS = [
+  { value: 0, label: 'В сборе (0%)', isActive: (e) => e < 0.1 },
+  { value: 0.5, label: '50%', isActive: (e) => e >= 0.4 && e <= 0.6 },
+  { value: 1, label: 'По слоям (100%)', isActive: (e) => e > 0.9 },
+];
+
+// галочки под кнопками
+const FEATURES = ['Gasket Mount', 'Латунный плейт 1.5мм', 'Массив ореха', 'PBT пластик'];
+// углы
+const CORNERS = ['left-1 top-1', 'right-1 top-1', 'left-1 bottom-1', 'right-1 bottom-1'];
+// стиль для 3d
+const PRESERVE_3D = { transformStyle: 'preserve-3d', WebkitTransformStyle: 'preserve-3d' };
+
 export function HeroExplodedParallax({ onExploreCatalog, onOpenChatBot }) {
   const [explosion, setExplosion] = useState(1);
   const [activeLayerId, setActiveLayerId] = useState('keycaps');
   const [isolateActiveLayer, setIsolateActiveLayer] = useState(false);
 
+  // элементы которые двигаем
   const heroRef = useRef(null);
   const stage3dRef = useRef(null);
   const bgGlowRef = useRef(null);
 
+  // куда повернуть и где сейчас
   const target = useRef({ x: 0, y: 0, scrollY: 0 });
   const current = useRef({ x: 0, y: 0, scrollY: 0 });
 
   useEffect(() => {
     let animId;
 
-    const handleMouseMove = (e) => {
-      if (!heroRef.current) return;
-      const rect = heroRef.current.getBoundingClientRect();
-
-      const isInside = (
-        e.clientX >= rect.left &&
-        e.clientX <= rect.right &&
-        e.clientY >= rect.top &&
-        e.clientY <= rect.bottom
-      );
-
-      if (isInside) {
-        const rawX = ((e.clientX - rect.left) / rect.width - 0.5) * 2;
-        const rawY = ((e.clientY - rect.top) / rect.height - 0.5) * 2;
-        target.current.x = Math.max(-1, Math.min(1, rawX));
-        target.current.y = Math.max(-1, Math.min(1, rawY));
-      } else {
-        target.current.x = 0;
-        target.current.y = 0;
-      }
-    };
-
-    const handleMouseLeave = () => {
+    const resetTilt = () => {
       target.current.x = 0;
       target.current.y = 0;
     };
 
+    // следим за мышкой
+    const handleMouseMove = (e) => {
+      if (!heroRef.current) return;
+      const r = heroRef.current.getBoundingClientRect();
+      if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) return resetTilt();
+      target.current.x = ((e.clientX - r.left) / r.width - 0.5) * 2;
+      target.current.y = ((e.clientY - r.top) / r.height - 0.5) * 2;
+    };
+
+    // прокрутка для фона
     const handleScroll = () => {
       target.current.scrollY = window.scrollY;
     };
 
     window.addEventListener('mousemove', handleMouseMove, { passive: true });
     window.addEventListener('scroll', handleScroll, { passive: true });
-    document.addEventListener('mouseleave', handleMouseLeave);
+    document.addEventListener('mouseleave', resetTilt);
 
+    // плавный наклон за мышкой
     const animate = () => {
       const ease = 0.08;
       current.current.x += (target.current.x - current.current.x) * ease;
@@ -174,10 +181,11 @@ export function HeroExplodedParallax({ onExploreCatalog, onOpenChatBot }) {
       cancelAnimationFrame(animId);
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('scroll', handleScroll);
-      document.removeEventListener('mouseleave', handleMouseLeave);
+      document.removeEventListener('mouseleave', resetTilt);
     };
   }, []);
 
+  // выбранный слой
   const activeLayer = KEYBOARD_LAYERS.find(l => l.id === activeLayerId) || KEYBOARD_LAYERS[0];
 
   return (
@@ -197,7 +205,7 @@ export function HeroExplodedParallax({ onExploreCatalog, onOpenChatBot }) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
 
-          {/* Left Column: Information and Controls */}
+          {/* левая колонка */}
           <div className="lg:col-span-5 space-y-4">
             
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cream-200 text-stone-700 text-xs font-mono font-medium border border-stone-300">
@@ -216,7 +224,7 @@ export function HeroExplodedParallax({ onExploreCatalog, onOpenChatBot }) {
 
             <div className="p-4 rounded-xl border border-stone-300 bg-white shadow-sm space-y-3 max-w-lg">
               
-              {/* Layer Separation Slider */}
+              {/* ползунок */}
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between text-xs font-mono">
                   <span className="font-semibold text-stone-700 flex items-center gap-1.5">
@@ -239,40 +247,23 @@ export function HeroExplodedParallax({ onExploreCatalog, onOpenChatBot }) {
                 />
 
                 <div className="flex items-center justify-between pt-1 text-[11px] font-mono">
-                  <button
-                    onClick={() => setExplosion(0)}
-                    className={`px-2.5 py-1 rounded border transition-all ${
-                      explosion < 0.1
-                        ? 'bg-vintage-accent text-white border-vintage-accent font-semibold'
-                        : 'bg-stone-50 text-stone-600 border-stone-200 hover:bg-stone-100'
-                    }`}
-                  >
-                    В сборе (0%)
-                  </button>
-                  <button
-                    onClick={() => setExplosion(0.5)}
-                    className={`px-2.5 py-1 rounded border transition-all ${
-                      explosion >= 0.4 && explosion <= 0.6
-                        ? 'bg-vintage-accent text-white border-vintage-accent font-semibold'
-                        : 'bg-stone-50 text-stone-600 border-stone-200 hover:bg-stone-100'
-                    }`}
-                  >
-                    50%
-                  </button>
-                  <button
-                    onClick={() => setExplosion(1)}
-                    className={`px-2.5 py-1 rounded border transition-all ${
-                      explosion > 0.9
-                        ? 'bg-vintage-accent text-white border-vintage-accent font-semibold'
-                        : 'bg-stone-50 text-stone-600 border-stone-200 hover:bg-stone-100'
-                    }`}
-                  >
-                    По слоям (100%)
-                  </button>
+                  {PRESETS.map(({ value, label, isActive }) => (
+                    <button
+                      key={label}
+                      onClick={() => setExplosion(value)}
+                      className={`px-2.5 py-1 rounded border transition-all ${
+                        isActive(explosion)
+                          ? 'bg-vintage-accent text-white border-vintage-accent font-semibold'
+                          : 'bg-stone-50 text-stone-600 border-stone-200 hover:bg-stone-100'
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
                 </div>
               </div>
 
-              {/* Layer Selection Buttons + Isolation Toggle */}
+              {/* выбор слоя */}
               <div className="pt-1">
                 <div className="flex items-center justify-between pb-1.5 text-xs font-mono">
                   <span className="text-stone-500 font-semibold">Компоненты сборки:</span>
@@ -310,7 +301,7 @@ export function HeroExplodedParallax({ onExploreCatalog, onOpenChatBot }) {
                 </div>
               </div>
 
-              {/* Selected Layer Details Card */}
+              {/* описание слоя */}
               <div className="p-3 rounded-lg bg-cream-100/70 border border-stone-200 space-y-1.5">
                 <div className="flex items-center justify-between text-xs font-mono">
                   <span className="font-bold text-stone-900">
@@ -353,26 +344,16 @@ export function HeroExplodedParallax({ onExploreCatalog, onOpenChatBot }) {
             </div>
 
             <div className="flex items-center gap-4 pt-2 text-xs font-mono text-stone-500 flex-wrap">
-              <span className="flex items-center gap-1">
-                <CheckCircle className="w-3.5 h-3.5 text-vintage-accent" />
-                Gasket Mount
-              </span>
-              <span className="flex items-center gap-1">
-                <CheckCircle className="w-3.5 h-3.5 text-vintage-accent" />
-                Латунный плейт 1.5мм
-              </span>
-              <span className="flex items-center gap-1">
-                <CheckCircle className="w-3.5 h-3.5 text-vintage-accent" />
-                Массив ореха
-              </span>
-              <span className="flex items-center gap-1">
-                <CheckCircle className="w-3.5 h-3.5 text-vintage-accent" />
-                PBT пластик
-              </span>
+              {FEATURES.map((f) => (
+                <span key={f} className="flex items-center gap-1">
+                  <CheckCircle className="w-3.5 h-3.5 text-vintage-accent" />
+                  {f}
+                </span>
+              ))}
             </div>
           </div>
 
-          {/* Right Column: 3D Perspective Stage */}
+          {/* правая колонка */}
           <div 
             className="lg:col-span-7 relative flex justify-center items-center py-2"
             style={{ 
@@ -384,7 +365,7 @@ export function HeroExplodedParallax({ onExploreCatalog, onOpenChatBot }) {
               className="relative w-full max-w-[580px] bg-white/95 backdrop-blur rounded-2xl border border-stone-300 p-4 sm:p-5 shadow-clean select-none"
             >
               
-              {/* Header Bar */}
+              {/* шапка */}
               <div className="flex items-center justify-between border-b border-stone-200 pb-2.5 mb-1">
                 <div className="flex items-center gap-2 text-xs font-mono font-semibold text-stone-800">
                   <Layers className="w-4 h-4 text-vintage-accent" />
@@ -395,81 +376,46 @@ export function HeroExplodedParallax({ onExploreCatalog, onOpenChatBot }) {
                 </div>
               </div>
 
-              {/* Compact 3D Stage Viewport (390px height, harmonious balanced spacing) */}
+              {/* сцена со слоями */}
               <div className="relative w-full h-[380px] sm:h-[410px] flex items-center justify-center overflow-visible">
                 
                 <div 
                   ref={stage3dRef}
                   className="relative w-[340px] sm:w-[410px] h-[92px] sm:h-[110px] transition-transform duration-75 ease-out"
                   style={{
-                    transformStyle: 'preserve-3d',
-                    WebkitTransformStyle: 'preserve-3d',
+                    ...PRESERVE_3D,
                     transform: 'rotateX(50deg) rotateZ(-26deg)',
                     willChange: 'transform',
                   }}
                 >
-                  {/* Subtle 4-Corner Assembly Alignment Guide Lines */}
+                  {/* пунктирные линии */}
                   {explosion > 0.3 && (
                     <div 
                       className="absolute inset-0 pointer-events-none opacity-35"
-                      style={{
-                        transformStyle: 'preserve-3d',
-                        WebkitTransformStyle: 'preserve-3d',
-                      }}
+                      style={PRESERVE_3D}
                     >
-                      {/* Corner 1 (Top Left) */}
-                      <div 
-                        className="absolute left-1 top-1 w-[1px] bg-stone-400 border-l border-dashed border-stone-500"
-                        style={{
-                          height: `${(125 + 125) * explosion}px`,
-                          transform: `translate3d(0, 0, ${(-125 * explosion).toFixed(1)}px) rotateX(-90deg)`,
-                          transformOrigin: 'top center',
-                        }}
-                      />
-                      {/* Corner 2 (Top Right) */}
-                      <div 
-                        className="absolute right-1 top-1 w-[1px] bg-stone-400 border-l border-dashed border-stone-500"
-                        style={{
-                          height: `${(125 + 125) * explosion}px`,
-                          transform: `translate3d(0, 0, ${(-125 * explosion).toFixed(1)}px) rotateX(-90deg)`,
-                          transformOrigin: 'top center',
-                        }}
-                      />
-                      {/* Corner 3 (Bottom Left) */}
-                      <div 
-                        className="absolute left-1 bottom-1 w-[1px] bg-stone-400 border-l border-dashed border-stone-500"
-                        style={{
-                          height: `${(125 + 125) * explosion}px`,
-                          transform: `translate3d(0, 0, ${(-125 * explosion).toFixed(1)}px) rotateX(-90deg)`,
-                          transformOrigin: 'top center',
-                        }}
-                      />
-                      {/* Corner 4 (Bottom Right) */}
-                      <div 
-                        className="absolute right-1 bottom-1 w-[1px] bg-stone-400 border-l border-dashed border-stone-500"
-                        style={{
-                          height: `${(125 + 125) * explosion}px`,
-                          transform: `translate3d(0, 0, ${(-125 * explosion).toFixed(1)}px) rotateX(-90deg)`,
-                          transformOrigin: 'top center',
-                        }}
-                      />
+                      {CORNERS.map((pos) => (
+                        <div
+                          key={pos}
+                          className={`absolute ${pos} w-[1px] bg-stone-400 border-l border-dashed border-stone-500`}
+                          style={{
+                            height: `${250 * explosion}px`,
+                            transform: `translate3d(0, 0, ${(-125 * explosion).toFixed(1)}px) rotateX(-90deg)`,
+                            transformOrigin: 'top center',
+                          }}
+                        />
+                      ))}
                     </div>
                   )}
 
-                  {/* 6 Perspective Layers - Clicking pops the layer UPWARDS for full inspection */}
+                  {/* слои */}
                   {KEYBOARD_LAYERS.map((layer) => {
                     const isSelected = activeLayerId === layer.id;
-                    const baseZ = layer.assembledZ + (layer.explodedZ - layer.assembledZ) * explosion;
-                    
-                    // Selected layer pops UP (+50px in Z, -8px in Y) for clear inspection of the entire surface
-                    const liftZ = isSelected ? 50 : 0;
+                    // выбранный слой поднимается вверх
+                    const z = layer.assembledZ + (layer.explodedZ - layer.assembledZ) * explosion + (isSelected ? 50 : 0);
                     const liftY = isSelected ? -8 : 0;
-                    const z = baseZ + liftZ;
+                    const opacity = isolateActiveLayer && !isSelected ? 0.22 : 1;
                     const { Component } = layer;
-
-                    const opacity = isolateActiveLayer
-                      ? (isSelected ? 1 : 0.22)
-                      : 1;
 
                     return (
                       <div
@@ -477,8 +423,7 @@ export function HeroExplodedParallax({ onExploreCatalog, onOpenChatBot }) {
                         onClick={() => setActiveLayerId(layer.id)}
                         className="absolute inset-0 cursor-pointer transition-all duration-300 ease-out"
                         style={{
-                          transformStyle: 'preserve-3d',
-                          WebkitTransformStyle: 'preserve-3d',
+                          ...PRESERVE_3D,
                           transform: `translate3d(0, ${liftY}px, ${z.toFixed(1)}px)`,
                           zIndex: isSelected ? 35 : 10,
                           opacity,
@@ -490,7 +435,7 @@ export function HeroExplodedParallax({ onExploreCatalog, onOpenChatBot }) {
                       >
                         <Component isHighlighted={isSelected} />
 
-                        {/* Floating Label on Right */}
+                        {/* подпись слоя */}
                         {explosion > 0.35 && (
                           <div
                             className={`absolute -right-2 top-1/2 -translate-y-1/2 translate-x-full hidden sm:flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] font-mono whitespace-nowrap shadow-sm border transition-all ${
@@ -514,7 +459,7 @@ export function HeroExplodedParallax({ onExploreCatalog, onOpenChatBot }) {
 
               </div>
 
-              {/* Bottom Footer Info - Clean and uncluttered */}
+              {/* подпись внизу */}
               <div className="flex items-center justify-between text-xs font-mono text-stone-600 pt-2 border-t border-stone-200">
                 <span className="font-semibold text-stone-800">
                   Слой {activeLayer.number}: {activeLayer.title}

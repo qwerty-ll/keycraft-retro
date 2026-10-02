@@ -1,118 +1,108 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+// корзина для всего сайта
+import { createContext, useContext, useState } from 'react';
 import { PROMOCODES } from '../data/products';
+import { usePersistentState } from '../hooks/usePersistentState';
+import { useTimedValue } from '../hooks/useTimedValue';
 
+// общий доступ к корзине
 const CartContext = createContext();
 
-const CART_STORAGE_KEY = 'keycraft_retro_cart_v1';
-const ORDERS_STORAGE_KEY = 'keycraft_retro_orders_v1';
+// условия доставки
+const FREE_DELIVERY_FROM = 5000;
+const DELIVERY_PRICE = 350;
 
+// вариант товара по умолчанию
+const defaultOption = (product) => product.options?.[0] ?? 'Стандарт';
+
+// корзина
 export function CartProvider({ children }) {
-
-  const [cartItems, setCartItems] = useState(() => {
-    try {
-      const saved = localStorage.getItem(CART_STORAGE_KEY);
-      return saved ? JSON.parse(saved) : [];
-    } catch (e) {
-      console.error('Ошибка загрузки корзины из localStorage:', e);
-      return [];
-    }
-  });
-
-  const [appliedPromo, setAppliedPromo] = useState(null);
+  // корзина и промокод сохраняются в браузере
+  const [cartItems, setCartItems] = usePersistentState('keycraft_retro_cart_v1', []);
+  const [appliedPromo, setAppliedPromo] = usePersistentState('keycraft_retro_promo_v1', null);
   const [promoError, setPromoError] = useState('');
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
-  const [toastMessage, setToastMessage] = useState(null);
+  const [toast, setToast] = useTimedValue(2500);
 
-  useEffect(() => {
-    try {
-      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cartItems));
-    } catch (e) {
-      console.error('Ошибка сохранения корзины в localStorage:', e);
-    }
-  }, [cartItems]);
+  // показать уведомление
+  const showToast = (text) => {
+    if (!isCartOpen) setToast({ text, id: Date.now() });
+  };
+  const hideToast = () => setToast(null);
 
-  const showToast = (message) => {
-    setToastMessage(message);
-    setTimeout(() => {
-      setToastMessage(null);
-    }, 3500);
+  // добавить товар в корзину
+  const addToCart = (product, quantity = 1, selectedOption = null, { silent = false } = {}) => {
+    const opt = selectedOption || defaultOption(product);
+    const id = `${product.id}-${opt}`;
+
+    setCartItems((prev) =>
+      prev.some((item) => item.id === id)
+        ? prev.map((item) => (item.id === id ? { ...item, quantity: item.quantity + quantity } : item))
+        : [...prev, { id, product, quantity, selectedOption: opt, addedAt: Date.now() }]
+    );
+    if (!silent) showToast(`«${product.title}» добавлен в корзину`);
   };
 
-  const addToCart = (product, quantity = 1, selectedOption = null) => {
-    const opt = selectedOption || (product.options && product.options.length > 0 ? product.options[0] : 'Стандарт');
-    
-    setCartItems(prev => {
-      const existingIndex = prev.findIndex(item => item.product.id === product.id && item.selectedOption === opt);
-      if (existingIndex > -1) {
-        const updated = [...prev];
-        updated[existingIndex].quantity += quantity;
-        return updated;
-      } else {
-        return [...prev, {
-          id: `${product.id}-${opt}`,
-          product,
-          quantity,
-          selectedOption: opt,
-          addedAt: Date.now()
-        }];
-      }
-    });
+  // сколько штук товара в корзине
+  const productQty = (productId) =>
+    cartItems.reduce((acc, item) => (item.product.id === productId ? acc + item.quantity : acc), 0);
 
-    showToast(`«${product.title}» добавлен в корзину`);
+  // убрать одну штуку
+  const decrementProduct = (productId) => {
+    const item = cartItems.findLast((i) => i.product.id === productId);
+    if (item) updateQuantity(item.id, -1);
   };
 
+  // изменить количество
   const updateQuantity = (cartItemId, delta) => {
-    setCartItems(prev => {
-      return prev.map(item => {
-        if (item.id === cartItemId) {
-          const newQty = item.quantity + delta;
-          return newQty > 0 ? { ...item, quantity: newQty } : null;
-        }
-        return item;
-      }).filter(Boolean);
-    });
+    setCartItems((prev) =>
+      prev
+        .map((item) => (item.id === cartItemId ? { ...item, quantity: item.quantity + delta } : item))
+        .filter((item) => item.quantity > 0)
+    );
   };
 
+  // удалить товар
   const removeFromCart = (cartItemId) => {
-    setCartItems(prev => prev.filter(item => item.id !== cartItemId));
+    setCartItems((prev) => prev.filter((item) => item.id !== cartItemId));
   };
 
+  // очистить корзину
   const clearCart = () => {
     setCartItems([]);
     setAppliedPromo(null);
   };
 
+  // проверить промокод
   const applyPromo = (code) => {
     const cleanCode = (code || '').trim().toUpperCase();
-    if (PROMOCODES[cleanCode]) {
-      setAppliedPromo({
-        code: cleanCode,
-        ...PROMOCODES[cleanCode]
-      });
-      setPromoError('');
-      showToast(`Промокод ${cleanCode} успешно применён!`);
-      return true;
-    } else {
+    if (!PROMOCODES[cleanCode]) {
       setPromoError('Неверный промокод (попробуйте VINTAGE10 или THOCK20)');
       return false;
     }
+    setAppliedPromo({ code: cleanCode, ...PROMOCODES[cleanCode] });
+    setPromoError('');
+    return true;
   };
 
+  // убрать промокод
   const removePromo = () => {
     setAppliedPromo(null);
     setPromoError('');
   };
 
+  // итоги корзины
   const totalItems = cartItems.reduce((acc, item) => acc + item.quantity, 0);
   const subtotal = cartItems.reduce((acc, item) => acc + item.product.price * item.quantity, 0);
   const discountAmount = appliedPromo ? Math.round((subtotal * appliedPromo.discountPercent) / 100) : 0;
   const totalPrice = Math.max(0, subtotal - discountAmount);
+  const deliveryCost = subtotal >= FREE_DELIVERY_FROM ? 0 : DELIVERY_PRICE;
+  const freeDeliveryLeft = Math.max(0, FREE_DELIVERY_FROM - subtotal);
 
+  // оформить заказ
   const createOrder = (customerData) => {
-    const orderNumber = `KC-${Math.floor(100000 + Math.random() * 900000)}`;
     const newOrder = {
-      orderNumber,
+      orderNumber: `KC-${Math.floor(100000 + Math.random() * 900000)}`,
       date: new Date().toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
       items: [...cartItems],
       subtotal,
@@ -123,8 +113,8 @@ export function CartProvider({ children }) {
     };
 
     try {
-      const existingOrders = JSON.parse(localStorage.getItem(ORDERS_STORAGE_KEY) || '[]');
-      localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify([newOrder, ...existingOrders]));
+      const key = 'keycraft_retro_orders_v1';
+      localStorage.setItem(key, JSON.stringify([newOrder, ...JSON.parse(localStorage.getItem(key) || '[]')]));
     } catch (e) {
       console.error('Ошибка сохранения заказа:', e);
     }
@@ -133,37 +123,21 @@ export function CartProvider({ children }) {
     return newOrder;
   };
 
+  // отдаём корзину наружу
   return (
     <CartContext.Provider value={{
-      cartItems,
-      addToCart,
-      updateQuantity,
-      removeFromCart,
-      clearCart,
-      appliedPromo,
-      promoError,
-      applyPromo,
-      removePromo,
-      totalItems,
-      subtotal,
-      discountAmount,
-      totalPrice,
-      isCartOpen,
-      setIsCartOpen,
-      isCheckoutOpen,
-      setIsCheckoutOpen,
-      createOrder,
-      toastMessage,
+      cartItems, addToCart, updateQuantity, removeFromCart, clearCart, productQty, decrementProduct,
+      appliedPromo, promoError, applyPromo, removePromo,
+      totalItems, subtotal, discountAmount, totalPrice, deliveryCost, freeDeliveryLeft,
+      isCartOpen, setIsCartOpen, isCheckoutOpen, setIsCheckoutOpen,
+      createOrder, toast, showToast, hideToast,
     }}>
       {children}
     </CartContext.Provider>
   );
 }
 
+// достать корзину
 export function useCart() {
-  const context = useContext(CartContext);
-  if (!context) {
-    throw new Error('useCart должен использоваться внутри CartProvider');
-  }
-  return context;
+  return useContext(CartContext);
 }
