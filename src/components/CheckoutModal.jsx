@@ -38,6 +38,9 @@ export function CheckoutModal() {
     setCompletedOrder(null);
   };
 
+  // Самовывоз из мастерской — без оплаты доставки
+  const delivery = formData.deliveryMethod === 'pickup' ? 0 : deliveryCost;
+
   const field = (name) => ({
     value: formData[name],
     error: errors[name],
@@ -58,7 +61,7 @@ export function CheckoutModal() {
     e.preventDefault();
     if (!validate()) return;
 
-    setCompletedOrder(createOrder({ ...formData, deliveryCost }));
+    setCompletedOrder(createOrder({ ...formData, deliveryCost: delivery }));
     confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 }, colors: ['#C2622D', '#D97706', '#262320'] });
   };
 
@@ -141,9 +144,13 @@ export function CheckoutModal() {
                     <span>-{rub(discountAmount)}</span>
                   </div>
                 )}
+                <div className="flex justify-between text-stone-600">
+                  <span>Доставка:</span>
+                  <span>{delivery ? rub(delivery) : 'Бесплатно'}</span>
+                </div>
                 <div className="flex justify-between text-stone-900 font-bold pt-1 border-t border-stone-200 text-sm">
                   <span>Итого к оплате:</span>
-                  <span className="text-vintage-accent">{rub(totalPrice + deliveryCost)}</span>
+                  <span className="text-vintage-accent">{rub(totalPrice + delivery)}</span>
                 </div>
               </div>
 
@@ -183,7 +190,7 @@ export function CheckoutModal() {
                     <div>
                       <div className="font-medium text-stone-900">{item.product.title}</div>
                       <div className="text-[10px] text-stone-500">
-                        {item.quantity} шт. x {item.product.price} ₽
+                        {item.quantity} шт. × {rub(item.product.price)}
                       </div>
                     </div>
                     <div className="font-semibold text-stone-900">

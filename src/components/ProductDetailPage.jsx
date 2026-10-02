@@ -44,7 +44,7 @@ export function ProductDetailPage({
   onBackToCatalog, 
   onOpenProduct 
 }) {
-  const { addToCart } = useCart();
+  const { addToCart, productQty, setIsCartOpen } = useCart();
   const { isFavorite, toggleFavorite } = useFavorites();
 
   const product = PRODUCTS.find((p) => p.id === productId) || PRODUCTS[0];
@@ -54,9 +54,10 @@ export function ProductDetailPage({
   const [activeTab, setActiveTab] = useState('specs');
 
   const favorited = isFavorite(product.id);
-  const handleToggleFav = () => toggleFavorite(product.id, product.title);
+  const inCart = productQty(product.id);
+  const handleToggleFav = () => toggleFavorite(product.id);
   const handleAddToCart = () => {
-    addToCart(product, quantity, selectedOption);
+    addToCart(product, quantity, selectedOption, { silent: true });
     flashAdded();
   };
 
@@ -269,6 +270,18 @@ export function ProductDetailPage({
                 <Heart className={`w-5 h-5 ${favorited ? 'fill-red-500' : ''}`} />
               </button>
             </div>
+
+            {inCart > 0 && (
+              <div className="flex items-center justify-between gap-2 p-2.5 rounded-lg bg-vintage-accentLight border border-vintage-accent/30 text-xs font-mono">
+                <span className="flex items-center gap-1.5 text-stone-800">
+                  <ShoppingBag className="w-3.5 h-3.5 text-vintage-accent" />
+                  В корзине уже <strong>{inCart} шт.</strong>
+                </span>
+                <button onClick={() => setIsCartOpen(true)} className="text-vintage-accent font-semibold hover:underline">
+                  Открыть корзину →
+                </button>
+              </div>
+            )}
 
             <div className="text-[11px] font-mono text-stone-500 flex items-center gap-1.5">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />

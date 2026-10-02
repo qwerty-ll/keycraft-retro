@@ -12,13 +12,20 @@ const defaultOption = (product) => product.options?.[0] ?? 'Стандарт';
 
 export function CartProvider({ children }) {
   const [cartItems, setCartItems] = usePersistentState('keycraft_retro_cart_v1', []);
-  const [appliedPromo, setAppliedPromo] = useState(null);
+  const [appliedPromo, setAppliedPromo] = usePersistentState('keycraft_retro_promo_v1', null);
   const [promoError, setPromoError] = useState('');
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
-  const [toastMessage, showToast] = useTimedValue(3500);
+  const [toast, setToast] = useTimedValue(2500);
 
-  const addToCart = (product, quantity = 1, selectedOption = null) => {
+  // Тост «добавлено» — только когда корзина закрыта (иначе всё и так видно)
+  const showToast = (text) => {
+    if (!isCartOpen) setToast({ text, id: Date.now() });
+  };
+  const hideToast = () => setToast(null);
+
+  // silent: место вызова само показывает результат (счётчик на карточке и т.п.)
+  const addToCart = (product, quantity = 1, selectedOption = null, { silent = false } = {}) => {
     const opt = selectedOption || defaultOption(product);
     const id = `${product.id}-${opt}`;
 
@@ -27,7 +34,17 @@ export function CartProvider({ children }) {
         ? prev.map((item) => (item.id === id ? { ...item, quantity: item.quantity + quantity } : item))
         : [...prev, { id, product, quantity, selectedOption: opt, addedAt: Date.now() }]
     );
-    showToast(`«${product.title}» добавлен в корзину`);
+    if (!silent) showToast(`«${product.title}» добавлен в корзину`);
+  };
+
+  // Сколько штук товара в корзине (по всем вариантам)
+  const productQty = (productId) =>
+    cartItems.reduce((acc, item) => (item.product.id === productId ? acc + item.quantity : acc), 0);
+
+  // Минус одна штука товара — с последней добавленной позиции
+  const decrementProduct = (productId) => {
+    const item = cartItems.findLast((i) => i.product.id === productId);
+    if (item) updateQuantity(item.id, -1);
   };
 
   const updateQuantity = (cartItemId, delta) => {
@@ -55,7 +72,6 @@ export function CartProvider({ children }) {
     }
     setAppliedPromo({ code: cleanCode, ...PROMOCODES[cleanCode] });
     setPromoError('');
-    showToast(`Промокод ${cleanCode} успешно применён!`);
     return true;
   };
 
@@ -69,6 +85,7 @@ export function CartProvider({ children }) {
   const discountAmount = appliedPromo ? Math.round((subtotal * appliedPromo.discountPercent) / 100) : 0;
   const totalPrice = Math.max(0, subtotal - discountAmount);
   const deliveryCost = subtotal >= FREE_DELIVERY_FROM ? 0 : DELIVERY_PRICE;
+  const freeDeliveryLeft = Math.max(0, FREE_DELIVERY_FROM - subtotal);
 
   const createOrder = (customerData) => {
     const newOrder = {
@@ -95,11 +112,11 @@ export function CartProvider({ children }) {
 
   return (
     <CartContext.Provider value={{
-      cartItems, addToCart, updateQuantity, removeFromCart, clearCart,
+      cartItems, addToCart, updateQuantity, removeFromCart, clearCart, productQty, decrementProduct,
       appliedPromo, promoError, applyPromo, removePromo,
-      totalItems, subtotal, discountAmount, totalPrice, deliveryCost,
+      totalItems, subtotal, discountAmount, totalPrice, deliveryCost, freeDeliveryLeft,
       isCartOpen, setIsCartOpen, isCheckoutOpen, setIsCheckoutOpen,
-      createOrder, toastMessage,
+      createOrder, toast, showToast, hideToast,
     }}>
       {children}
     </CartContext.Provider>

@@ -1,30 +1,22 @@
 import { createContext, useContext } from 'react';
 import { usePersistentState } from '../hooks/usePersistentState';
-import { useTimedValue } from '../hooks/useTimedValue';
 
 const FavoritesContext = createContext();
 
+// Без тостов: результат и так виден (сердце на карточке + счётчик в меню)
 export function FavoritesProvider({ children }) {
   const [favorites, setFavorites] = usePersistentState('keycraft_retro_favorites_v1', []);
-  const [favToastMessage, showToast] = useTimedValue(2800);
 
   const isFavorite = (productId) => favorites.includes(productId);
 
-  const toggleFavorite = (productId, productName = 'Товар') => {
-    const removing = isFavorite(productId);
-    showToast(`${removing ? 'Удалено из избранного' : 'Добавлено в избранное'}: ${productName}`);
-    setFavorites((prev) => (removing ? prev.filter((id) => id !== productId) : [...prev, productId]));
+  const toggleFavorite = (productId) => {
+    setFavorites((prev) => (prev.includes(productId) ? prev.filter((id) => id !== productId) : [...prev, productId]));
   };
 
-  const clearFavorites = () => {
-    setFavorites([]);
-    showToast('Список избранного очищен');
-  };
+  const clearFavorites = () => setFavorites([]);
 
   return (
-    <FavoritesContext.Provider
-      value={{ favorites, favoritesCount: favorites.length, toggleFavorite, isFavorite, clearFavorites, favToastMessage }}
-    >
+    <FavoritesContext.Provider value={{ favorites, favoritesCount: favorites.length, toggleFavorite, isFavorite, clearFavorites }}>
       {children}
     </FavoritesContext.Provider>
   );

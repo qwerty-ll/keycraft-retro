@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import { CartProvider } from './context/CartContext';
 import { FavoritesProvider } from './context/FavoritesContext';
 import { Navbar } from './components/Navbar';
@@ -26,30 +26,53 @@ function MainShop() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isChatBotOpen, setIsChatBotOpen] = useState(false);
 
+  // Прокрутка: запоминаем позицию каждой страницы, чтобы при возврате
+  // (кнопка «Назад» браузера или «Вернуться в каталог») оказаться там же
+  const location = useRef({ page: 'home', productId: null });
+  const scrollMemory = useRef({});
+  const pendingScroll = useRef(null);
+  const keyOf = ({ page, productId }) => (page === 'product' ? `product/${productId}` : page);
+
+  // Возвращает false, если мы уже на этой странице
+  const go = (page, productId = null, { restore = false } = {}) => {
+    const next = { page, productId: page === 'product' ? productId : null };
+    if (keyOf(next) === keyOf(location.current)) return false;
+    scrollMemory.current[keyOf(location.current)] = window.scrollY;
+    pendingScroll.current = restore ? scrollMemory.current[keyOf(next)] ?? 0 : 0;
+    location.current = next;
+    setCurrentPage(page);
+    if (next.productId) setActiveProductId(next.productId);
+    return true;
+  };
+
+  useLayoutEffect(() => {
+    if (pendingScroll.current === null) return;
+    window.scrollTo({ top: pendingScroll.current, behavior: 'instant' });
+    pendingScroll.current = null;
+  }, [currentPage, activeProductId]);
+
+  // Синхронизация с адресной строкой (в т.ч. кнопки «Назад/Вперёд» браузера)
   useEffect(() => {
     const syncFromHash = () => {
       const hash = window.location.hash.slice(1);
-      if (hash.startsWith('product/')) {
-        setActiveProductId(hash.slice('product/'.length));
-        setCurrentPage('product');
-      } else {
-        setCurrentPage(PAGES.includes(hash) ? hash : 'home');
-      }
+      if (hash.startsWith('product/')) go('product', hash.slice('product/'.length), { restore: true });
+      else go(PAGES.includes(hash) ? hash : 'home', null, { restore: true });
     };
     syncFromHash();
     window.addEventListener('hashchange', syncFromHash);
     return () => window.removeEventListener('hashchange', syncFromHash);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const navigateTo = (page, productId = null, category = null) => {
-    setCurrentPage(page);
-    if (productId) setActiveProductId(productId);
+  const navigateTo = (page, productId = null, category = null, { restore = false } = {}) => {
     if (category) setSelectedCategory(category);
-    window.location.hash = productId ? `product/${productId}` : page;
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const changed = go(page, productId, { restore: restore && !category });
+    if (changed) window.location.hash = productId ? `product/${productId}` : page;
+    else window.scrollTo({ top: 0, behavior: 'smooth' }); // повторный тап по текущему разделу — наверх
   };
   const openProduct = (id) => navigateTo('product', id);
   const openCatalog = (category = null) => navigateTo('catalog', null, category);
+  const backToCatalog = () => navigateTo('catalog', null, null, { restore: true });
   const openChatBot = () => setIsChatBotOpen(true);
 
   return (
@@ -162,12 +185,17 @@ function MainShop() {
         {/* VIEW 2: CATALOG PAGE */}
         {currentPage === 'catalog' && (
           <div>
-            <Breadcrumbs currentCategory={selectedCategory} onSelectCategory={setSelectedCategory} />
+            <Breadcrumbs
+              currentCategory={selectedCategory}
+              onSelectCategory={setSelectedCategory}
+              onHome={() => navigateTo('home')}
+            />
 
             <Catalog
               selectedCategory={selectedCategory}
               onSelectCategory={setSelectedCategory}
               searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
               onOpenProduct={openProduct}
             />
           </div>
@@ -178,7 +206,7 @@ function MainShop() {
           <ProductDetailPage
             key={activeProductId}
             productId={activeProductId}
-            onBackToCatalog={() => openCatalog()}
+            onBackToCatalog={backToCatalog}
             onOpenProduct={openProduct}
           />
         )}
@@ -197,7 +225,7 @@ function MainShop() {
       <Footer onSelectCategory={openCatalog} />
 
       {/* Slide-out Cart Drawer */}
-      <CartDrawer />
+      <CartDrawer onOpenProduct={openProduct} onOpenCatalog={() => openCatalog()} />
 
       {/* Checkout Modal */}
       <CheckoutModal />

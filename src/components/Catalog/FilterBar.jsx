@@ -54,7 +54,7 @@ export function FilterBar({
   return (
     <div className="space-y-3 mb-6">
       {/* Категории (горизонтальный скролл на мобильных) */}
-      <div className="flex items-center gap-1.5 overflow-x-auto pb-1.5 select-none">
+      <div className="flex items-center gap-1.5 overflow-x-auto pb-1.5 no-scrollbar select-none">
         {CATEGORIES.map((cat) => {
           const isActive = selectedCategory === cat.id;
           return (

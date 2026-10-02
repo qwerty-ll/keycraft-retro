@@ -1,5 +1,6 @@
-import { useState, useMemo, useEffect } from 'react';
-import { PackageSearch } from 'lucide-react';
+import { useState, useMemo, useEffect, useRef } from 'react';
+import { PackageSearch, Search, X } from 'lucide-react';
+import { usePersistentState } from '../../hooks/usePersistentState';
 import { PRODUCTS } from '../../data/products';
 import { FilterBar } from './FilterBar';
 import { ProductList } from './ProductCard';
@@ -38,21 +39,29 @@ function ProductSkeleton() {
   );
 }
 
-export function Catalog({ selectedCategory, onSelectCategory, searchQuery, onOpenProduct }) {
-  const [sortBy, setSortBy] = useState('popular');
-  const [priceLimit, setPriceLimit] = useState(25000);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(6);
-  const [isLoading, setIsLoading] = useState(false);
-  const [viewMode, setViewMode] = useState('grid');
+const DEFAULT_VIEW = { sortBy: 'popular', priceLimit: 25000, currentPage: 1, itemsPerPage: 6, viewMode: 'grid' };
 
-  // Короткий «скелетон» при смене фильтров
+export function Catalog({ selectedCategory, onSelectCategory, searchQuery, onSearchChange, onOpenProduct }) {
+  // Настройки каталога переживают переход на товар и обратно (в пределах вкладки)
+  const [view, setView] = usePersistentState('keycraft_catalog_view', DEFAULT_VIEW, sessionStorage);
+  const { sortBy, priceLimit, currentPage, itemsPerPage, viewMode } = view;
+  const set = (key) => (value) => setView((v) => ({ ...v, [key]: value }));
+  const [setSortBy, setPriceLimit, setCurrentPage, setItemsPerPage, setViewMode] =
+    ['sortBy', 'priceLimit', 'currentPage', 'itemsPerPage', 'viewMode'].map(set);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // При смене фильтров — на первую страницу и короткий «скелетон».
+  // При возврате в каталог фильтры те же, поэтому страница сохраняется.
+  const filterKey = JSON.stringify([selectedCategory, searchQuery, sortBy, priceLimit]);
+  const prevFilterKey = useRef(filterKey);
   useEffect(() => {
-    setCurrentPage(1);
+    if (prevFilterKey.current === filterKey) return;
+    prevFilterKey.current = filterKey;
+    setView((v) => ({ ...v, currentPage: 1 }));
     setIsLoading(true);
     const timer = setTimeout(() => setIsLoading(false), 220);
     return () => clearTimeout(timer);
-  }, [selectedCategory, searchQuery, sortBy, priceLimit]);
+  }, [filterKey, setView]);
 
   const filteredProducts = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();
@@ -71,8 +80,8 @@ export function Catalog({ selectedCategory, onSelectCategory, searchQuery, onOpe
 
   const handleResetFilters = () => {
     onSelectCategory('all');
-    setPriceLimit(MAX_PRICE);
-    setSortBy('popular');
+    onSearchChange('');
+    setView((v) => ({ ...v, priceLimit: MAX_PRICE, sortBy: 'popular' }));
   };
 
   return (
@@ -84,6 +93,24 @@ export function Catalog({ selectedCategory, onSelectCategory, searchQuery, onOpe
         <p className="text-xs text-stone-500 font-sans mt-0.5">
           Кастомные механические клавиатуры, свитчи, кейкапы и аксессуары ручной сборки
         </p>
+
+        {/* Поиск на мобильных (на десктопе он в шапке) */}
+        <div className="relative mt-3 md:hidden">
+          <input
+            id="mobile-search"
+            type="text"
+            value={searchQuery}
+            onChange={(e) => onSearchChange(e.target.value)}
+            placeholder="Поиск комплектующих..."
+            className="w-full bg-white border border-stone-300 rounded-lg py-2.5 pl-9 pr-9 text-sm focus:outline-none focus:ring-1 focus:ring-vintage-accent"
+          />
+          <Search className="w-4 h-4 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          {searchQuery && (
+            <button onClick={() => onSearchChange('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400" aria-label="Очистить поиск">
+              <X className="w-4 h-4" />
+            </button>
+          )}
+        </div>
       </div>
 
       <FilterBar

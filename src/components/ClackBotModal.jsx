@@ -96,7 +96,7 @@ export function ClackBotModal({ isOpen, onClose, onOpenProduct }) {
   };
 
   const handleAddDirect = (prod) => {
-    addToCart(prod, 1);
+    addToCart(prod, 1, null, { silent: true });
     flashAdded(prod.id);
   };
 

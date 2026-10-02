@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { ShoppingBag, Search, Bot, X, Menu, ShieldCheck, Heart, Home, Grid } from 'lucide-react';
+import { ShoppingBag, Search, Bot, X, ShieldCheck, Heart, Home, Grid } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useFavorites } from '../context/FavoritesContext';
 
@@ -9,8 +8,7 @@ const NAV_ITEMS = [
   { page: 'favorites', label: 'Избранное', Icon: Heart },
 ];
 
-function SearchInput({ value, onChange, onClear, mobile }) {
-  const icon = mobile ? 'w-4 h-4' : 'w-3.5 h-3.5';
+function SearchInput({ value, onChange, onClear }) {
   return (
     <div className="relative">
       <input
@@ -18,14 +16,12 @@ function SearchInput({ value, onChange, onClear, mobile }) {
         value={value}
         onChange={onChange}
         placeholder="Поиск комплектующих..."
-        className={mobile
-          ? 'w-full bg-white border border-stone-300 rounded-lg py-2 pl-9 pr-8 text-xs focus:outline-none'
-          : 'w-full bg-stone-50 border border-stone-300 rounded-lg py-1.5 pl-8 pr-8 text-xs focus:outline-none focus:ring-1 focus:ring-vintage-accent focus:bg-white transition-all placeholder:text-stone-400'}
+        className="w-full bg-stone-50 border border-stone-300 rounded-lg py-1.5 pl-8 pr-8 text-xs focus:outline-none focus:ring-1 focus:ring-vintage-accent focus:bg-white transition-all placeholder:text-stone-400"
       />
-      <Search className={`${icon} text-stone-400 absolute left-2.5 top-1/2 -translate-y-1/2`} />
+      <Search className="w-3.5 h-3.5 text-stone-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
       {value && (
         <button onClick={onClear} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-700">
-          <X className={icon} />
+          <X className="w-3.5 h-3.5" />
         </button>
       )}
     </div>
@@ -35,11 +31,12 @@ function SearchInput({ value, onChange, onClear, mobile }) {
 export function Navbar({ currentPage = 'home', onNavigate, searchQuery, setSearchQuery, onOpenChatBot }) {
   const { totalItems, setIsCartOpen } = useCart();
   const { favoritesCount } = useFavorites();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const handleNavClick = (page) => onNavigate(page);
 
-  const handleNavClick = (page) => {
-    onNavigate(page);
-    setIsMobileMenuOpen(false);
+  // На мобильных поиск живёт в каталоге: переходим туда и ставим фокус в поле
+  const openMobileSearch = () => {
+    onNavigate('catalog');
+    setTimeout(() => document.getElementById('mobile-search')?.focus(), 50);
   };
 
   const searchProps = {
@@ -62,9 +59,9 @@ export function Navbar({ currentPage = 'home', onNavigate, searchQuery, setSearc
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-stone-200 transition-all">
         {/* Верхний инфо-баннер */}
         <div className="bg-stone-900 text-stone-200 text-xs py-1.5 px-4 font-mono flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
-            <span>KeyCraft — мастерская кастомных механических клавиатур</span>
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse shrink-0"></span>
+            <span className="truncate">KeyCraft — мастерская кастомных механических клавиатур</span>
             <span className="text-stone-500 hidden sm:inline">•</span>
             <span className="hidden sm:inline">Скидка 10% по промокоду: <strong className="text-amber-400">VINTAGE10</strong></span>
           </div>
@@ -127,47 +124,22 @@ export function Navbar({ currentPage = 'home', onNavigate, searchQuery, setSearc
               <ShoppingBag className="w-4 h-4" />
               <span className="hidden sm:inline font-semibold">Корзина</span>
               {totalItems > 0 && (
-                <span className="inline-flex items-center justify-center min-w-[18px] px-1 text-[11px] font-mono font-bold bg-white text-stone-900 rounded-full">
+                <span key={totalItems} className="inline-flex items-center justify-center min-w-[18px] px-1 text-[11px] font-mono font-bold bg-white text-stone-900 rounded-full animate-pop">
                   {totalItems}
                 </span>
               )}
             </button>
 
             <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              onClick={openMobileSearch}
               className="md:hidden p-1.5 rounded-lg border border-stone-300 bg-stone-50 text-stone-700"
-              aria-label="Открыть меню"
+              aria-label="Поиск"
             >
-              {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              <Search className="w-5 h-5" />
             </button>
           </div>
         </div>
 
-        {/* Мобильное выпадающее меню */}
-        {isMobileMenuOpen && (
-          <div className="md:hidden p-3 bg-stone-50 border-t border-stone-200 space-y-3">
-            <SearchInput {...searchProps} mobile />
-            <div className="grid grid-cols-3 gap-2">
-              {NAV_ITEMS.map((item) => (
-                <button
-                  key={item.page}
-                  onClick={() => handleNavClick(item.page)}
-                  className={`p-2.5 rounded-lg text-xs font-mono font-medium border text-center flex flex-col items-center gap-1 relative ${
-                    currentPage === item.page ? 'bg-stone-900 text-white border-stone-900' : 'bg-white text-stone-700 border-stone-200'
-                  }`}
-                >
-                  {navIcon(item, 'w-4 h-4')}
-                  <span>{item.label}</span>
-                  {showFavCount(item.page) && (
-                    <span className="absolute top-1.5 right-3 bg-red-500 text-white text-[10px] font-bold px-1 rounded-full">
-                      {favoritesCount}
-                    </span>
-                  )}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
       </header>
 
       {/* Нижняя панель навигации на мобильных */}
@@ -191,7 +163,7 @@ export function Navbar({ currentPage = 'home', onNavigate, searchQuery, setSearc
         >
           <ShoppingBag className="w-4 h-4" />
           <span>Корзина</span>
-          {totalItems > 0 && <MobileBadge bg="bg-vintage-accent">{totalItems}</MobileBadge>}
+          {totalItems > 0 && <MobileBadge key={totalItems} bg="bg-vintage-accent animate-pop">{totalItems}</MobileBadge>}
         </button>
       </div>
     </>

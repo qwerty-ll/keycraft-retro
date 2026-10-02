@@ -17,7 +17,7 @@ export function FavoritesPage({ onBackToCatalog, onOpenProduct }) {
   const hasItems = favoritedProducts.length > 0;
 
   const handleAddAllToCart = () => {
-    favoritedProducts.forEach((product) => addToCart(product, 1));
+    favoritedProducts.forEach((product) => addToCart(product, 1, null, { silent: true }));
     flashAllAdded();
   };
 

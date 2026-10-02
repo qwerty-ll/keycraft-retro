@@ -1,7 +1,6 @@
-import { ShoppingBag, Star, Check, Heart, ArrowRight } from 'lucide-react';
+import { ShoppingBag, Star, Heart, ArrowRight, Minus, Plus } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useFavorites } from '../../context/FavoritesContext';
-import { useTimedValue } from '../../hooks/useTimedValue';
 import { rub } from '../../utils/format';
 
 // Сетка или список карточек
@@ -16,22 +15,19 @@ export function ProductList({ products, layout = 'grid', onOpenProduct }) {
 }
 
 export function ProductCard({ product, onOpenProduct, layout = 'grid' }) {
-  const { addToCart } = useCart();
+  const { addToCart, productQty, decrementProduct } = useCart();
   const { isFavorite, toggleFavorite } = useFavorites();
-  const [isAddedRecently, flashAdded] = useTimedValue(1500);
   const favorited = isFavorite(product.id);
+  const inCart = productQty(product.id);
   const isList = layout === 'list';
 
-  const handleAddToCart = (e) => {
+  // Кнопки внутри карточки не должны открывать страницу товара
+  const stop = (fn) => (e) => {
     e.stopPropagation();
-    addToCart(product, 1);
-    flashAdded();
+    fn();
   };
-
-  const handleToggleFav = (e) => {
-    e.stopPropagation();
-    toggleFavorite(product.id, product.title);
-  };
+  const add = stop(() => addToCart(product, 1, null, { silent: true }));
+  const handleToggleFav = stop(() => toggleFavorite(product.id));
 
   const imageOverlays = (
     <>
@@ -73,20 +69,37 @@ export function ProductCard({ product, onOpenProduct, layout = 'grid' }) {
     </div>
   );
 
-  const cartButton = (
+  // До добавления — кнопка «В корзину», после — счётчик «− N +»
+  const cartButton = inCart === 0 ? (
     <button
-      onClick={handleAddToCart}
-      className={`btn-retro text-xs ${isList ? 'py-2 px-3.5' : 'py-1.5 px-3'} flex items-center gap-1.5 transition-all shadow-sm ${
-        isAddedRecently ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-stone-900 text-white hover:bg-stone-800'
-      }`}
-      aria-label={isList ? undefined : 'Добавить в корзину'}
+      onClick={add}
+      className={`btn-retro text-xs ${isList ? 'py-2 px-3.5' : 'py-1.5 px-3'} flex items-center gap-1.5 transition-all shadow-sm bg-stone-900 text-white hover:bg-stone-800`}
+      aria-label="Добавить в корзину"
     >
-      {isAddedRecently ? <Check className="w-3.5 h-3.5" /> : <ShoppingBag className="w-3.5 h-3.5" />}
-      <span>{isAddedRecently ? 'В корзине' : 'В корзину'}</span>
+      <ShoppingBag className="w-3.5 h-3.5" />
+      <span>В корзину</span>
     </button>
+  ) : (
+    <div
+      onClick={(e) => e.stopPropagation()}
+      className="flex items-center rounded-lg bg-vintage-accent text-white shadow-sm font-mono text-xs cursor-default"
+    >
+      <button onClick={stop(() => decrementProduct(product.id))} className="p-2 hover:bg-black/10 rounded-l-lg" aria-label="Убрать одну штуку">
+        <Minus className="w-3.5 h-3.5" />
+      </button>
+      <span className="min-w-[64px] text-center font-bold leading-tight">
+        {inCart} шт.
+        <span className="block text-[9px] font-normal opacity-80">в корзине</span>
+      </span>
+      <button onClick={add} className="p-2 hover:bg-black/10 rounded-r-lg" aria-label="Добавить ещё одну">
+        <Plus className="w-3.5 h-3.5" />
+      </button>
+    </div>
   );
 
-  const cardClass = 'card-retro card-retro-hover overflow-hidden bg-white group select-none cursor-pointer transition-all border border-stone-200';
+  const cardClass = `card-retro card-retro-hover overflow-hidden bg-white group select-none cursor-pointer transition-all border ${
+    inCart ? 'border-vintage-accent/50 ring-1 ring-vintage-accent/30' : 'border-stone-200'
+  }`;
   const open = () => onOpenProduct?.(product.id);
 
   if (isList) {

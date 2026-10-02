@@ -9,7 +9,7 @@ const separator = (
   </li>
 );
 
-export function Breadcrumbs({ currentCategory, onSelectCategory }) {
+export function Breadcrumbs({ currentCategory, onSelectCategory, onHome }) {
   const category = CATEGORIES.find((c) => c.id === currentCategory);
   const isAll = currentCategory === 'all';
 
@@ -17,7 +17,7 @@ export function Breadcrumbs({ currentCategory, onSelectCategory }) {
     <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 select-none" aria-label="Хлебные крошки">
       <ol className="flex items-center flex-wrap gap-1.5 text-xs font-mono text-vintage-muted">
         <li className="flex items-center">
-          <button onClick={() => onSelectCategory('all')} className={`flex items-center gap-1 ${linkClass}`}>
+          <button onClick={onHome} className={`flex items-center gap-1 ${linkClass}`}>
             <Home className="w-3.5 h-3.5" />
             <span>Главная</span>
           </button>
