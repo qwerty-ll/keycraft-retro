@@ -1,3 +1,4 @@
+// Страница «Избранное»
 import { useState } from 'react';
 import { Heart, ShoppingBag, Trash2, ArrowLeft } from 'lucide-react';
 import { PRODUCTS } from '../data/products';
@@ -13,9 +14,11 @@ export function FavoritesPage({ onBackToCatalog, onOpenProduct }) {
   const [viewMode, setViewMode] = useState('grid');
   const [allAdded, flashAllAdded] = useTimedValue(2000);
 
+  // Превращаем список id в сами товары
   const favoritedProducts = PRODUCTS.filter((p) => favorites.includes(p.id));
   const hasItems = favoritedProducts.length > 0;
 
+  // Положить в корзину всё избранное разом
   const handleAddAllToCart = () => {
     favoritedProducts.forEach((product) => addToCart(product, 1, null, { silent: true }));
     flashAllAdded();

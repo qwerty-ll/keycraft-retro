@@ -1,11 +1,14 @@
+// Окно оформления заказа: форма → чек
 import { useState } from 'react';
 import { X, CheckCircle2, Printer, ArrowRight, ShieldCheck } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import confetti from 'canvas-confetti';
 import { rub } from '../utils/format';
 
+// Общий стиль полей ввода
 const inputClass = 'w-full bg-stone-50 border rounded-lg p-2 text-xs focus:outline-none focus:bg-white';
 
+// Поле формы: подпись, ввод и текст ошибки
 function Field({ label, error, type = 'text', ...props }) {
   return (
     <div>
@@ -19,6 +22,7 @@ function Field({ label, error, type = 'text', ...props }) {
 export function CheckoutModal() {
   const { isCheckoutOpen, setIsCheckoutOpen, cartItems, discountAmount, totalPrice, deliveryCost, appliedPromo, createOrder } = useCart();
 
+  // Данные формы одним объектом
   const [formData, setFormData] = useState({
     fullName: '',
     phone: '',
@@ -28,11 +32,14 @@ export function CheckoutModal() {
     deliveryMethod: 'cdek',
   });
 
+  // Готовый заказ (для чека) и ошибки полей
   const [completedOrder, setCompletedOrder] = useState(null);
   const [errors, setErrors] = useState({});
 
+  // Окно закрыто — ничего не рисуем
   if (!isCheckoutOpen) return null;
 
+  // Закрыть окно и забыть чек
   const close = () => {
     setIsCheckoutOpen(false);
     setCompletedOrder(null);
@@ -41,12 +48,14 @@ export function CheckoutModal() {
   // Самовывоз из мастерской — без оплаты доставки
   const delivery = formData.deliveryMethod === 'pickup' ? 0 : deliveryCost;
 
+  // Всё, что нужно полю: значение, ошибка и обработчик ввода
   const field = (name) => ({
     value: formData[name],
     error: errors[name],
     onChange: (e) => setFormData({ ...formData, [name]: e.target.value }),
   });
 
+  // Простая проверка обязательных полей
   const validate = () => {
     const errs = {};
     if (!formData.fullName.trim()) errs.fullName = 'Укажите ваше имя';
@@ -57,6 +66,7 @@ export function CheckoutModal() {
     return Object.keys(errs).length === 0;
   };
 
+  // Отправка: проверить, создать заказ, показать чек и конфетти
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!validate()) return;

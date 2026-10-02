@@ -1,3 +1,4 @@
+// Корень приложения: провайдеры, переключение страниц и главная страница
 import { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import { CartProvider } from './context/CartContext';
 import { FavoritesProvider } from './context/FavoritesContext';
@@ -16,8 +17,10 @@ import { Footer } from './components/Footer';
 import { CATEGORIES } from './data/products';
 import { ArrowRight, Wrench, Sparkles, Cpu } from 'lucide-react';
 
+// Страницы, которые можно открыть по адресу #home / #catalog / #favorites
 const PAGES = ['home', 'catalog', 'favorites'];
 
+// Сам магазин: хранит текущую страницу и решает, что показать
 function MainShop() {
   // Навигация: 'home' | 'catalog' | 'product' | 'favorites' (через location.hash)
   const [currentPage, setCurrentPage] = useState('home');
@@ -26,8 +29,7 @@ function MainShop() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isChatBotOpen, setIsChatBotOpen] = useState(false);
 
-  // Прокрутка: запоминаем позицию каждой страницы, чтобы при возврате
-  // (кнопка «Назад» браузера или «Вернуться в каталог») оказаться там же
+  // Память прокрутки: при возврате на страницу оказываемся на том же месте
   const location = useRef({ page: 'home', productId: null });
   const scrollMemory = useRef({});
   const pendingScroll = useRef(null);
@@ -45,6 +47,7 @@ function MainShop() {
     return true;
   };
 
+  // После смены страницы прокручиваем куда нужно — до того, как её увидит пользователь
   useLayoutEffect(() => {
     if (pendingScroll.current === null) return;
     window.scrollTo({ top: pendingScroll.current, behavior: 'instant' });
@@ -64,12 +67,14 @@ function MainShop() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Перейти на страницу: меняем state и адрес в браузере
   const navigateTo = (page, productId = null, category = null, { restore = false } = {}) => {
     if (category) setSelectedCategory(category);
     const changed = go(page, productId, { restore: restore && !category });
     if (changed) window.location.hash = productId ? `product/${productId}` : page;
     else window.scrollTo({ top: 0, behavior: 'smooth' }); // повторный тап по текущему разделу — наверх
   };
+  // Короткие обёртки, чтобы в разметке было проще
   const openProduct = (id) => navigateTo('product', id);
   const openCatalog = (category = null) => navigateTo('catalog', null, category);
   const backToCatalog = () => navigateTo('catalog', null, null, { restore: true });
@@ -78,7 +83,7 @@ function MainShop() {
   return (
     <div className="min-h-screen flex flex-col bg-cream-100 text-vintage-dark font-sans selection:bg-vintage-accent selection:text-white pb-16 md:pb-0">
       
-      {/* Top Main Navbar with multi-page navigation links */}
+      {/* Шапка с меню */}
       <Navbar
         currentPage={currentPage}
         onNavigate={navigateTo}
@@ -89,17 +94,17 @@ function MainShop() {
 
       <main className="flex-1">
         
-        {/* VIEW 1: HOME PAGE */}
+        {/* Страница 1: главная */}
         {currentPage === 'home' && (
           <div className="space-y-6 sm:space-y-8">
             
-            {/* Hero Section with 3D Exploded Perspective View */}
+            {/* 3D-клавиатура по слоям */}
             <HeroExplodedParallax
               onExploreCatalog={() => openCatalog()}
               onOpenChatBot={openChatBot}
             />
 
-            {/* Quick Category Navigation Shortcuts */}
+            {/* Быстрые кнопки категорий */}
             <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
@@ -135,10 +140,10 @@ function MainShop() {
               </div>
             </section>
 
-            {/* Special Offers Carousel */}
+            {/* Карусель акций */}
             <PromoCarousel onOpenProduct={openProduct} />
 
-            {/* Workshop Craftsmanship Banner */}
+            {/* Тёмный баннер «о мастерской» */}
             <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
               <div className="bg-stone-900 text-white rounded-2xl p-6 sm:p-10 border border-stone-800 relative overflow-hidden shadow-clean">
                 <div className="relative z-10 max-w-2xl space-y-4">
@@ -174,7 +179,7 @@ function MainShop() {
                   </div>
                 </div>
 
-                {/* Subtle background decorative shapes */}
+                {/* Декоративное пятно света */}
                 <div className="absolute -right-12 -bottom-12 w-80 h-80 rounded-full bg-amber-500/10 blur-3xl pointer-events-none" />
               </div>
             </section>
@@ -182,7 +187,7 @@ function MainShop() {
           </div>
         )}
 
-        {/* VIEW 2: CATALOG PAGE */}
+        {/* Страница 2: каталог */}
         {currentPage === 'catalog' && (
           <div>
             <Breadcrumbs
@@ -201,7 +206,7 @@ function MainShop() {
           </div>
         )}
 
-        {/* VIEW 3: PRODUCT DETAIL PAGE */}
+        {/* Страница 3: товар (key — чтобы при смене товара всё сбрасывалось) */}
         {currentPage === 'product' && (
           <ProductDetailPage
             key={activeProductId}
@@ -211,7 +216,7 @@ function MainShop() {
           />
         )}
 
-        {/* VIEW 4: FAVORITES PAGE */}
+        {/* Страница 4: избранное */}
         {currentPage === 'favorites' && (
           <FavoritesPage
             onBackToCatalog={() => openCatalog()}
@@ -221,28 +226,29 @@ function MainShop() {
 
       </main>
 
-      {/* Footer */}
+      {/* Подвал */}
       <Footer onSelectCategory={openCatalog} />
 
-      {/* Slide-out Cart Drawer */}
+      {/* Выезжающая корзина (сама прячется, когда закрыта) */}
       <CartDrawer onOpenProduct={openProduct} onOpenCatalog={() => openCatalog()} />
 
-      {/* Checkout Modal */}
+      {/* Окно оформления заказа */}
       <CheckoutModal />
 
-      {/* ClackBot AI Advisor Modal */}
+      {/* Чат-бот консультант */}
       <ClackBotModal
         isOpen={isChatBotOpen}
         onClose={() => setIsChatBotOpen(false)}
         onOpenProduct={openProduct}
       />
 
-      {/* Toast System (Unified Cart + Favorites) */}
+      {/* Всплывающее уведомление */}
       <Toast />
     </div>
   );
 }
 
+// Оборачиваем магазин в провайдеры, чтобы корзина и избранное были доступны везде
 export default function App() {
   return (
     <CartProvider>

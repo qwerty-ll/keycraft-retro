@@ -1,10 +1,14 @@
+// Переключатель страниц каталога и «показывать по N»
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
+// Стиль кнопок-стрелок
 const arrowClass = 'p-2 rounded-lg border-2 border-vintage-dark bg-white disabled:opacity-40 disabled:cursor-not-allowed hover:bg-cream-200 active:translate-x-[1px] active:translate-y-[1px] transition-all';
 
 export function Pagination({ currentPage, totalPages, onPageChange, itemsPerPage, onItemsPerPageChange }) {
+  // Одна страница — переключатель не нужен
   if (totalPages <= 1) return null;
 
+  // Открыть страницу и прокрутить к началу каталога
   const goTo = (page) => {
     if (page === currentPage) return;
     onPageChange(page);

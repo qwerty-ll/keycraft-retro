@@ -1,3 +1,4 @@
+// Карточка товара в двух видах: плиткой и строкой
 import { ShoppingBag, Star, Heart, ArrowRight, Minus, Plus } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useFavorites } from '../../context/FavoritesContext';
@@ -14,6 +15,7 @@ export function ProductList({ products, layout = 'grid', onOpenProduct }) {
   );
 }
 
+// Одна карточка: берёт корзину и избранное из контекстов
 export function ProductCard({ product, onOpenProduct, layout = 'grid' }) {
   const { addToCart, productQty, decrementProduct } = useCart();
   const { isFavorite, toggleFavorite } = useFavorites();
@@ -29,6 +31,7 @@ export function ProductCard({ product, onOpenProduct, layout = 'grid' }) {
   const add = stop(() => addToCart(product, 1, null, { silent: true }));
   const handleToggleFav = stop(() => toggleFavorite(product.id));
 
+  // Плашка и сердечко поверх фото
   const imageOverlays = (
     <>
       {product.badge && (
@@ -48,6 +51,7 @@ export function ProductCard({ product, onOpenProduct, layout = 'grid' }) {
 
   const image = <img src={product.image} alt={product.title} className="w-full h-full object-cover" loading="lazy" />;
 
+  // Звёздочка с рейтингом
   const rating = (
     <div className="flex items-center gap-1 text-amber-600 font-semibold">
       <Star className="w-3 h-3 fill-amber-500 text-amber-500" />
@@ -56,6 +60,7 @@ export function ProductCard({ product, onOpenProduct, layout = 'grid' }) {
     </div>
   );
 
+  // Цена и старая цена
   const price = (
     <div className={isList ? 'sm:text-right' : ''}>
       <div className={`font-mono font-bold text-stone-900 ${isList ? 'text-lg sm:text-xl' : 'text-base'}`}>
@@ -97,11 +102,13 @@ export function ProductCard({ product, onOpenProduct, layout = 'grid' }) {
     </div>
   );
 
+  // Если товар в корзине — подсвечиваем рамку
   const cardClass = `card-retro card-retro-hover overflow-hidden bg-white group select-none cursor-pointer transition-all border ${
     inCart ? 'border-vintage-accent/50 ring-1 ring-vintage-accent/30' : 'border-stone-200'
   }`;
   const open = () => onOpenProduct?.(product.id);
 
+  // Вид «строкой»
   if (isList) {
     return (
       <div onClick={open} className={`${cardClass} flex flex-col sm:flex-row items-stretch p-3 sm:p-4 gap-4`}>

@@ -1,16 +1,22 @@
+// Корзина для всего сайта: товары, промокод, итоги, заказ, всплывашки
 import { createContext, useContext, useState } from 'react';
 import { PROMOCODES } from '../data/products';
 import { usePersistentState } from '../hooks/usePersistentState';
 import { useTimedValue } from '../hooks/useTimedValue';
 
+// «Канал», через который корзина доступна любому компоненту
 const CartContext = createContext();
 
+// Бесплатная доставка от 5000 ₽, иначе 350 ₽
 const FREE_DELIVERY_FROM = 5000;
 const DELIVERY_PRICE = 350;
 
+// Вариант по умолчанию — первый из списка
 const defaultOption = (product) => product.options?.[0] ?? 'Стандарт';
 
+// Провайдер: хранит корзину и раздаёт её всем вложенным компонентам
 export function CartProvider({ children }) {
+  // Корзина и промокод сохраняются в localStorage, остальное — только в памяти
   const [cartItems, setCartItems] = usePersistentState('keycraft_retro_cart_v1', []);
   const [appliedPromo, setAppliedPromo] = usePersistentState('keycraft_retro_promo_v1', null);
   const [promoError, setPromoError] = useState('');
@@ -47,6 +53,7 @@ export function CartProvider({ children }) {
     if (item) updateQuantity(item.id, -1);
   };
 
+  // Изменить количество позиции; если стало 0 — позиция удаляется
   const updateQuantity = (cartItemId, delta) => {
     setCartItems((prev) =>
       prev
@@ -55,15 +62,18 @@ export function CartProvider({ children }) {
     );
   };
 
+  // Удалить позицию целиком
   const removeFromCart = (cartItemId) => {
     setCartItems((prev) => prev.filter((item) => item.id !== cartItemId));
   };
 
+  // Очистить корзину вместе с промокодом
   const clearCart = () => {
     setCartItems([]);
     setAppliedPromo(null);
   };
 
+  // Проверить промокод (регистр не важен) и применить
   const applyPromo = (code) => {
     const cleanCode = (code || '').trim().toUpperCase();
     if (!PROMOCODES[cleanCode]) {
@@ -75,11 +85,13 @@ export function CartProvider({ children }) {
     return true;
   };
 
+  // Убрать промокод
   const removePromo = () => {
     setAppliedPromo(null);
     setPromoError('');
   };
 
+  // Итоги считаем на лету из корзины, а не храним отдельно
   const totalItems = cartItems.reduce((acc, item) => acc + item.quantity, 0);
   const subtotal = cartItems.reduce((acc, item) => acc + item.product.price * item.quantity, 0);
   const discountAmount = appliedPromo ? Math.round((subtotal * appliedPromo.discountPercent) / 100) : 0;
@@ -87,6 +99,7 @@ export function CartProvider({ children }) {
   const deliveryCost = subtotal >= FREE_DELIVERY_FROM ? 0 : DELIVERY_PRICE;
   const freeDeliveryLeft = Math.max(0, FREE_DELIVERY_FROM - subtotal);
 
+  // Оформить заказ: собрать данные, сохранить в браузере, очистить корзину
   const createOrder = (customerData) => {
     const newOrder = {
       orderNumber: `KC-${Math.floor(100000 + Math.random() * 900000)}`,
@@ -110,6 +123,7 @@ export function CartProvider({ children }) {
     return newOrder;
   };
 
+  // Отдаём наружу всё, что доступно через useCart()
   return (
     <CartContext.Provider value={{
       cartItems, addToCart, updateQuantity, removeFromCart, clearCart, productQty, decrementProduct,
@@ -123,6 +137,7 @@ export function CartProvider({ children }) {
   );
 }
 
+// Короткий способ достать корзину в любом компоненте
 export function useCart() {
   return useContext(CartContext);
 }

@@ -1,3 +1,4 @@
+// Выезжающая панель корзины
 import { useState, useEffect } from 'react';
 import { X, Trash2, ShoppingBag, ArrowRight, Tag, Check, AlertCircle, Minus, Plus, Truck } from 'lucide-react';
 import { useCart } from '../context/CartContext';
@@ -11,6 +12,7 @@ export function CartDrawer({ onOpenProduct, onOpenCatalog }) {
     setIsCheckoutOpen,
   } = useCart();
 
+  // Текст в поле промокода
   const [promoInput, setPromoInput] = useState('');
   const close = () => setIsCartOpen(false);
 
@@ -26,13 +28,16 @@ export function CartDrawer({ onOpenProduct, onOpenCatalog }) {
     };
   }, [isCartOpen, setIsCartOpen]);
 
+  // Корзина закрыта — ничего не рисуем
   if (!isCartOpen) return null;
 
+  // Отправка промокода (без перезагрузки страницы)
   const handleApplyPromo = (e) => {
     e.preventDefault();
     if (applyPromo(promoInput)) setPromoInput('');
   };
 
+  // Закрыть корзину и выполнить действие (открыть товар, каталог…)
   const goTo = (fn) => () => {
     close();
     fn();
@@ -82,6 +87,7 @@ export function CartDrawer({ onOpenProduct, onOpenCatalog }) {
                 </button>
               </div>
 
+              {/* Позиции корзины */}
               {cartItems.map((item) => (
                 <div key={item.id} className="p-3 rounded-xl border border-stone-200 bg-stone-50/70 flex gap-3 items-center">
                   <button onClick={goTo(() => onOpenProduct(item.product.id))} className="shrink-0" aria-label="Открыть товар">
@@ -147,6 +153,7 @@ export function CartDrawer({ onOpenProduct, onOpenCatalog }) {
             </div>
 
             <div className="space-y-1">
+              {/* Промокод: применён или поле ввода */}
               {appliedPromo ? (
                 <div className="flex items-center justify-between p-2 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-900 text-xs font-mono">
                   <div className="flex items-center gap-1.5">

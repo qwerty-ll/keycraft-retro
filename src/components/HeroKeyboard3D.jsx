@@ -6,6 +6,7 @@ const outline = (isHighlighted, color, width = 1.5, activeWidth = 3) => ({
   strokeWidth: isHighlighted ? activeWidth : width,
 });
 
+// Общая обёртка для всех слоёв
 const Svg = ({ children, height = 140 }) => (
   <svg viewBox={`0 0 520 ${height}`} className="w-full h-full select-none" xmlns="http://www.w3.org/2000/svg">
     {children}
@@ -60,6 +61,7 @@ const KEY_ROWS = [
   },
 ];
 
+// Подпись на клавише
 function KeyLabel({ x, y, size, color, children }) {
   return (
     <text x={x} y={y} fontFamily="monospace" fontSize={size} fontWeight="bold" fill={color} textAnchor="middle">
@@ -68,6 +70,7 @@ function KeyLabel({ x, y, size, color, children }) {
   );
 }
 
+// Один ряд клавиш с тенью
 function KeyRow({ y, h, ty, keys, prefix, children }) {
   return (
     <g filter="url(#keyGlow)">
@@ -95,6 +98,7 @@ function KeyRow({ y, h, ty, keys, prefix, children }) {
   );
 }
 
+// Слой 1: кейкапы
 export function LayerKeycapsSvg({ isHighlighted }) {
   const [row1, ...rows] = KEY_ROWS;
   return (
@@ -148,18 +152,19 @@ export function LayerKeycapsSvg({ isHighlighted }) {
   );
 }
 
+// ---------- Слой 2: свитчи ----------
 export function LayerSwitchesSvg({ isHighlighted }) {
-  // Generates matrix of individual Gateron Oil King mechanical switches
+  // Координаты каждого свитча на плате
   const switchPositions = [
-    // Row 1
+    // ряд 1
     [15, 11], [44, 11], [69, 11], [94, 11], [119, 11], [148, 11], [173, 11], [198, 11], [223, 11], [252, 11], [277, 11], [302, 11], [327, 11], [356, 11], [381, 11], [406, 11], [436, 11],
-    // Row 2
+    // ряд 2
     [15, 34], [42, 34], [69, 34], [96, 34], [123, 34], [150, 34], [177, 34], [204, 34], [231, 34], [258, 34], [285, 34], [312, 34], [339, 34], [376, 34], [417, 34],
-    // Row 3
+    // ряд 3
     [15, 57], [48, 57], [75, 57], [102, 57], [129, 57], [156, 57], [183, 57], [210, 57], [237, 57], [264, 57], [291, 57], [318, 57], [345, 57], [386, 57], [417, 57],
-    // Row 4
+    // ряд 4
     [15, 80], [52, 80], [79, 80], [106, 80], [133, 80], [160, 80], [187, 80], [214, 80], [241, 80], [268, 80], [295, 80], [322, 80], [375, 80], [417, 80],
-    // Row 5
+    // ряд 5
     [15, 103], [48, 103], [79, 103], [140, 103], [200, 103], [260, 103], [298, 103], [327, 103], [356, 103], [388, 103], [415, 103], [442, 103]
   ];
 
@@ -177,33 +182,33 @@ export function LayerSwitchesSvg({ isHighlighted }) {
         </radialGradient>
       </defs>
 
-      {/* Translucent switch carrier plate background */}
+      {/* Тёмная подложка под свитчи */}
       <rect x="3" y="3" width="514" height="134" rx="10" fill="#181615" fillOpacity="0.88" {...outline(isHighlighted, '#3E3834')}/>
 
-      {/* Rotary encoder mechanism */}
+      {/* Механизм крутилки громкости */}
       <g transform="translate(476, 8)">
         <rect x="0" y="0" width="24" height="22" rx="4" fill="#24211F" stroke="#4A423C" strokeWidth="1"/>
         <circle cx="12" cy="11" r="7" fill="#C59638" stroke="#8A6518" strokeWidth="1"/>
         <circle cx="12" cy="11" r="3" fill="#1C1815"/>
       </g>
 
-      {/* Individual Gateron Switches */}
+      {/* Рисуем каждый свитч по координатам */}
       {switchPositions.map(([x, y], idx) => (
         <g key={idx} transform={`translate(${x}, ${y})`}>
-          {/* Switch outer housing */}
+          {/* Корпус свитча */}
           <rect x="0" y="0" width="20" height="17" rx="3" fill="url(#switchHousingGrad)" stroke="#4A4440" strokeWidth="0.8"/>
-          {/* Top cover latch notches */}
+          {/* Защёлки крышки */}
           <rect x="2" y="0.5" width="3" height="1.5" rx="0.5" fill="#58514C"/>
           <rect x="15" y="0.5" width="3" height="1.5" rx="0.5" fill="#58514C"/>
-          {/* POM stem well */}
+          {/* Гнездо штока */}
           <rect x="5.5" y="4" width="9" height="9" rx="1.5" fill="#0E0D0C" stroke="#2B2725" strokeWidth="0.6"/>
-          {/* Golden POM stem cross (+) */}
+          {/* Золотой крестик штока */}
           <circle cx="10" cy="8.5" r="3.2" fill="url(#stemGoldGrad)"/>
           <path d="M8 8.5 L12 8.5 M10 6.5 L10 10.5" stroke="#4A340C" strokeWidth="1.2" strokeLinecap="round"/>
         </g>
       ))}
 
-      {/* Stabilizers on Spacebar & large keys */}
+      {/* Стабилизатор пробела */}
       <rect x="120" y="108" width="160" height="6" rx="2" fill="#24211F" stroke="#E2C178" strokeWidth="0.8" strokeDasharray="4 2"/>
     </Svg>
   );
@@ -238,19 +243,19 @@ export function LayerBrassPlateSvg({ isHighlighted }) {
         </linearGradient>
       </defs>
 
-      {/* Perimeter Gasket Mount Silicone Dampening Tabs */}
+      {/* Силиконовые «ушки» Gasket Mount по краям */}
       <g fill="url(#gasketSiliconeGrad)" stroke="#7A2B18" strokeWidth="0.6">
         {GASKET_X.flatMap((x) => [0, 134].map((y) => <rect key={`${x}-${y}`} x={x} y={y} width="28" height="6" rx="2"/>))}
         {[0, 514].flatMap((x) => [44, 84].map((y) => <rect key={`${x}-${y}`} x={x} y={y} width="6" height="22" rx="2"/>))}
       </g>
 
-      {/* Main CNC Brass Plate Body */}
+      {/* Сама латунная пластина */}
       <rect x="5" y="4" width="510" height="132" rx="8" fill="url(#brassPlateGrad)" {...outline(isHighlighted, '#8A6318')}/>
 
-      {/* Inner chamfer highlight line */}
+      {/* Блик по фаске */}
       <rect x="7" y="6" width="506" height="128" rx="6" fill="none" stroke="#FFF7D9" strokeWidth="0.8" opacity="0.6"/>
 
-      {/* Precision Switch Cutout Holes */}
+      {/* Вырезы под свитчи */}
       <g fill="#16130F" stroke="#7A5814" strokeWidth="0.7">
         {PLATE_CUTOUTS.map(([y, holes]) => (
           <g key={y} transform={`translate(16, ${y})`}>
@@ -263,7 +268,7 @@ export function LayerBrassPlateSvg({ isHighlighted }) {
         ))}
       </g>
 
-      {/* Engraved brass plate specification */}
+      {/* Гравировка на пластине */}
       <text x="260" y="130" fontFamily="monospace" fontSize="6.5" fontWeight="bold" fill="#755210" textAnchor="middle" letterSpacing="1">
         PRECISION CNC BRASS PLATE 1.5MM • GASKET ISOLATED
       </text>
@@ -271,6 +276,7 @@ export function LayerBrassPlateSvg({ isHighlighted }) {
   );
 }
 
+// ---------- Слой 4: шумоизоляция Poron ----------
 export function LayerPoronFoamSvg({ isHighlighted }) {
   return (
     <Svg>
@@ -285,32 +291,32 @@ export function LayerPoronFoamSvg({ isHighlighted }) {
         </pattern>
       </defs>
 
-      {/* Gasket damper perimeter wings */}
+      {/* Оранжевые демпферы по краям */}
       <g fill="#D98A32">
         {GASKET_X.flatMap((x) => [1, 134].map((y) => <rect key={`${x}-${y}`} x={x} y={y} width="28" height="5" rx="1.5"/>))}
       </g>
 
-      {/* Poron Foam Sheet */}
+      {/* Лист пороновой шумоизоляции */}
       <rect x="6" y="5" width="508" height="130" rx="8" fill="url(#poronFoamGrad)" {...outline(isHighlighted, '#4E4844')}/>
 
-      {/* Micro-cellular acoustic texture overlay */}
+      {/* Текстура пор (узор из точек) */}
       <rect x="8" y="7" width="504" height="126" rx="6" fill="url(#poronCells)"/>
 
-      {/* Pin pass-through acoustic cutouts */}
+      {/* Отверстия под ножки свитчей */}
       <g fill="#100F0E" opacity="0.9">
         {[18, 44, 70, 95, 120, 148, 174, 200, 226, 252, 278, 304, 330, 360, 390, 420].map((cx, i) => (
           <g key={i}>
             {[18, 42, 66, 90].map((cy) => <circle key={cy} cx={cx} cy={cy} r="3.5"/>)}
           </g>
         ))}
-        {/* Spacebar cutout */}
+        {/* Вырез под пробел */}
         <rect x="120" y="108" width="160" height="8" rx="3" fill="#100F0E"/>
         <circle cx="395" cy="112" r="3.5"/>
         <circle cx="422" cy="112" r="3.5"/>
         <circle cx="450" cy="112" r="3.5"/>
       </g>
 
-      {/* Acoustic Foam Stamp */}
+      {/* Надпись на поролоне */}
       <text x="260" y="74" fontFamily="monospace" fontSize="8" fontWeight="bold" fill="#7D746D" textAnchor="middle" letterSpacing="2">
         JAPANESE PORON® XRD • 3.5MM ACOUSTIC ISOLATION
       </text>
@@ -318,6 +324,7 @@ export function LayerPoronFoamSvg({ isHighlighted }) {
   );
 }
 
+// ---------- Слой 5: печатная плата ----------
 export function LayerPcbSvg({ isHighlighted }) {
   return (
     <Svg>
@@ -334,14 +341,14 @@ export function LayerPcbSvg({ isHighlighted }) {
         </linearGradient>
       </defs>
 
-      {/* USB-C Connector Port at Top-Left */}
+      {/* Разъём USB-C */}
       <rect x="25" y="0" width="20" height="6" rx="2" fill="#B4BAC2" stroke="#5E656E" strokeWidth="0.8"/>
       <rect x="28" y="2" width="14" height="2" rx="0.5" fill="#151719"/>
 
-      {/* FR-4 PCB Board */}
+      {/* Сама плата */}
       <rect x="5" y="4" width="510" height="132" rx="8" fill="url(#pcbSubstrateGrad)" {...outline(isHighlighted, '#3E4652')}/>
 
-      {/* Intricate Gold Bus Traces (Immersion Gold ENIG) */}
+      {/* Золотые дорожки */}
       <g stroke="url(#goldTraceGrad)" strokeWidth="1" fill="none" strokeLinecap="round" strokeLinejoin="round" opacity="0.85">
         <path d="M45 8 L110 8 L130 28 L470 28"/>
         <path d="M45 12 L105 12 L125 32 L470 32"/>
@@ -354,12 +361,12 @@ export function LayerPcbSvg({ isHighlighted }) {
         <path d="M380 28 L380 120"/>
       </g>
 
-      {/* Microcontroller & Surface Mount Components */}
+      {/* Микроконтроллер */}
       <rect x="75" y="52" width="26" height="26" rx="2.5" fill="#0A0B0D" stroke="#D4AA50" strokeWidth="0.9"/>
       <circle cx="81" cy="58" r="1.5" fill="#D4AA50"/>
       <text x="88" y="67" fontFamily="monospace" fontSize="5" fontWeight="bold" fill="#D4AA50" textAnchor="middle">ARM</text>
 
-      {/* Hot-Swap Sockets Matrix (TTC 5-pin Sockets) */}
+      {/* Хот-свап сокеты: 15 столбцов × 4 ряда */}
       <g fill="#0B0C0E" stroke="#D4AA50" strokeWidth="0.6">
         {[20, 50, 80, 110, 140, 170, 200, 230, 260, 290, 320, 350, 380, 410, 440].map((x, i) => (
           <g key={i}>
@@ -374,7 +381,7 @@ export function LayerPcbSvg({ isHighlighted }) {
         ))}
       </g>
 
-      {/* Golden Silkscreen Certification */}
+      {/* Надпись на плате */}
       <text x="270" y="128" fontFamily="monospace" fontSize="6.5" fontWeight="bold" fill="#D4AA50" textAnchor="middle" letterSpacing="1.2">
         KEYCRAFT RETRO 75 PCB • ENIG GOLD PLATING • QMK / VIA READY
       </text>
@@ -382,6 +389,7 @@ export function LayerPcbSvg({ isHighlighted }) {
   );
 }
 
+// ---------- Слой 6: корпус из ореха ----------
 export function LayerWalnutCaseSvg({ isHighlighted }) {
   return (
     <Svg height={156}>
@@ -412,15 +420,15 @@ export function LayerWalnutCaseSvg({ isHighlighted }) {
         </filter>
       </defs>
 
-      {/* 3D Bottom/Front Beveled Wooden Apron (thickness of the solid wood block) */}
+      {/* Передний торец корпуса (толщина дерева) */}
       <path d="M 6 128 L 6 146 Q 6 154 16 154 L 504 154 Q 514 154 514 146 L 514 128 Z" fill="url(#walnutSideBevelGrad)" {...outline(isHighlighted, '#140A04', 1.2, 2.5)}/>
-      {/* Wood grain along bottom apron */}
+      {/* Текстура дерева на торце */}
       <path d="M 12 144 Q 260 148 508 143" stroke="#5A3217" strokeWidth="1" fill="none" opacity="0.4"/>
 
-      {/* Solid Walnut Wood Top Surface (Chassis) */}
+      {/* Верх корпуса из ореха */}
       <rect x="2" y="2" width="516" height="136" rx="12" fill="url(#walnutTopGrad)" {...outline(isHighlighted, '#1C0D05', 2, 3)} filter="url(#caseDepthShadow)"/>
 
-      {/* Organic Wood Grain Lines on Top Face */}
+      {/* Волокна дерева */}
       <g stroke="#A26B43" strokeWidth="1.2" opacity="0.35" fill="none" strokeLinecap="round">
         <path d="M12 24 Q260 16 508 26"/>
         <path d="M18 50 Q240 42 502 52"/>
@@ -429,13 +437,13 @@ export function LayerWalnutCaseSvg({ isHighlighted }) {
         <path d="M16 126 Q260 120 504 128"/>
       </g>
 
-      {/* Outer Chamfer Edge Highlight */}
+      {/* Блик по краю */}
       <rect x="5" y="5" width="510" height="130" rx="9" fill="none" stroke="#D19468" strokeWidth="0.8" opacity="0.45"/>
 
-      {/* Machined Deep Internal Acoustic Cavity */}
+      {/* Внутренняя полость корпуса */}
       <rect x="14" y="12" width="492" height="116" rx="8" fill="url(#cavityInnerGrad)" stroke="#3D200F" strokeWidth="1.5"/>
 
-      {/* Centered Inlaid Heavy Brass Counterweight */}
+      {/* Латунный утяжелитель с надписью */}
       <rect x="145" y="44" width="230" height="52" rx="6" fill="url(#brassWeightGrad)" stroke="#694C12" strokeWidth="1.5"/>
       <rect x="149" y="48" width="222" height="44" rx="4" fill="none" stroke="#FFF7D9" strokeWidth="0.8" opacity="0.6"/>
 
@@ -446,12 +454,12 @@ export function LayerWalnutCaseSvg({ isHighlighted }) {
         SOLID AMERICAN WALNUT • TOTAL MASS 1850G
       </text>
 
-      {/* Standoffs with acoustic dampening gaskets */}
+      {/* Стойки крепления */}
       {[18, 112].flatMap((y) => [22, 480].map((x) => (
         <rect key={`${x}-${y}`} x={x} y={y} width="18" height="8" rx="2" fill="#282420" stroke="#12100E" strokeWidth="0.8"/>
       )))}
 
-      {/* Type-C Port Machined Notch */}
+      {/* Вырез под кабель */}
       <rect x="28" y="9" width="24" height="6" rx="1.5" fill="#0A0502"/>
     </Svg>
   );

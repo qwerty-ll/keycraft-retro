@@ -1,13 +1,16 @@
+// Шапка сайта и нижняя панель навигации на телефоне
 import { ShoppingBag, Search, Bot, X, ShieldCheck, Heart, Home, Grid } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useFavorites } from '../context/FavoritesContext';
 
+// Пункты меню — один список для шапки и нижней панели
 const NAV_ITEMS = [
   { page: 'home', label: 'Главная', Icon: Home },
   { page: 'catalog', label: 'Каталог', Icon: Grid },
   { page: 'favorites', label: 'Избранное', Icon: Heart },
 ];
 
+// Поле поиска в шапке (десктоп)
 function SearchInput({ value, onChange, onClear }) {
   return (
     <div className="relative">
@@ -28,6 +31,7 @@ function SearchInput({ value, onChange, onClear }) {
   );
 }
 
+// Шапка: логотип, меню, поиск, помощник, корзина
 export function Navbar({ currentPage = 'home', onNavigate, searchQuery, setSearchQuery, onOpenChatBot }) {
   const { totalItems, setIsCartOpen } = useCart();
   const { favoritesCount } = useFavorites();
@@ -39,6 +43,7 @@ export function Navbar({ currentPage = 'home', onNavigate, searchQuery, setSearc
     setTimeout(() => document.getElementById('mobile-search')?.focus(), 50);
   };
 
+  // Ввод в поиск сразу открывает каталог
   const searchProps = {
     value: searchQuery,
     onChange: (e) => {
@@ -170,6 +175,7 @@ export function Navbar({ currentPage = 'home', onNavigate, searchQuery, setSearc
   );
 }
 
+// Красный кружок с числом на нижней панели
 function MobileBadge({ bg, children }) {
   return (
     <span className={`absolute -top-0.5 right-1.5 ${bg} text-white text-[9px] font-bold px-1 rounded-full min-w-[14px] text-center`}>

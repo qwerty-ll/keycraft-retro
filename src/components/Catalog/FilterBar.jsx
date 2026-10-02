@@ -1,7 +1,9 @@
+// Панель фильтров каталога (сама ничего не хранит — всё через props)
 import { RotateCcw, SlidersHorizontal, LayoutGrid, List } from 'lucide-react';
 import { CATEGORIES } from '../../data/products';
 import { rub } from '../../utils/format';
 
+// Варианты сортировки в выпадающем списке
 const SORT_OPTIONS = [
   ['popular', 'По популярности'],
   ['price-asc', 'Сначала дешевле'],
@@ -9,6 +11,7 @@ const SORT_OPTIONS = [
   ['rating', 'По рейтингу'],
 ];
 
+// Два вида каталога
 const VIEW_MODES = [
   { id: 'grid', Icon: LayoutGrid, label: 'Сетка', aria: 'Сетка товаров' },
   { id: 'list', Icon: List, label: 'Построчно', aria: 'Список товаров' },
@@ -36,6 +39,7 @@ export function ViewModeToggle({ viewMode, onChange, className = 'flex', showLab
   );
 }
 
+// Панель: категории, цена, сортировка, вид, сброс
 export function FilterBar({
   selectedCategory,
   onSelectCategory,
@@ -49,6 +53,7 @@ export function FilterBar({
   viewMode,
   onViewModeChange,
 }) {
+  // Включён ли хоть один фильтр (тогда показываем «Сброс»)
   const isFiltered = selectedCategory !== 'all' || priceLimit < maxPrice;
 
   return (

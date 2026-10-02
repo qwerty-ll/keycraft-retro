@@ -1,3 +1,4 @@
+// Каталог: поиск, фильтры, сортировка и страницы товаров
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { PackageSearch, Search, X } from 'lucide-react';
 import { usePersistentState } from '../../hooks/usePersistentState';
@@ -6,8 +7,10 @@ import { FilterBar } from './FilterBar';
 import { ProductList } from './ProductCard';
 import { Pagination } from './Pagination';
 
+// Максимум для ползунка цены
 const MAX_PRICE = Math.max(...PRODUCTS.map((p) => p.price), 25000);
 
+// Правила сортировки: как сравнивать два товара
 const SORTERS = {
   popular: (a, b) => b.reviewsCount - a.reviewsCount,
   'price-asc': (a, b) => a.price - b.price,
@@ -15,9 +18,11 @@ const SORTERS = {
   rating: (a, b) => b.rating - a.rating,
 };
 
+// Подходит ли товар под поисковый запрос
 const matchesQuery = (p, q) =>
   [p.title, p.description, p.categoryName].some((field) => field.toLowerCase().includes(q));
 
+// Серая заглушка карточки, пока «грузится»
 function ProductSkeleton() {
   return (
     <div className="card-retro p-4 flex flex-col justify-between bg-white border border-stone-200 animate-pulse">
@@ -39,6 +44,7 @@ function ProductSkeleton() {
   );
 }
 
+// Настройки каталога по умолчанию
 const DEFAULT_VIEW = { sortBy: 'popular', priceLimit: 25000, currentPage: 1, itemsPerPage: 6, viewMode: 'grid' };
 
 export function Catalog({ selectedCategory, onSelectCategory, searchQuery, onSearchChange, onOpenProduct }) {
@@ -50,8 +56,7 @@ export function Catalog({ selectedCategory, onSelectCategory, searchQuery, onSea
     ['sortBy', 'priceLimit', 'currentPage', 'itemsPerPage', 'viewMode'].map(set);
   const [isLoading, setIsLoading] = useState(false);
 
-  // При смене фильтров — на первую страницу и короткий «скелетон».
-  // При возврате в каталог фильтры те же, поэтому страница сохраняется.
+  // Сменили фильтр — прыгаем на 1-ю страницу и коротко показываем «скелетоны»
   const filterKey = JSON.stringify([selectedCategory, searchQuery, sortBy, priceLimit]);
   const prevFilterKey = useRef(filterKey);
   useEffect(() => {
@@ -63,6 +68,7 @@ export function Catalog({ selectedCategory, onSelectCategory, searchQuery, onSea
     return () => clearTimeout(timer);
   }, [filterKey, setView]);
 
+  // Фильтруем товары (пересчёт только когда меняются фильтры)
   const filteredProducts = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();
     return PRODUCTS.filter((p) =>
@@ -72,12 +78,15 @@ export function Catalog({ selectedCategory, onSelectCategory, searchQuery, onSea
     );
   }, [selectedCategory, searchQuery, priceLimit]);
 
+  // Сортируем копию списка
   const sortedProducts = useMemo(() => [...filteredProducts].sort(SORTERS[sortBy]), [filteredProducts, sortBy]);
 
+  // Вырезаем товары текущей страницы
   const totalPages = Math.ceil(sortedProducts.length / itemsPerPage);
   const start = (currentPage - 1) * itemsPerPage;
   const pageProducts = sortedProducts.slice(start, start + itemsPerPage);
 
+  // Сбросить всё к начальным значениям
   const handleResetFilters = () => {
     onSelectCategory('all');
     onSearchChange('');

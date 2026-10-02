@@ -1,5 +1,7 @@
+// Подвал сайта
 import { Heart, ShieldCheck, Truck, Headphones, Wrench } from 'lucide-react';
 
+// Четыре преимущества вверху подвала
 const FEATURES = [
   [ShieldCheck, 'Ручная смазка', 'Krytox 205g0 для свитчей'],
   [Wrench, 'Контроль сборки', 'Тестирование каждого кастома'],
@@ -7,6 +9,7 @@ const FEATURES = [
   [Headphones, 'Консультация', 'Помощь с подбором деталей'],
 ];
 
+// Ссылки на категории
 const LINKS = [
   ['keyboards', 'Клавиатуры'],
   ['switches', 'Свитчи'],
@@ -16,6 +19,7 @@ const LINKS = [
   ['deskpads', 'Дескпады'],
 ];
 
+// Строки «Информация»
 const INFO = ['Режим работы: 10:00 — 20:00', 'Отправка заказов ежедневно', 'Гарантия на компоненты 1 год'];
 
 export function Footer({ onSelectCategory }) {

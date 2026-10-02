@@ -1,15 +1,19 @@
+// Карусель спецпредложений с автопрокруткой
 import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Sparkles, Eye, ShoppingBag } from 'lucide-react';
 import { PROMO_SLIDES, PRODUCTS } from '../data/products';
 import { useCart } from '../context/CartContext';
 
+// Сколько всего слайдов
 const SLIDES = PROMO_SLIDES.length;
 
 export function PromoCarousel({ onOpenProduct }) {
+  // Номер текущего слайда и пауза при наведении мыши
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const { addToCart } = useCart();
 
+  // Каждые 5 секунд следующий слайд (если не на паузе)
   useEffect(() => {
     if (isPaused) return;
     const interval = setInterval(() => {
@@ -18,9 +22,11 @@ export function PromoCarousel({ onOpenProduct }) {
     return () => clearInterval(interval);
   }, [isPaused]);
 
+  // Шаг вперёд/назад по кругу
   const step = (delta) => setCurrentIndex((prev) => (prev + delta + SLIDES) % SLIDES);
 
   const currentSlide = PROMO_SLIDES[currentIndex];
+  // Товар, к которому ведёт слайд
   const linkedProduct = PRODUCTS.find(p => p.id === currentSlide.productId);
 
   return (

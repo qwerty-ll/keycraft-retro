@@ -1,12 +1,12 @@
 import { Check, X } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 
-// Короткое уведомление о добавлении в корзину: появляется один раз,
-// не прыгает, закрывается крестиком и не показывается поверх открытой корзины
+// Всплывашка «добавлено в корзину»: появляется один раз, закрывается крестиком, не лезет поверх корзины
 export function Toast() {
   const { toast, hideToast, isCartOpen, isCheckoutOpen, setIsCartOpen } = useCart();
   if (!toast || isCartOpen || isCheckoutOpen) return null;
 
+  // Кнопка «Корзина» в уведомлении
   const openCart = () => {
     hideToast();
     setIsCartOpen(true);
