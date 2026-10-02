@@ -1,8 +1,104 @@
-import React from 'react';
+// Слои клавиатуры KeyCraft Retro 75 для 3D-героя (viewBox 520×140)
+
+// Обводка слоя: терракотовая и толще, когда слой выбран
+const outline = (isHighlighted, color, width = 1.5, activeWidth = 3) => ({
+  stroke: isHighlighted ? '#C2622D' : color,
+  strokeWidth: isHighlighted ? activeWidth : width,
+});
+
+const Svg = ({ children, height = 140 }) => (
+  <svg viewBox={`0 0 520 ${height}`} className="w-full h-full select-none" xmlns="http://www.w3.org/2000/svg">
+    {children}
+  </svg>
+);
+
+// ---------- Слой 1: кейкапы ----------
+// стиль клавиши: [градиент, размер шрифта, цвет подписи]
+const KEY_STYLES = {
+  top: ['keycapTopGrad', 8, '#42382C'],
+  mod: ['keycapModGrad', 7.5, '#5A4E3E'],
+  mod7: ['keycapModGrad', 7, '#5A4E3E'],
+  fn: ['keycapModGrad', 7, '#6B5B49'],
+  sage: ['keycapSageGrad', 7, '#FFF'],
+  sageSm: ['keycapSageGrad', 6.5, '#FFF'],
+  sageLg: ['keycapSageGrad', 8, '#FFF'],
+  accent: ['keycapAccentGrad', 7, '#FFF'],
+  accentLg: ['keycapAccentGrad', 8, '#FFF'],
+};
+
+// ряд обычных клавиш шириной 23.5 с шагом 27
+const letters = (x0, chars) => [...chars].map((c, i) => [x0 + i * 27, 23.5, 'top', c]);
+
+// ряды: y, высота, базовая линия текста, клавиши [x, ширина, стиль, подпись]
+const KEY_ROWS = [
+  {
+    y: 10, h: 18, ty: 22,
+    keys: [
+      ...[44, 148, 252].flatMap((x0, g) => [0, 1, 2, 3].map((i) => [x0 + i * 25, 22, 'fn', `F${g * 4 + i + 1}`])),
+      [356, 22, 'sageSm', 'PS'], [381, 22, 'sageSm', 'SL'], [406, 22, 'sageSm', 'PAU'], [431, 30, 'accent', 'DEL'],
+    ],
+  },
+  {
+    y: 33, h: 19, ty: 46,
+    keys: [...letters(14, '~1234567890-='), [365, 45, 'mod', 'BACKSPACE'], [414, 28, 'sage', 'HOME']],
+  },
+  {
+    y: 56, h: 19, ty: 69,
+    keys: [[14, 35, 'mod', 'TAB'], ...letters(53, 'QWERTYUIOP[]'), [377, 33, 'top', '\\'], [414, 28, 'sage', 'PGUP']],
+  },
+  {
+    y: 79, h: 19, ty: 92,
+    keys: [[14, 41, 'mod', 'CAPS'], ...letters(59, "ASDFGHJKL;'"), [356, 54, 'accentLg', 'ENTER ↵'], [414, 28, 'sage', 'PGDN']],
+  },
+  {
+    y: 102, h: 21, ty: 116,
+    keys: [
+      [14, 31, 'mod7', 'CTRL'], [49, 27, 'mod7', 'WIN'], [80, 27, 'mod7', 'ALT'], 'space',
+      [295, 26, 'mod7', 'ALT'], [325, 26, 'mod7', 'FN'], [355, 26, 'mod7', 'CTRL'],
+      [386, 23, 'sageLg', '←'], [413, 23, 'sageLg', '↓'], [440, 23, 'sageLg', '→'],
+    ],
+  },
+];
+
+function KeyLabel({ x, y, size, color, children }) {
+  return (
+    <text x={x} y={y} fontFamily="monospace" fontSize={size} fontWeight="bold" fill={color} textAnchor="middle">
+      {children}
+    </text>
+  );
+}
+
+function KeyRow({ y, h, ty, keys, prefix, children }) {
+  return (
+    <g filter="url(#keyGlow)">
+      {prefix}
+      {keys.map((key, i) => {
+        if (key === 'space') {
+          return (
+            <g key={i}>
+              <rect x="111" y={y} width="180" height={h} rx="4" fill="url(#keycapTopGrad)"/>
+              <line x1="180" y1="112" x2="220" y2="112" stroke="#DFD4C0" strokeWidth="1.2" strokeLinecap="round"/>
+            </g>
+          );
+        }
+        const [x, w, style, label] = key;
+        const [grad, size, color] = KEY_STYLES[style];
+        return (
+          <g key={i}>
+            <rect x={x} y={y} width={w} height={h} rx="3.5" fill={`url(#${grad})`}/>
+            <KeyLabel x={x + w / 2} y={ty} size={size} color={color}>{label}</KeyLabel>
+          </g>
+        );
+      })}
+      {children}
+    </g>
+  );
+}
 
 export function LayerKeycapsSvg({ isHighlighted }) {
+  const [row1, ...rows] = KEY_ROWS;
   return (
-    <svg viewBox="0 0 520 140" className="w-full h-full select-none" xmlns="http://www.w3.org/2000/svg">
+    <Svg>
       <defs>
         <linearGradient id="keycapTopGrad" x1="0%" y1="0%" x2="0%" y2="100%">
           <stop offset="0%" stopColor="#FFFFFF"/>
@@ -31,159 +127,24 @@ export function LayerKeycapsSvg({ isHighlighted }) {
         </filter>
       </defs>
 
-      {/* Layer border outline with subtle bevel */}
-      <rect 
-        x="3" 
-        y="3" 
-        width="514" 
-        height="134" 
-        rx="10" 
-        fill="#EDE5D8" 
-        stroke={isHighlighted ? '#C2622D' : '#D4C7B5'} 
-        strokeWidth={isHighlighted ? 3 : 1.5}
-      />
+      <rect x="3" y="3" width="514" height="134" rx="10" fill="#EDE5D8" {...outline(isHighlighted, '#D4C7B5')}/>
 
-      {/* Row 1: Function Keys + Knob */}
-      <g filter="url(#keyGlow)">
-        {/* ESC Key - Terracotta Accent */}
-        <rect x="14" y="10" width="24" height="18" rx="3.5" fill="url(#keycapAccentGrad)"/>
-        <rect x="16" y="11" width="20" height="14" rx="2" fill="#C2622D" opacity="0.35"/>
-        <text x="26" y="22" fontFamily="monospace" fontSize="7.5" fontWeight="bold" fill="#FFF" textAnchor="middle">ESC</text>
-
-        {/* F1 - F4 */}
-        <rect x="44" y="10" width="22" height="18" rx="3.5" fill="url(#keycapModGrad)"/>
-        <text x="55" y="22" fontFamily="monospace" fontSize="7" fontWeight="bold" fill="#6B5B49" textAnchor="middle">F1</text>
-        <rect x="69" y="10" width="22" height="18" rx="3.5" fill="url(#keycapModGrad)"/>
-        <text x="80" y="22" fontFamily="monospace" fontSize="7" fontWeight="bold" fill="#6B5B49" textAnchor="middle">F2</text>
-        <rect x="94" y="10" width="22" height="18" rx="3.5" fill="url(#keycapModGrad)"/>
-        <text x="105" y="22" fontFamily="monospace" fontSize="7" fontWeight="bold" fill="#6B5B49" textAnchor="middle">F3</text>
-        <rect x="119" y="10" width="22" height="18" rx="3.5" fill="url(#keycapModGrad)"/>
-        <text x="130" y="22" fontFamily="monospace" fontSize="7" fontWeight="bold" fill="#6B5B49" textAnchor="middle">F4</text>
-
-        {/* F5 - F8 */}
-        <rect x="148" y="10" width="22" height="18" rx="3.5" fill="url(#keycapModGrad)"/>
-        <text x="159" y="22" fontFamily="monospace" fontSize="7" fontWeight="bold" fill="#6B5B49" textAnchor="middle">F5</text>
-        <rect x="173" y="10" width="22" height="18" rx="3.5" fill="url(#keycapModGrad)"/>
-        <text x="184" y="22" fontFamily="monospace" fontSize="7" fontWeight="bold" fill="#6B5B49" textAnchor="middle">F6</text>
-        <rect x="198" y="10" width="22" height="18" rx="3.5" fill="url(#keycapModGrad)"/>
-        <text x="209" y="22" fontFamily="monospace" fontSize="7" fontWeight="bold" fill="#6B5B49" textAnchor="middle">F7</text>
-        <rect x="223" y="10" width="22" height="18" rx="3.5" fill="url(#keycapModGrad)"/>
-        <text x="234" y="22" fontFamily="monospace" fontSize="7" fontWeight="bold" fill="#6B5B49" textAnchor="middle">F8</text>
-
-        {/* F9 - F12 */}
-        <rect x="252" y="10" width="22" height="18" rx="3.5" fill="url(#keycapModGrad)"/>
-        <text x="263" y="22" fontFamily="monospace" fontSize="7" fontWeight="bold" fill="#6B5B49" textAnchor="middle">F9</text>
-        <rect x="277" y="10" width="22" height="18" rx="3.5" fill="url(#keycapModGrad)"/>
-        <text x="288" y="22" fontFamily="monospace" fontSize="7" fontWeight="bold" fill="#6B5B49" textAnchor="middle">F10</text>
-        <rect x="302" y="10" width="22" height="18" rx="3.5" fill="url(#keycapModGrad)"/>
-        <text x="313" y="22" fontFamily="monospace" fontSize="7" fontWeight="bold" fill="#6B5B49" textAnchor="middle">F11</text>
-        <rect x="327" y="10" width="22" height="18" rx="3.5" fill="url(#keycapModGrad)"/>
-        <text x="338" y="22" fontFamily="monospace" fontSize="7" fontWeight="bold" fill="#6B5B49" textAnchor="middle">F12</text>
-
-        {/* Navigation Cluster: PrtSc, Pause, Del */}
-        <rect x="356" y="10" width="22" height="18" rx="3.5" fill="url(#keycapSageGrad)"/>
-        <text x="367" y="22" fontFamily="monospace" fontSize="6.5" fontWeight="bold" fill="#FFF" textAnchor="middle">PS</text>
-        <rect x="381" y="10" width="22" height="18" rx="3.5" fill="url(#keycapSageGrad)"/>
-        <text x="392" y="22" fontFamily="monospace" fontSize="6.5" fontWeight="bold" fill="#FFF" textAnchor="middle">SL</text>
-        <rect x="406" y="10" width="22" height="18" rx="3.5" fill="url(#keycapSageGrad)"/>
-        <text x="417" y="22" fontFamily="monospace" fontSize="6.5" fontWeight="bold" fill="#FFF" textAnchor="middle">PAU</text>
-        <rect x="431" y="10" width="30" height="18" rx="3.5" fill="url(#keycapAccentGrad)"/>
-        <text x="446" y="22" fontFamily="monospace" fontSize="7" fontWeight="bold" fill="#FFF" textAnchor="middle">DEL</text>
-
-        {/* Milled Brass Rotary Knob */}
+      {/* Ряд 1: ESC, F-клавиши, навигация и латунный энкодер */}
+      <KeyRow
+        {...row1}
+        prefix={<>
+          <rect x="14" y="10" width="24" height="18" rx="3.5" fill="url(#keycapAccentGrad)"/>
+          <rect x="16" y="11" width="20" height="14" rx="2" fill="#C2622D" opacity="0.35"/>
+          <KeyLabel x={26} y={22} size={7.5} color="#FFF">ESC</KeyLabel>
+        </>}
+      >
         <circle cx="488" cy="19" r="11" fill="url(#brassKnobGrad)" stroke="#785918" strokeWidth="1.2"/>
         <circle cx="488" cy="19" r="8" fill="#B38933" stroke="#85621C" strokeWidth="0.8"/>
         <circle cx="488" cy="13" r="1.6" fill="#FFF" opacity="0.9"/>
-      </g>
+      </KeyRow>
 
-      {/* Row 2: Numbers */}
-      <g filter="url(#keyGlow)">
-        {['~', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '='].map((char, i) => (
-          <g key={i}>
-            <rect x={14 + i * 27} y="33" width="23.5" height="19" rx="3.5" fill="url(#keycapTopGrad)"/>
-            <text x={25.75 + i * 27} y="46" fontFamily="monospace" fontSize="8" fontWeight="bold" fill="#42382C" textAnchor="middle">{char}</text>
-          </g>
-        ))}
-        {/* Backspace */}
-        <rect x="365" y="33" width="45" height="19" rx="3.5" fill="url(#keycapModGrad)"/>
-        <text x="387.5" y="46" fontFamily="monospace" fontSize="7.5" fontWeight="bold" fill="#5A4E3E" textAnchor="middle">BACKSPACE</text>
-        {/* Home */}
-        <rect x="414" y="33" width="28" height="19" rx="3.5" fill="url(#keycapSageGrad)"/>
-        <text x="428" y="46" fontFamily="monospace" fontSize="7" fontWeight="bold" fill="#FFF" textAnchor="middle">HOME</text>
-      </g>
-
-      {/* Row 3: QWERTY */}
-      <g filter="url(#keyGlow)">
-        {/* TAB */}
-        <rect x="14" y="56" width="35" height="19" rx="3.5" fill="url(#keycapModGrad)"/>
-        <text x="31.5" y="69" fontFamily="monospace" fontSize="7.5" fontWeight="bold" fill="#5A4E3E" textAnchor="middle">TAB</text>
-        {['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '[', ']'].map((char, i) => (
-          <g key={i}>
-            <rect x={53 + i * 27} y="56" width="23.5" height="19" rx="3.5" fill="url(#keycapTopGrad)"/>
-            <text x={64.75 + i * 27} y="69" fontFamily="monospace" fontSize="8" fontWeight="bold" fill="#42382C" textAnchor="middle">{char}</text>
-          </g>
-        ))}
-        <rect x="377" y="56" width="33" height="19" rx="3.5" fill="url(#keycapTopGrad)"/>
-        <text x="393.5" y="69" fontFamily="monospace" fontSize="8" fontWeight="bold" fill="#42382C" textAnchor="middle">\</text>
-        {/* PgUp */}
-        <rect x="414" y="56" width="28" height="19" rx="3.5" fill="url(#keycapSageGrad)"/>
-        <text x="428" y="69" fontFamily="monospace" fontSize="7" fontWeight="bold" fill="#FFF" textAnchor="middle">PGUP</text>
-      </g>
-
-      {/* Row 4: ASDF */}
-      <g filter="url(#keyGlow)">
-        {/* CAPS */}
-        <rect x="14" y="79" width="41" height="19" rx="3.5" fill="url(#keycapModGrad)"/>
-        <text x="34.5" y="92" fontFamily="monospace" fontSize="7.5" fontWeight="bold" fill="#5A4E3E" textAnchor="middle">CAPS</text>
-        {['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ';', '\''].map((char, i) => (
-          <g key={i}>
-            <rect x={59 + i * 27} y="79" width="23.5" height="19" rx="3.5" fill="url(#keycapTopGrad)"/>
-            <text x={70.75 + i * 27} y="92" fontFamily="monospace" fontSize="8" fontWeight="bold" fill="#42382C" textAnchor="middle">{char}</text>
-          </g>
-        ))}
-        {/* ENTER - Terracotta Accent */}
-        <rect x="356" y="79" width="54" height="19" rx="3.5" fill="url(#keycapAccentGrad)"/>
-        <text x="383" y="92" fontFamily="monospace" fontSize="8" fontWeight="bold" fill="#FFF" textAnchor="middle">ENTER ↵</text>
-        {/* PgDn */}
-        <rect x="414" y="79" width="28" height="19" rx="3.5" fill="url(#keycapSageGrad)"/>
-        <text x="428" y="92" fontFamily="monospace" fontSize="7" fontWeight="bold" fill="#FFF" textAnchor="middle">PGDN</text>
-      </g>
-
-      {/* Row 5: Bottom row + Spacebar + Arrows */}
-      <g filter="url(#keyGlow)">
-        <rect x="14" y="102" width="31" height="21" rx="3.5" fill="url(#keycapModGrad)"/>
-        <text x="29.5" y="116" fontFamily="monospace" fontSize="7" fontWeight="bold" fill="#5A4E3E" textAnchor="middle">CTRL</text>
-
-        <rect x="49" y="102" width="27" height="21" rx="3.5" fill="url(#keycapModGrad)"/>
-        <text x="62.5" y="116" fontFamily="monospace" fontSize="7" fontWeight="bold" fill="#5A4E3E" textAnchor="middle">WIN</text>
-
-        <rect x="80" y="102" width="27" height="21" rx="3.5" fill="url(#keycapModGrad)"/>
-        <text x="93.5" y="116" fontFamily="monospace" fontSize="7" fontWeight="bold" fill="#5A4E3E" textAnchor="middle">ALT</text>
-
-        {/* Spacebar */}
-        <rect x="111" y="102" width="180" height="21" rx="4" fill="url(#keycapTopGrad)"/>
-        <line x1="180" y1="112" x2="220" y2="112" stroke="#DFD4C0" strokeWidth="1.2" strokeLinecap="round"/>
-
-        <rect x="295" y="102" width="26" height="21" rx="3.5" fill="url(#keycapModGrad)"/>
-        <text x="308" y="116" fontFamily="monospace" fontSize="7" fontWeight="bold" fill="#5A4E3E" textAnchor="middle">ALT</text>
-
-        <rect x="325" y="102" width="26" height="21" rx="3.5" fill="url(#keycapModGrad)"/>
-        <text x="338" y="116" fontFamily="monospace" fontSize="7" fontWeight="bold" fill="#5A4E3E" textAnchor="middle">FN</text>
-
-        <rect x="355" y="102" width="26" height="21" rx="3.5" fill="url(#keycapModGrad)"/>
-        <text x="368" y="116" fontFamily="monospace" fontSize="7" fontWeight="bold" fill="#5A4E3E" textAnchor="middle">CTRL</text>
-
-        {/* Arrow Keys */}
-        <rect x="386" y="102" width="23" height="21" rx="3.5" fill="url(#keycapSageGrad)"/>
-        <text x="397.5" y="116" fontFamily="monospace" fontSize="8" fontWeight="bold" fill="#FFF" textAnchor="middle">←</text>
-
-        <rect x="413" y="102" width="23" height="21" rx="3.5" fill="url(#keycapSageGrad)"/>
-        <text x="424.5" y="116" fontFamily="monospace" fontSize="8" fontWeight="bold" fill="#FFF" textAnchor="middle">↓</text>
-
-        <rect x="440" y="102" width="23" height="21" rx="3.5" fill="url(#keycapSageGrad)"/>
-        <text x="451.5" y="116" fontFamily="monospace" fontSize="8" fontWeight="bold" fill="#FFF" textAnchor="middle">→</text>
-      </g>
-    </svg>
+      {rows.map((row) => <KeyRow key={row.y} {...row} />)}
+    </Svg>
   );
 }
 
@@ -203,7 +164,7 @@ export function LayerSwitchesSvg({ isHighlighted }) {
   ];
 
   return (
-    <svg viewBox="0 0 520 140" className="w-full h-full select-none" xmlns="http://www.w3.org/2000/svg">
+    <Svg>
       <defs>
         <linearGradient id="switchHousingGrad" x1="0%" y1="0%" x2="0%" y2="100%">
           <stop offset="0%" stopColor="#302C2A"/>
@@ -217,17 +178,7 @@ export function LayerSwitchesSvg({ isHighlighted }) {
       </defs>
 
       {/* Translucent switch carrier plate background */}
-      <rect 
-        x="3" 
-        y="3" 
-        width="514" 
-        height="134" 
-        rx="10" 
-        fill="#181615" 
-        fillOpacity="0.88"
-        stroke={isHighlighted ? '#C2622D' : '#3E3834'} 
-        strokeWidth={isHighlighted ? 3 : 1.5}
-      />
+      <rect x="3" y="3" width="514" height="134" rx="10" fill="#181615" fillOpacity="0.88" {...outline(isHighlighted, '#3E3834')}/>
 
       {/* Rotary encoder mechanism */}
       <g transform="translate(476, 8)">
@@ -254,13 +205,25 @@ export function LayerSwitchesSvg({ isHighlighted }) {
 
       {/* Stabilizers on Spacebar & large keys */}
       <rect x="120" y="108" width="160" height="6" rx="2" fill="#24211F" stroke="#E2C178" strokeWidth="0.8" strokeDasharray="4 2"/>
-    </svg>
+    </Svg>
   );
 }
 
+// ---------- Слой 3: латунный плейт ----------
+const GASKET_X = [65, 175, 305, 415];
+
+// вырезы под свитчи: [y, [x | [x, ширина]]], ширина по умолчанию 18
+const PLATE_CUTOUTS = [
+  [12, [0, 28, 53, 78, 103, 132, 157, 182, 207, 236, 261, 286, 311, 340, 365, 390, 418]],
+  [35, [0, 27, 54, 81, 108, 135, 162, 189, 216, 243, 270, 297, 324, [360, 22], 417]],
+  [58, [[0, 22], 35, 62, 89, 116, 143, 170, 197, 224, 251, 278, 305, 332, [372, 20], 417]],
+  [81, [[0, 24], 40, 67, 94, 121, 148, 175, 202, 229, 256, 283, 310, [366, 24], 417]],
+  [104, [[0, 22], [32, 20], [62, 20], [95, 185], [290, 20], [319, 20], [348, 20], 380, 408, 435]],
+];
+
 export function LayerBrassPlateSvg({ isHighlighted }) {
   return (
-    <svg viewBox="0 0 520 140" className="w-full h-full select-none" xmlns="http://www.w3.org/2000/svg">
+    <Svg>
       <defs>
         <linearGradient id="brassPlateGrad" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="#FFF2CC"/>
@@ -277,142 +240,40 @@ export function LayerBrassPlateSvg({ isHighlighted }) {
 
       {/* Perimeter Gasket Mount Silicone Dampening Tabs */}
       <g fill="url(#gasketSiliconeGrad)" stroke="#7A2B18" strokeWidth="0.6">
-        <rect x="65" y="0" width="28" height="6" rx="2"/>
-        <rect x="175" y="0" width="28" height="6" rx="2"/>
-        <rect x="305" y="0" width="28" height="6" rx="2"/>
-        <rect x="415" y="0" width="28" height="6" rx="2"/>
-        <rect x="65" y="134" width="28" height="6" rx="2"/>
-        <rect x="175" y="134" width="28" height="6" rx="2"/>
-        <rect x="305" y="134" width="28" height="6" rx="2"/>
-        <rect x="415" y="134" width="28" height="6" rx="2"/>
-        <rect x="0" y="44" width="6" height="22" rx="2"/>
-        <rect x="0" y="84" width="6" height="22" rx="2"/>
-        <rect x="514" y="44" width="6" height="22" rx="2"/>
-        <rect x="514" y="84" width="6" height="22" rx="2"/>
+        {GASKET_X.flatMap((x) => [0, 134].map((y) => <rect key={`${x}-${y}`} x={x} y={y} width="28" height="6" rx="2"/>))}
+        {[0, 514].flatMap((x) => [44, 84].map((y) => <rect key={`${x}-${y}`} x={x} y={y} width="6" height="22" rx="2"/>))}
       </g>
 
       {/* Main CNC Brass Plate Body */}
-      <rect 
-        x="5" 
-        y="4" 
-        width="510" 
-        height="132" 
-        rx="8" 
-        fill="url(#brassPlateGrad)" 
-        stroke={isHighlighted ? '#C2622D' : '#8A6318'} 
-        strokeWidth={isHighlighted ? 3 : 1.5}
-      />
+      <rect x="5" y="4" width="510" height="132" rx="8" fill="url(#brassPlateGrad)" {...outline(isHighlighted, '#8A6318')}/>
 
       {/* Inner chamfer highlight line */}
       <rect x="7" y="6" width="506" height="128" rx="6" fill="none" stroke="#FFF7D9" strokeWidth="0.8" opacity="0.6"/>
 
       {/* Precision Switch Cutout Holes */}
       <g fill="#16130F" stroke="#7A5814" strokeWidth="0.7">
-        {/* Row 1 Cutouts */}
-        <g transform="translate(16, 12)">
-          <rect x="0" y="0" width="18" height="15" rx="2"/>
-          <rect x="28" y="0" width="18" height="15" rx="2"/>
-          <rect x="53" y="0" width="18" height="15" rx="2"/>
-          <rect x="78" y="0" width="18" height="15" rx="2"/>
-          <rect x="103" y="0" width="18" height="15" rx="2"/>
-          <rect x="132" y="0" width="18" height="15" rx="2"/>
-          <rect x="157" y="0" width="18" height="15" rx="2"/>
-          <rect x="182" y="0" width="18" height="15" rx="2"/>
-          <rect x="207" y="0" width="18" height="15" rx="2"/>
-          <rect x="236" y="0" width="18" height="15" rx="2"/>
-          <rect x="261" y="0" width="18" height="15" rx="2"/>
-          <rect x="286" y="0" width="18" height="15" rx="2"/>
-          <rect x="311" y="0" width="18" height="15" rx="2"/>
-          <rect x="340" y="0" width="18" height="15" rx="2"/>
-          <rect x="365" y="0" width="18" height="15" rx="2"/>
-          <rect x="390" y="0" width="18" height="15" rx="2"/>
-          <rect x="418" y="0" width="18" height="15" rx="2"/>
-          <circle cx="472" cy="7" r="8" fill="#16130F" stroke="#7A5814"/>
-        </g>
-
-        {/* Row 2 Cutouts */}
-        <g transform="translate(16, 35)">
-          <rect x="0" y="0" width="18" height="15" rx="2"/>
-          <rect x="27" y="0" width="18" height="15" rx="2"/>
-          <rect x="54" y="0" width="18" height="15" rx="2"/>
-          <rect x="81" y="0" width="18" height="15" rx="2"/>
-          <rect x="108" y="0" width="18" height="15" rx="2"/>
-          <rect x="135" y="0" width="18" height="15" rx="2"/>
-          <rect x="162" y="0" width="18" height="15" rx="2"/>
-          <rect x="189" y="0" width="18" height="15" rx="2"/>
-          <rect x="216" y="0" width="18" height="15" rx="2"/>
-          <rect x="243" y="0" width="18" height="15" rx="2"/>
-          <rect x="270" y="0" width="18" height="15" rx="2"/>
-          <rect x="297" y="0" width="18" height="15" rx="2"/>
-          <rect x="324" y="0" width="18" height="15" rx="2"/>
-          <rect x="360" y="0" width="22" height="15" rx="2"/>
-          <rect x="417" y="0" width="18" height="15" rx="2"/>
-        </g>
-
-        {/* Row 3 Cutouts */}
-        <g transform="translate(16, 58)">
-          <rect x="0" y="0" width="22" height="15" rx="2"/>
-          <rect x="35" y="0" width="18" height="15" rx="2"/>
-          <rect x="62" y="0" width="18" height="15" rx="2"/>
-          <rect x="89" y="0" width="18" height="15" rx="2"/>
-          <rect x="116" y="0" width="18" height="15" rx="2"/>
-          <rect x="143" y="0" width="18" height="15" rx="2"/>
-          <rect x="170" y="0" width="18" height="15" rx="2"/>
-          <rect x="197" y="0" width="18" height="15" rx="2"/>
-          <rect x="224" y="0" width="18" height="15" rx="2"/>
-          <rect x="251" y="0" width="18" height="15" rx="2"/>
-          <rect x="278" y="0" width="18" height="15" rx="2"/>
-          <rect x="305" y="0" width="18" height="15" rx="2"/>
-          <rect x="332" y="0" width="18" height="15" rx="2"/>
-          <rect x="372" y="0" width="20" height="15" rx="2"/>
-          <rect x="417" y="0" width="18" height="15" rx="2"/>
-        </g>
-
-        {/* Row 4 Cutouts */}
-        <g transform="translate(16, 81)">
-          <rect x="0" y="0" width="24" height="15" rx="2"/>
-          <rect x="40" y="0" width="18" height="15" rx="2"/>
-          <rect x="67" y="0" width="18" height="15" rx="2"/>
-          <rect x="94" y="0" width="18" height="15" rx="2"/>
-          <rect x="121" y="0" width="18" height="15" rx="2"/>
-          <rect x="148" y="0" width="18" height="15" rx="2"/>
-          <rect x="175" y="0" width="18" height="15" rx="2"/>
-          <rect x="202" y="0" width="18" height="15" rx="2"/>
-          <rect x="229" y="0" width="18" height="15" rx="2"/>
-          <rect x="256" y="0" width="18" height="15" rx="2"/>
-          <rect x="283" y="0" width="18" height="15" rx="2"/>
-          <rect x="310" y="0" width="18" height="15" rx="2"/>
-          <rect x="366" y="0" width="24" height="15" rx="2"/>
-          <rect x="417" y="0" width="18" height="15" rx="2"/>
-        </g>
-
-        {/* Row 5 Spacebar & Modifiers Cutouts */}
-        <g transform="translate(16, 104)">
-          <rect x="0" y="0" width="22" height="15" rx="2"/>
-          <rect x="32" y="0" width="20" height="15" rx="2"/>
-          <rect x="62" y="0" width="20" height="15" rx="2"/>
-          {/* Long Spacebar opening */}
-          <rect x="95" y="0" width="185" height="15" rx="2"/>
-          <rect x="290" y="0" width="20" height="15" rx="2"/>
-          <rect x="319" y="0" width="20" height="15" rx="2"/>
-          <rect x="348" y="0" width="20" height="15" rx="2"/>
-          <rect x="380" y="0" width="18" height="15" rx="2"/>
-          <rect x="408" y="0" width="18" height="15" rx="2"/>
-          <rect x="435" y="0" width="18" height="15" rx="2"/>
-        </g>
+        {PLATE_CUTOUTS.map(([y, holes]) => (
+          <g key={y} transform={`translate(16, ${y})`}>
+            {holes.map((h) => {
+              const [x, w] = Array.isArray(h) ? h : [h, 18];
+              return <rect key={x} x={x} y="0" width={w} height="15" rx="2"/>;
+            })}
+            {y === 12 && <circle cx="472" cy="7" r="8" fill="#16130F" stroke="#7A5814"/>}
+          </g>
+        ))}
       </g>
 
       {/* Engraved brass plate specification */}
       <text x="260" y="130" fontFamily="monospace" fontSize="6.5" fontWeight="bold" fill="#755210" textAnchor="middle" letterSpacing="1">
         PRECISION CNC BRASS PLATE 1.5MM • GASKET ISOLATED
       </text>
-    </svg>
+    </Svg>
   );
 }
 
 export function LayerPoronFoamSvg({ isHighlighted }) {
   return (
-    <svg viewBox="0 0 520 140" className="w-full h-full select-none" xmlns="http://www.w3.org/2000/svg">
+    <Svg>
       <defs>
         <linearGradient id="poronFoamGrad" x1="0%" y1="0%" x2="0%" y2="100%">
           <stop offset="0%" stopColor="#3C3936"/>
@@ -426,27 +287,11 @@ export function LayerPoronFoamSvg({ isHighlighted }) {
 
       {/* Gasket damper perimeter wings */}
       <g fill="#D98A32">
-        <rect x="65" y="1" width="28" height="5" rx="1.5"/>
-        <rect x="175" y="1" width="28" height="5" rx="1.5"/>
-        <rect x="305" y="1" width="28" height="5" rx="1.5"/>
-        <rect x="415" y="1" width="28" height="5" rx="1.5"/>
-        <rect x="65" y="134" width="28" height="5" rx="1.5"/>
-        <rect x="175" y="134" width="28" height="5" rx="1.5"/>
-        <rect x="305" y="134" width="28" height="5" rx="1.5"/>
-        <rect x="415" y="134" width="28" height="5" rx="1.5"/>
+        {GASKET_X.flatMap((x) => [1, 134].map((y) => <rect key={`${x}-${y}`} x={x} y={y} width="28" height="5" rx="1.5"/>))}
       </g>
 
       {/* Poron Foam Sheet */}
-      <rect 
-        x="6" 
-        y="5" 
-        width="508" 
-        height="130" 
-        rx="8" 
-        fill="url(#poronFoamGrad)" 
-        stroke={isHighlighted ? '#C2622D' : '#4E4844'} 
-        strokeWidth={isHighlighted ? 3 : 1.5}
-      />
+      <rect x="6" y="5" width="508" height="130" rx="8" fill="url(#poronFoamGrad)" {...outline(isHighlighted, '#4E4844')}/>
 
       {/* Micro-cellular acoustic texture overlay */}
       <rect x="8" y="7" width="504" height="126" rx="6" fill="url(#poronCells)"/>
@@ -455,10 +300,7 @@ export function LayerPoronFoamSvg({ isHighlighted }) {
       <g fill="#100F0E" opacity="0.9">
         {[18, 44, 70, 95, 120, 148, 174, 200, 226, 252, 278, 304, 330, 360, 390, 420].map((cx, i) => (
           <g key={i}>
-            <circle cx={cx} cy="18" r="3.5"/>
-            <circle cx={cx} cy="42" r="3.5"/>
-            <circle cx={cx} cy="66" r="3.5"/>
-            <circle cx={cx} cy="90" r="3.5"/>
+            {[18, 42, 66, 90].map((cy) => <circle key={cy} cx={cx} cy={cy} r="3.5"/>)}
           </g>
         ))}
         {/* Spacebar cutout */}
@@ -472,13 +314,13 @@ export function LayerPoronFoamSvg({ isHighlighted }) {
       <text x="260" y="74" fontFamily="monospace" fontSize="8" fontWeight="bold" fill="#7D746D" textAnchor="middle" letterSpacing="2">
         JAPANESE PORON® XRD • 3.5MM ACOUSTIC ISOLATION
       </text>
-    </svg>
+    </Svg>
   );
 }
 
 export function LayerPcbSvg({ isHighlighted }) {
   return (
-    <svg viewBox="0 0 520 140" className="w-full h-full select-none" xmlns="http://www.w3.org/2000/svg">
+    <Svg>
       <defs>
         <linearGradient id="pcbSubstrateGrad" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="#252A30"/>
@@ -497,16 +339,7 @@ export function LayerPcbSvg({ isHighlighted }) {
       <rect x="28" y="2" width="14" height="2" rx="0.5" fill="#151719"/>
 
       {/* FR-4 PCB Board */}
-      <rect 
-        x="5" 
-        y="4" 
-        width="510" 
-        height="132" 
-        rx="8" 
-        fill="url(#pcbSubstrateGrad)" 
-        stroke={isHighlighted ? '#C2622D' : '#3E4652'} 
-        strokeWidth={isHighlighted ? 3 : 1.5}
-      />
+      <rect x="5" y="4" width="510" height="132" rx="8" fill="url(#pcbSubstrateGrad)" {...outline(isHighlighted, '#3E4652')}/>
 
       {/* Intricate Gold Bus Traces (Immersion Gold ENIG) */}
       <g stroke="url(#goldTraceGrad)" strokeWidth="1" fill="none" strokeLinecap="round" strokeLinejoin="round" opacity="0.85">
@@ -530,21 +363,13 @@ export function LayerPcbSvg({ isHighlighted }) {
       <g fill="#0B0C0E" stroke="#D4AA50" strokeWidth="0.6">
         {[20, 50, 80, 110, 140, 170, 200, 230, 260, 290, 320, 350, 380, 410, 440].map((x, i) => (
           <g key={i}>
-            <rect x={x} y="16" width="13" height="8" rx="2"/>
-            <circle cx={x + 3.5} cy="20" r="1.2" fill="#FFE49E"/>
-            <circle cx={x + 9.5} cy="20" r="1.2" fill="#FFE49E"/>
-
-            <rect x={x} y="40" width="13" height="8" rx="2"/>
-            <circle cx={x + 3.5} cy="44" r="1.2" fill="#FFE49E"/>
-            <circle cx={x + 9.5} cy="44" r="1.2" fill="#FFE49E"/>
-
-            <rect x={x} y="64" width="13" height="8" rx="2"/>
-            <circle cx={x + 3.5} cy="68" r="1.2" fill="#FFE49E"/>
-            <circle cx={x + 9.5} cy="68" r="1.2" fill="#FFE49E"/>
-
-            <rect x={x} y="88" width="13" height="8" rx="2"/>
-            <circle cx={x + 3.5} cy="92" r="1.2" fill="#FFE49E"/>
-            <circle cx={x + 9.5} cy="92" r="1.2" fill="#FFE49E"/>
+            {[16, 40, 64, 88].map((y) => (
+              <g key={y}>
+                <rect x={x} y={y} width="13" height="8" rx="2"/>
+                <circle cx={x + 3.5} cy={y + 4} r="1.2" fill="#FFE49E"/>
+                <circle cx={x + 9.5} cy={y + 4} r="1.2" fill="#FFE49E"/>
+              </g>
+            ))}
           </g>
         ))}
       </g>
@@ -553,13 +378,13 @@ export function LayerPcbSvg({ isHighlighted }) {
       <text x="270" y="128" fontFamily="monospace" fontSize="6.5" fontWeight="bold" fill="#D4AA50" textAnchor="middle" letterSpacing="1.2">
         KEYCRAFT RETRO 75 PCB • ENIG GOLD PLATING • QMK / VIA READY
       </text>
-    </svg>
+    </Svg>
   );
 }
 
 export function LayerWalnutCaseSvg({ isHighlighted }) {
   return (
-    <svg viewBox="0 0 520 156" className="w-full h-full select-none" xmlns="http://www.w3.org/2000/svg">
+    <Svg height={156}>
       <defs>
         <linearGradient id="walnutTopGrad" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="#8A5632"/>
@@ -588,27 +413,12 @@ export function LayerWalnutCaseSvg({ isHighlighted }) {
       </defs>
 
       {/* 3D Bottom/Front Beveled Wooden Apron (thickness of the solid wood block) */}
-      <path 
-        d="M 6 128 L 6 146 Q 6 154 16 154 L 504 154 Q 514 154 514 146 L 514 128 Z" 
-        fill="url(#walnutSideBevelGrad)"
-        stroke={isHighlighted ? '#C2622D' : '#140A04'}
-        strokeWidth={isHighlighted ? 2.5 : 1.2}
-      />
+      <path d="M 6 128 L 6 146 Q 6 154 16 154 L 504 154 Q 514 154 514 146 L 514 128 Z" fill="url(#walnutSideBevelGrad)" {...outline(isHighlighted, '#140A04', 1.2, 2.5)}/>
       {/* Wood grain along bottom apron */}
       <path d="M 12 144 Q 260 148 508 143" stroke="#5A3217" strokeWidth="1" fill="none" opacity="0.4"/>
 
       {/* Solid Walnut Wood Top Surface (Chassis) */}
-      <rect 
-        x="2"
-        y="2"
-        width="516" 
-        height="136" 
-        rx="12" 
-        fill="url(#walnutTopGrad)" 
-        stroke={isHighlighted ? '#C2622D' : '#1C0D05'} 
-        strokeWidth={isHighlighted ? 3 : 2}
-        filter="url(#caseDepthShadow)"
-      />
+      <rect x="2" y="2" width="516" height="136" rx="12" fill="url(#walnutTopGrad)" {...outline(isHighlighted, '#1C0D05', 2, 3)} filter="url(#caseDepthShadow)"/>
 
       {/* Organic Wood Grain Lines on Top Face */}
       <g stroke="#A26B43" strokeWidth="1.2" opacity="0.35" fill="none" strokeLinecap="round">
@@ -637,13 +447,12 @@ export function LayerWalnutCaseSvg({ isHighlighted }) {
       </text>
 
       {/* Standoffs with acoustic dampening gaskets */}
-      <rect x="22" y="18" width="18" height="8" rx="2" fill="#282420" stroke="#12100E" strokeWidth="0.8"/>
-      <rect x="480" y="18" width="18" height="8" rx="2" fill="#282420" stroke="#12100E" strokeWidth="0.8"/>
-      <rect x="22" y="112" width="18" height="8" rx="2" fill="#282420" stroke="#12100E" strokeWidth="0.8"/>
-      <rect x="480" y="112" width="18" height="8" rx="2" fill="#282420" stroke="#12100E" strokeWidth="0.8"/>
+      {[18, 112].flatMap((y) => [22, 480].map((x) => (
+        <rect key={`${x}-${y}`} x={x} y={y} width="18" height="8" rx="2" fill="#282420" stroke="#12100E" strokeWidth="0.8"/>
+      )))}
 
       {/* Type-C Port Machined Notch */}
       <rect x="28" y="9" width="24" height="6" rx="1.5" fill="#0A0502"/>
-    </svg>
+    </Svg>
   );
 }

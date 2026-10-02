@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { CartProvider } from './context/CartContext';
 import { FavoritesProvider } from './context/FavoritesContext';
 import { Navbar } from './components/Navbar';
@@ -8,62 +8,49 @@ import { PromoCarousel } from './components/PromoCarousel';
 import { Catalog } from './components/Catalog/Catalog';
 import { ProductDetailPage } from './components/ProductDetailPage';
 import { FavoritesPage } from './components/FavoritesPage';
-import { QuickViewModal } from './components/QuickViewModal';
 import { CartDrawer } from './components/CartDrawer';
 import { CheckoutModal } from './components/CheckoutModal';
 import { ClackBotModal } from './components/ClackBotModal';
 import { Toast } from './components/Toast';
 import { Footer } from './components/Footer';
 import { CATEGORIES } from './data/products';
-import { 
-  ArrowRight, ShieldCheck, Wrench, Sparkles, 
-  CheckCircle2, PackageCheck, Cpu, Layers, Heart 
-} from 'lucide-react';
+import { ArrowRight, Wrench, Sparkles, Cpu } from 'lucide-react';
+
+const PAGES = ['home', 'catalog', 'favorites'];
 
 function MainShop() {
-  // Navigation: 'home' | 'catalog' | 'product' | 'favorites'
+  // Навигация: 'home' | 'catalog' | 'product' | 'favorites' (через location.hash)
   const [currentPage, setCurrentPage] = useState('home');
   const [activeProductId, setActiveProductId] = useState('kb-lumina-75');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [quickViewProduct, setQuickViewProduct] = useState(null);
   const [isChatBotOpen, setIsChatBotOpen] = useState(false);
 
-  // Hash-based routing synchronization
   useEffect(() => {
-    const handleHashChange = () => {
-      const hash = window.location.hash.replace('#', '') || 'home';
+    const syncFromHash = () => {
+      const hash = window.location.hash.slice(1);
       if (hash.startsWith('product/')) {
-        const id = hash.replace('product/', '');
-        setActiveProductId(id);
+        setActiveProductId(hash.slice('product/'.length));
         setCurrentPage('product');
-      } else if (hash === 'catalog') {
-        setCurrentPage('catalog');
-      } else if (hash === 'favorites') {
-        setCurrentPage('favorites');
       } else {
-        setCurrentPage('home');
+        setCurrentPage(PAGES.includes(hash) ? hash : 'home');
       }
     };
-
-    handleHashChange();
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
+    syncFromHash();
+    window.addEventListener('hashchange', syncFromHash);
+    return () => window.removeEventListener('hashchange', syncFromHash);
   }, []);
 
   const navigateTo = (page, productId = null, category = null) => {
     setCurrentPage(page);
-    if (productId) {
-      setActiveProductId(productId);
-      window.location.hash = `product/${productId}`;
-    } else {
-      window.location.hash = page;
-    }
-    if (category) {
-      setSelectedCategory(category);
-    }
+    if (productId) setActiveProductId(productId);
+    if (category) setSelectedCategory(category);
+    window.location.hash = productId ? `product/${productId}` : page;
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+  const openProduct = (id) => navigateTo('product', id);
+  const openCatalog = (category = null) => navigateTo('catalog', null, category);
+  const openChatBot = () => setIsChatBotOpen(true);
 
   return (
     <div className="min-h-screen flex flex-col bg-cream-100 text-vintage-dark font-sans selection:bg-vintage-accent selection:text-white pb-16 md:pb-0">
@@ -74,19 +61,19 @@ function MainShop() {
         onNavigate={navigateTo}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
-        onOpenChatBot={() => setIsChatBotOpen(true)}
+        onOpenChatBot={openChatBot}
       />
 
       <main className="flex-1">
         
         {/* VIEW 1: HOME PAGE */}
         {currentPage === 'home' && (
-          <div className="space-y-6 sm:space-y-8 animate-fadeIn">
+          <div className="space-y-6 sm:space-y-8">
             
             {/* Hero Section with 3D Exploded Perspective View */}
             <HeroExplodedParallax
-              onExploreCatalog={() => navigateTo('catalog')}
-              onOpenChatBot={() => setIsChatBotOpen(true)}
+              onExploreCatalog={() => openCatalog()}
+              onOpenChatBot={openChatBot}
             />
 
             {/* Quick Category Navigation Shortcuts */}
@@ -99,7 +86,7 @@ function MainShop() {
                   </h2>
                 </div>
                 <button
-                  onClick={() => navigateTo('catalog', null, 'all')}
+                  onClick={() => openCatalog('all')}
                   className="text-xs font-mono text-vintage-accent hover:underline flex items-center gap-1"
                 >
                   <span>Все категории</span>
@@ -111,8 +98,8 @@ function MainShop() {
                 {CATEGORIES.filter(c => c.id !== 'all').map((cat) => (
                   <button
                     key={cat.id}
-                    onClick={() => navigateTo('catalog', null, cat.id)}
-                    className="p-3 rounded-xl bg-white border border-stone-200 hover:border-vintage-accent/60 hover:shadow-xs transition-all text-center flex flex-col items-center justify-center gap-1.5 group"
+                    onClick={() => openCatalog(cat.id)}
+                    className="p-3 rounded-xl bg-white border border-stone-200 hover:border-vintage-accent/60 transition-all text-center flex flex-col items-center justify-center gap-1.5 group"
                   >
                     <span className="text-xs font-mono font-semibold text-stone-800 group-hover:text-vintage-accent transition-colors truncate w-full">
                       {cat.name.split(' ')[0]}
@@ -126,10 +113,7 @@ function MainShop() {
             </section>
 
             {/* Special Offers Carousel */}
-            <PromoCarousel 
-              onQuickView={setQuickViewProduct}
-              onOpenProduct={(id) => navigateTo('product', id)}
-            />
+            <PromoCarousel onOpenProduct={openProduct} />
 
             {/* Workshop Craftsmanship Banner */}
             <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -150,7 +134,7 @@ function MainShop() {
 
                   <div className="pt-2 flex items-center gap-3 flex-wrap">
                     <button
-                      onClick={() => navigateTo('catalog')}
+                      onClick={() => openCatalog()}
                       className="btn-retro-primary px-5 py-2.5 flex items-center gap-2"
                     >
                       <span>Перейти в каталог</span>
@@ -158,7 +142,7 @@ function MainShop() {
                     </button>
 
                     <button
-                      onClick={() => setIsChatBotOpen(true)}
+                      onClick={openChatBot}
                       className="btn-retro px-4 py-2.5 flex items-center gap-2 bg-stone-800 border-stone-700 text-stone-200 hover:bg-stone-700"
                     >
                       <Wrench className="w-4 h-4 text-amber-400" />
@@ -177,20 +161,14 @@ function MainShop() {
 
         {/* VIEW 2: CATALOG PAGE */}
         {currentPage === 'catalog' && (
-          <div className="animate-fadeIn">
-            <Breadcrumbs
-              currentCategory={selectedCategory}
-              currentProduct={null}
-              onSelectCategory={setSelectedCategory}
-              onClearProduct={() => {}}
-            />
+          <div>
+            <Breadcrumbs currentCategory={selectedCategory} onSelectCategory={setSelectedCategory} />
 
             <Catalog
               selectedCategory={selectedCategory}
               onSelectCategory={setSelectedCategory}
               searchQuery={searchQuery}
-              onOpenProduct={(id) => navigateTo('product', id)}
-              onQuickView={setQuickViewProduct}
+              onOpenProduct={openProduct}
             />
           </div>
         )}
@@ -198,32 +176,25 @@ function MainShop() {
         {/* VIEW 3: PRODUCT DETAIL PAGE */}
         {currentPage === 'product' && (
           <ProductDetailPage
+            key={activeProductId}
             productId={activeProductId}
-            onBackToCatalog={() => navigateTo('catalog')}
-            onOpenProduct={(id) => navigateTo('product', id)}
+            onBackToCatalog={() => openCatalog()}
+            onOpenProduct={openProduct}
           />
         )}
 
         {/* VIEW 4: FAVORITES PAGE */}
         {currentPage === 'favorites' && (
           <FavoritesPage
-            onBackToCatalog={() => navigateTo('catalog')}
-            onOpenProduct={(id) => navigateTo('product', id)}
+            onBackToCatalog={() => openCatalog()}
+            onOpenProduct={openProduct}
           />
         )}
 
       </main>
 
       {/* Footer */}
-      <Footer 
-        onSelectCategory={(catId) => navigateTo('catalog', null, catId)} 
-      />
-
-      {/* Quick View Modal (Optional preview) */}
-      <QuickViewModal
-        product={quickViewProduct}
-        onClose={() => setQuickViewProduct(null)}
-      />
+      <Footer onSelectCategory={openCatalog} />
 
       {/* Slide-out Cart Drawer */}
       <CartDrawer />
@@ -235,7 +206,7 @@ function MainShop() {
       <ClackBotModal
         isOpen={isChatBotOpen}
         onClose={() => setIsChatBotOpen(false)}
-        onQuickView={(p) => navigateTo('product', p.id)}
+        onOpenProduct={openProduct}
       />
 
       {/* Toast System (Unified Cart + Favorites) */}

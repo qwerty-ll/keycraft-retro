@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { X, Trash2, ShoppingBag, ArrowRight, Tag, Check, AlertCircle } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { rub } from '../utils/format';
 
 export function CartDrawer() {
   const {
@@ -18,22 +19,23 @@ export function CartDrawer() {
     subtotal,
     discountAmount,
     totalPrice,
+    deliveryCost,
     setIsCheckoutOpen,
   } = useCart();
 
   const [promoInput, setPromoInput] = useState('');
 
+  const close = () => setIsCartOpen(false);
+
+  // Esc закрывает корзину, фон не скроллится
   useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === 'Escape') setIsCartOpen(false);
-    };
-    if (isCartOpen) {
-      window.addEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = 'hidden';
-    }
+    if (!isCartOpen) return;
+    const onKey = (e) => e.key === 'Escape' && setIsCartOpen(false);
+    window.addEventListener('keydown', onKey);
+    document.body.style.overflow = 'hidden';
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = 'unset';
+      window.removeEventListener('keydown', onKey);
+      document.body.style.overflow = '';
     };
   }, [isCartOpen, setIsCartOpen]);
 
@@ -47,16 +49,16 @@ export function CartDrawer() {
   };
 
   const handleProceedCheckout = () => {
-    setIsCartOpen(false);
+    close();
     setIsCheckoutOpen(true);
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden select-none animate-fadeIn">
+    <div className="fixed inset-0 z-50 overflow-hidden select-none">
       
       <div
-        className="absolute inset-0 bg-stone-900/60 backdrop-blur-xs transition-opacity"
-        onClick={() => setIsCartOpen(false)}
+        className="absolute inset-0 bg-stone-900/60 transition-opacity"
+        onClick={close}
       />
 
       <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
@@ -74,7 +76,7 @@ export function CartDrawer() {
             </div>
 
             <button
-              onClick={() => setIsCartOpen(false)}
+              onClick={close}
               className="p-1 rounded-lg border border-stone-200 hover:bg-stone-100 text-stone-600 transition-colors"
               aria-label="Закрыть корзину"
             >
@@ -97,7 +99,7 @@ export function CartDrawer() {
                   </p>
                 </div>
                 <button
-                  onClick={() => setIsCartOpen(false)}
+                  onClick={close}
                   className="btn-retro text-xs py-1.5 px-3 bg-stone-900 text-white hover:bg-stone-800"
                 >
                   В каталог
@@ -134,7 +136,7 @@ export function CartDrawer() {
                         {item.selectedOption}
                       </p>
                       <div className="font-mono font-bold text-xs text-stone-900 mt-0.5">
-                        {(item.product.price * item.quantity).toLocaleString('ru-RU')} ₽
+                        {rub(item.product.price * item.quantity)}
                       </div>
                     </div>
 
@@ -220,22 +222,22 @@ export function CartDrawer() {
               <div className="space-y-1 text-xs font-mono text-stone-600 border-t border-stone-100 pt-2">
                 <div className="flex justify-between">
                   <span>Товары:</span>
-                  <span>{subtotal.toLocaleString('ru-RU')} ₽</span>
+                  <span>{rub(subtotal)}</span>
                 </div>
                 {discountAmount > 0 && (
                   <div className="flex justify-between text-emerald-700 font-medium">
                     <span>Скидка:</span>
-                    <span>-{discountAmount.toLocaleString('ru-RU')} ₽</span>
+                    <span>-{rub(discountAmount)}</span>
                   </div>
                 )}
                 <div className="flex justify-between">
                   <span>Доставка:</span>
-                  <span>{subtotal >= 5000 ? 'Бесплатно' : '350 ₽'}</span>
+                  <span>{deliveryCost ? rub(deliveryCost) : 'Бесплатно'}</span>
                 </div>
                 <div className="flex justify-between text-sm font-bold text-stone-900 pt-1.5 border-t border-stone-200">
                   <span>Итого:</span>
                   <span className="text-vintage-accent font-mono">
-                    {(totalPrice + (subtotal >= 5000 ? 0 : 350)).toLocaleString('ru-RU')} ₽
+                    {rub(totalPrice + deliveryCost)}
                   </span>
                 </div>
               </div>

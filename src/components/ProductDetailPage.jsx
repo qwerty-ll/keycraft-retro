@@ -1,12 +1,43 @@
-import React, { useState } from 'react';
-import { 
-  ArrowLeft, Star, ShoppingBag, Heart, Check, ShieldCheck, 
-  Truck, Wrench, Package, Info, Share2, CheckCircle2 
-} from 'lucide-react';
+import { useState } from 'react';
+import { ArrowLeft, Star, ShoppingBag, Heart, Check, ShieldCheck, Truck, Wrench, Package, CheckCircle2 } from 'lucide-react';
 import { PRODUCTS } from '../data/products';
 import { useCart } from '../context/CartContext';
 import { useFavorites } from '../context/FavoritesContext';
-import { ProductCard } from './Catalog/ProductCard';
+import { useTimedValue } from '../hooks/useTimedValue';
+import { ProductList } from './Catalog/ProductCard';
+import { rub } from '../utils/format';
+
+const VALUE_BADGES = [
+  [ShieldCheck, 'Гарантия 12 мес.', 'Сервис мастерской'],
+  [Truck, 'Быстрая доставка', 'СДЭК по всей РФ'],
+  [Wrench, 'Ручная сборка', 'Контроль качества'],
+];
+
+const BOX_CONTENTS = (title) => [
+  `Фирменная кастомная клавиатура KeyCraft ${title}`,
+  'Витой авиатор-кабель USB Type-C в нейлоновой оплетке (1.8м)',
+  'Двойной стальной пуллер для кейкапов и свитчей',
+  '3 запасных механических переключателя и акцентные кейкапы',
+  'Гарантийный талон мастерской с индивидуальным номером сборки',
+];
+
+const SAMPLE_REVIEWS = [
+  {
+    author: 'Александр В.',
+    date: '12 сентября 2026',
+    text: 'Великолепная сборка! Корпус из массива ореха невероятно тактильный и тяжелый — клавиатура стоит на столе как влитая. Звук глубокий и чистый, стабилизаторы смазаны с завода идеально.',
+  },
+  {
+    author: 'Михаил К.',
+    date: '28 августа 2026',
+    text: 'Брал для ежедневной работы за кодом. Печатать сплошное удовольствие. Доставка СДЭКом за 2 дня, упаковано в плотную фирменную коробку с демпферами.',
+  },
+  {
+    author: 'Екатерина С.',
+    date: '15 августа 2026',
+    text: 'Выглядит как винтажное произведение искусства. Отдельное спасибо консультанту в чате за помощь с выбором свитчей!',
+  },
+];
 
 export function ProductDetailPage({ 
   productId, 
@@ -15,71 +46,41 @@ export function ProductDetailPage({
 }) {
   const { addToCart } = useCart();
   const { isFavorite, toggleFavorite } = useFavorites();
-  
-  const product = PRODUCTS.find(p => p.id === productId) || PRODUCTS[0];
-  const [selectedOption, setSelectedOption] = useState(
-    product.options && product.options.length > 0 ? product.options[0] : null
-  );
+
+  const product = PRODUCTS.find((p) => p.id === productId) || PRODUCTS[0];
+  const [selectedOption, setSelectedOption] = useState(product.options?.[0] ?? null);
   const [quantity, setQuantity] = useState(1);
-  const [isAddedRecently, setIsAddedRecently] = useState(false);
-  const [activeTab, setActiveTab] = useState('specs'); // 'specs' | 'box' | 'reviews'
+  const [isAddedRecently, flashAdded] = useTimedValue(1800);
+  const [activeTab, setActiveTab] = useState('specs');
 
   const favorited = isFavorite(product.id);
-
+  const handleToggleFav = () => toggleFavorite(product.id, product.title);
   const handleAddToCart = () => {
     addToCart(product, quantity, selectedOption);
-    setIsAddedRecently(true);
-    setTimeout(() => setIsAddedRecently(false), 1800);
+    flashAdded();
   };
 
-  const handleToggleFav = () => {
-    toggleFavorite(product.id, product.title);
-  };
+  // Сначала товары той же категории, затем остальные — всего 3
+  const others = PRODUCTS.filter((p) => p.id !== product.id);
+  const relatedProducts = [
+    ...others.filter((p) => p.category === product.category),
+    ...others.filter((p) => p.category !== product.category),
+  ].slice(0, 3);
 
-  // Related products from same category or fallback
-  const relatedProducts = PRODUCTS
-    .filter(p => p.id !== product.id && (p.category === product.category || product.category === 'all'))
-    .slice(0, 3);
-
-  // If not enough from same category, take other popular items
-  if (relatedProducts.length < 3) {
-    const extra = PRODUCTS.filter(p => p.id !== product.id && !relatedProducts.some(r => r.id === p.id)).slice(0, 3 - relatedProducts.length);
-    relatedProducts.push(...extra);
-  }
-
-  // Realistic verified reviews for detail page
-  const sampleReviews = [
-    {
-      author: 'Александр В.',
-      date: '12 сентября 2026',
-      rating: 5,
-      text: 'Великолепная сборка! Корпус из массива ореха невероятно тактильный и тяжелый — клавиатура стоит на столе как влитая. Звук глубокий и чистый, стабилизаторы смазаны с завода идеально.',
-      verified: true
-    },
-    {
-      author: 'Михаил К.',
-      date: '28 августа 2026',
-      rating: 5,
-      text: 'Брал для ежедневной работы за кодом. Печатать сплошное удовольствие. Доставка СДЭКом за 2 дня, упаковано в плотную фирменную коробку с демпферами.',
-      verified: true
-    },
-    {
-      author: 'Екатерина С.',
-      date: '15 августа 2026',
-      rating: 5,
-      text: 'Выглядит как винтажное произведение искусства. Отдельное спасибо консультанту в чате за помощь с выбором свитчей!',
-      verified: true
-    }
+  const tabs = [
+    ['specs', 'Характеристики'],
+    ['box', 'Комплектация'],
+    ['reviews', `Отзывы (${product.reviewsCount})`],
   ];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-8 animate-fadeIn">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-8">
       
       {/* Breadcrumbs & Back Button */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <button
           onClick={onBackToCatalog}
-          className="inline-flex items-center gap-2 text-xs sm:text-sm font-mono text-stone-600 hover:text-stone-900 bg-white border border-stone-300 rounded-lg px-3 py-1.5 transition-colors shadow-xs"
+          className="inline-flex items-center gap-2 text-xs sm:text-sm font-mono text-stone-600 hover:text-stone-900 bg-white border border-stone-300 rounded-lg px-3 py-1.5 transition-colors"
         >
           <ArrowLeft className="w-4 h-4 text-vintage-accent" />
           <span>Вернуться в каталог</span>
@@ -104,11 +105,11 @@ export function ProductDetailPage({
         
         {/* Left Column: Media & Badges */}
         <div className="lg:col-span-6 space-y-4">
-          <div className="relative w-full aspect-4/3 sm:aspect-16/10 bg-white rounded-2xl border border-stone-300 overflow-hidden shadow-sm flex items-center justify-center p-4 sm:p-6 group">
+          <div className="relative w-full bg-white rounded-2xl border border-stone-300 overflow-hidden shadow-sm flex items-center justify-center p-4 sm:p-6 group">
             <img
               src={product.image}
               alt={product.title}
-              className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-103"
+              className="w-full h-full object-contain transition-transform duration-500"
             />
 
             {product.badge && (
@@ -128,21 +129,13 @@ export function ProductDetailPage({
 
           {/* Value Badges */}
           <div className="grid grid-cols-3 gap-2.5 text-center">
-            <div className="p-2.5 rounded-xl bg-white border border-stone-200 space-y-1">
-              <ShieldCheck className="w-5 h-5 text-vintage-accent mx-auto" />
-              <div className="text-[11px] font-mono font-bold text-stone-900">Гарантия 12 мес.</div>
-              <div className="text-[10px] text-stone-500">Сервис мастерской</div>
-            </div>
-            <div className="p-2.5 rounded-xl bg-white border border-stone-200 space-y-1">
-              <Truck className="w-5 h-5 text-vintage-accent mx-auto" />
-              <div className="text-[11px] font-mono font-bold text-stone-900">Быстрая доставка</div>
-              <div className="text-[10px] text-stone-500">СДЭК по всей РФ</div>
-            </div>
-            <div className="p-2.5 rounded-xl bg-white border border-stone-200 space-y-1">
-              <Wrench className="w-5 h-5 text-vintage-accent mx-auto" />
-              <div className="text-[11px] font-mono font-bold text-stone-900">Ручная сборка</div>
-              <div className="text-[10px] text-stone-500">Контроль качества</div>
-            </div>
+            {VALUE_BADGES.map(([Icon, title, text]) => (
+              <div key={title} className="p-2.5 rounded-xl bg-white border border-stone-200 space-y-1">
+                <Icon className="w-5 h-5 text-vintage-accent mx-auto" />
+                <div className="text-[11px] font-mono font-bold text-stone-900">{title}</div>
+                <div className="text-[10px] text-stone-500">{text}</div>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -171,16 +164,16 @@ export function ProductDetailPage({
           {/* Price Block */}
           <div className="p-4 rounded-xl bg-white border border-stone-200 shadow-sm flex items-baseline gap-3 flex-wrap">
             <div className="font-mono font-bold text-2xl sm:text-3xl text-stone-900">
-              {product.price.toLocaleString('ru-RU')} ₽
+              {rub(product.price)}
             </div>
             {product.oldPrice && (
               <div className="font-mono text-sm text-stone-400 line-through">
-                {product.oldPrice.toLocaleString('ru-RU')} ₽
+                {rub(product.oldPrice)}
               </div>
             )}
             {product.oldPrice && (
               <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800 border border-amber-200">
-                Экономия {(product.oldPrice - product.price).toLocaleString('ru-RU')} ₽
+                Экономия {rub(product.oldPrice - product.price)}
               </span>
             )}
             <div className="ml-auto inline-flex items-center gap-1 text-xs font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
@@ -190,17 +183,17 @@ export function ProductDetailPage({
           </div>
 
           {/* Options Selector (e.g. Switch variant) */}
-          {product.options && product.options.length > 0 && (
+          {product.options?.length > 0 && (
             <div className="space-y-2">
               <label className="block text-xs font-mono font-semibold text-stone-700">
                 Конфигурация / Свитчи:
               </label>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {product.options.map((opt, idx) => {
+                {product.options.map((opt) => {
                   const isSelected = selectedOption === opt;
                   return (
                     <button
-                      key={idx}
+                      key={opt}
                       onClick={() => setSelectedOption(opt)}
                       className={`p-2.5 rounded-lg border text-left text-xs font-mono transition-all flex items-center justify-between ${
                         isSelected
@@ -247,7 +240,7 @@ export function ProductDetailPage({
                 className={`flex-1 h-11 px-6 rounded-lg text-sm font-mono font-bold transition-all shadow-sm flex items-center justify-center gap-2 ${
                   isAddedRecently
                     ? 'bg-emerald-600 text-white'
-                    : 'bg-vintage-accent hover:bg-vintage-accentHover text-white active:scale-98'
+                    : 'bg-vintage-accent hover:bg-vintage-accentHover text-white'
                 }`}
               >
                 {isAddedRecently ? (
@@ -258,7 +251,7 @@ export function ProductDetailPage({
                 ) : (
                   <>
                     <ShoppingBag className="w-4 h-4" />
-                    <span>Добавить в корзину • {(product.price * quantity).toLocaleString('ru-RU')} ₽</span>
+                    <span>Добавить в корзину • {rub(product.price * quantity)}</span>
                   </>
                 )}
               </button>
@@ -292,44 +285,25 @@ export function ProductDetailPage({
         
         {/* Tab Headers */}
         <div className="flex items-center gap-2 border-b border-stone-200 pb-2 flex-wrap">
-          <button
-            onClick={() => setActiveTab('specs')}
-            className={`px-4 py-2 rounded-lg text-xs font-mono font-bold transition-all ${
-              activeTab === 'specs'
-                ? 'bg-stone-900 text-white'
-                : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
-            }`}
-          >
-            Характеристики
-          </button>
-          <button
-            onClick={() => setActiveTab('box')}
-            className={`px-4 py-2 rounded-lg text-xs font-mono font-bold transition-all ${
-              activeTab === 'box'
-                ? 'bg-stone-900 text-white'
-                : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
-            }`}
-          >
-            Комплектация
-          </button>
-          <button
-            onClick={() => setActiveTab('reviews')}
-            className={`px-4 py-2 rounded-lg text-xs font-mono font-bold transition-all ${
-              activeTab === 'reviews'
-                ? 'bg-stone-900 text-white'
-                : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
-            }`}
-          >
-            Отзывы ({product.reviewsCount})
-          </button>
+          {tabs.map(([id, label]) => (
+            <button
+              key={id}
+              onClick={() => setActiveTab(id)}
+              className={`px-4 py-2 rounded-lg text-xs font-mono font-bold transition-all ${
+                activeTab === id ? 'bg-stone-900 text-white' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
         </div>
 
         {/* Tab Content: Specifications */}
         {activeTab === 'specs' && (
           <div className="py-6 max-w-3xl">
-            <div className="bg-white rounded-xl border border-stone-200 overflow-hidden divide-y divide-stone-100 shadow-xs">
-              {product.specs && Object.entries(product.specs).map(([key, val], idx) => (
-                <div key={idx} className="grid grid-cols-1 sm:grid-cols-3 p-3.5 text-xs font-mono">
+            <div className="bg-white rounded-xl border border-stone-200 overflow-hidden divide-y divide-stone-100">
+              {Object.entries(product.specs || {}).map(([key, val]) => (
+                <div key={key} className="grid grid-cols-1 sm:grid-cols-3 p-3.5 text-xs font-mono">
                   <span className="text-stone-500 font-medium">{key}</span>
                   <span className="sm:col-span-2 text-stone-900 font-semibold">{val}</span>
                 </div>
@@ -345,32 +319,18 @@ export function ProductDetailPage({
         {/* Tab Content: Package Contents */}
         {activeTab === 'box' && (
           <div className="py-6 max-w-3xl">
-            <div className="bg-white rounded-xl border border-stone-200 p-5 shadow-xs space-y-3">
+            <div className="bg-white rounded-xl border border-stone-200 p-5 space-y-3">
               <h3 className="text-sm font-bold font-retro text-stone-900 flex items-center gap-2">
                 <Package className="w-4 h-4 text-vintage-accent" />
                 <span>Что входит в комплект поставки:</span>
               </h3>
               <ul className="space-y-2 text-xs font-mono text-stone-700">
-                <li className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-vintage-accent"></span>
-                  <span>Фирменная кастомная клавиатура KeyCraft {product.title}</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-vintage-accent"></span>
-                  <span>Витой авиатор-кабель USB Type-C в нейлоновой оплетке (1.8м)</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-vintage-accent"></span>
-                  <span>Двойной стальной пуллер для кейкапов и свитчей</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-vintage-accent"></span>
-                  <span>3 запасных механических переключателя и акцентные кейкапы</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-vintage-accent"></span>
-                  <span>Гарантийный талон мастерской с индивидуальным номером сборки</span>
-                </li>
+                {BOX_CONTENTS(product.title).map((item) => (
+                  <li key={item} className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-vintage-accent"></span>
+                    <span>{item}</span>
+                  </li>
+                ))}
               </ul>
             </div>
           </div>
@@ -379,21 +339,19 @@ export function ProductDetailPage({
         {/* Tab Content: Customer Reviews */}
         {activeTab === 'reviews' && (
           <div className="py-6 space-y-4 max-w-3xl">
-            {sampleReviews.map((rev, idx) => (
-              <div key={idx} className="p-4 rounded-xl bg-white border border-stone-200 shadow-xs space-y-2">
+            {SAMPLE_REVIEWS.map((rev) => (
+              <div key={rev.author} className="p-4 rounded-xl bg-white border border-stone-200 space-y-2">
                 <div className="flex items-center justify-between text-xs font-mono">
                   <div className="flex items-center gap-2">
                     <span className="font-bold text-stone-900">{rev.author}</span>
-                    {rev.verified && (
-                      <span className="text-[10px] text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 rounded">
-                        Проверенная покупка
-                      </span>
-                    )}
+                    <span className="text-[10px] text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 rounded">
+                      Проверенная покупка
+                    </span>
                   </div>
                   <span className="text-stone-400">{rev.date}</span>
                 </div>
                 <div className="flex items-center gap-1">
-                  {[...Array(rev.rating)].map((_, i) => (
+                  {Array.from({ length: 5 }, (_, i) => (
                     <Star key={i} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
                   ))}
                 </div>
@@ -418,16 +376,7 @@ export function ProductDetailPage({
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {relatedProducts.map(rel => (
-            <ProductCard
-              key={rel.id}
-              product={rel}
-              layout="grid"
-              onOpenProduct={onOpenProduct}
-            />
-          ))}
-        </div>
+        <ProductList products={relatedProducts} onOpenProduct={onOpenProduct} />
       </div>
 
     </div>

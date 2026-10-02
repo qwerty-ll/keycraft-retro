@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { ArrowDown, Layers, Wrench, CheckCircle, SlidersHorizontal, Eye, EyeOff } from 'lucide-react';
 import {
   LayerKeycapsSvg,
@@ -96,6 +96,16 @@ const KEYBOARD_LAYERS = [
   },
 ];
 
+const PRESETS = [
+  { value: 0, label: 'В сборе (0%)', isActive: (e) => e < 0.1 },
+  { value: 0.5, label: '50%', isActive: (e) => e >= 0.4 && e <= 0.6 },
+  { value: 1, label: 'По слоям (100%)', isActive: (e) => e > 0.9 },
+];
+
+const FEATURES = ['Gasket Mount', 'Латунный плейт 1.5мм', 'Массив ореха', 'PBT пластик'];
+const CORNERS = ['left-1 top-1', 'right-1 top-1', 'left-1 bottom-1', 'right-1 bottom-1'];
+const PRESERVE_3D = { transformStyle: 'preserve-3d', WebkitTransformStyle: 'preserve-3d' };
+
 export function HeroExplodedParallax({ onExploreCatalog, onOpenChatBot }) {
   const [explosion, setExplosion] = useState(1);
   const [activeLayerId, setActiveLayerId] = useState('keycaps');
@@ -111,31 +121,18 @@ export function HeroExplodedParallax({ onExploreCatalog, onOpenChatBot }) {
   useEffect(() => {
     let animId;
 
-    const handleMouseMove = (e) => {
-      if (!heroRef.current) return;
-      const rect = heroRef.current.getBoundingClientRect();
-
-      const isInside = (
-        e.clientX >= rect.left &&
-        e.clientX <= rect.right &&
-        e.clientY >= rect.top &&
-        e.clientY <= rect.bottom
-      );
-
-      if (isInside) {
-        const rawX = ((e.clientX - rect.left) / rect.width - 0.5) * 2;
-        const rawY = ((e.clientY - rect.top) / rect.height - 0.5) * 2;
-        target.current.x = Math.max(-1, Math.min(1, rawX));
-        target.current.y = Math.max(-1, Math.min(1, rawY));
-      } else {
-        target.current.x = 0;
-        target.current.y = 0;
-      }
-    };
-
-    const handleMouseLeave = () => {
+    const resetTilt = () => {
       target.current.x = 0;
       target.current.y = 0;
+    };
+
+    // Наклон стенда следует за курсором, пока он внутри секции
+    const handleMouseMove = (e) => {
+      if (!heroRef.current) return;
+      const r = heroRef.current.getBoundingClientRect();
+      if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) return resetTilt();
+      target.current.x = ((e.clientX - r.left) / r.width - 0.5) * 2;
+      target.current.y = ((e.clientY - r.top) / r.height - 0.5) * 2;
     };
 
     const handleScroll = () => {
@@ -144,7 +141,7 @@ export function HeroExplodedParallax({ onExploreCatalog, onOpenChatBot }) {
 
     window.addEventListener('mousemove', handleMouseMove, { passive: true });
     window.addEventListener('scroll', handleScroll, { passive: true });
-    document.addEventListener('mouseleave', handleMouseLeave);
+    document.addEventListener('mouseleave', resetTilt);
 
     const animate = () => {
       const ease = 0.08;
@@ -174,7 +171,7 @@ export function HeroExplodedParallax({ onExploreCatalog, onOpenChatBot }) {
       cancelAnimationFrame(animId);
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('scroll', handleScroll);
-      document.removeEventListener('mouseleave', handleMouseLeave);
+      document.removeEventListener('mouseleave', resetTilt);
     };
   }, []);
 
@@ -239,36 +236,19 @@ export function HeroExplodedParallax({ onExploreCatalog, onOpenChatBot }) {
                 />
 
                 <div className="flex items-center justify-between pt-1 text-[11px] font-mono">
-                  <button
-                    onClick={() => setExplosion(0)}
-                    className={`px-2.5 py-1 rounded border transition-all ${
-                      explosion < 0.1
-                        ? 'bg-vintage-accent text-white border-vintage-accent font-semibold'
-                        : 'bg-stone-50 text-stone-600 border-stone-200 hover:bg-stone-100'
-                    }`}
-                  >
-                    В сборе (0%)
-                  </button>
-                  <button
-                    onClick={() => setExplosion(0.5)}
-                    className={`px-2.5 py-1 rounded border transition-all ${
-                      explosion >= 0.4 && explosion <= 0.6
-                        ? 'bg-vintage-accent text-white border-vintage-accent font-semibold'
-                        : 'bg-stone-50 text-stone-600 border-stone-200 hover:bg-stone-100'
-                    }`}
-                  >
-                    50%
-                  </button>
-                  <button
-                    onClick={() => setExplosion(1)}
-                    className={`px-2.5 py-1 rounded border transition-all ${
-                      explosion > 0.9
-                        ? 'bg-vintage-accent text-white border-vintage-accent font-semibold'
-                        : 'bg-stone-50 text-stone-600 border-stone-200 hover:bg-stone-100'
-                    }`}
-                  >
-                    По слоям (100%)
-                  </button>
+                  {PRESETS.map(({ value, label, isActive }) => (
+                    <button
+                      key={label}
+                      onClick={() => setExplosion(value)}
+                      className={`px-2.5 py-1 rounded border transition-all ${
+                        isActive(explosion)
+                          ? 'bg-vintage-accent text-white border-vintage-accent font-semibold'
+                          : 'bg-stone-50 text-stone-600 border-stone-200 hover:bg-stone-100'
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
                 </div>
               </div>
 
@@ -353,22 +333,12 @@ export function HeroExplodedParallax({ onExploreCatalog, onOpenChatBot }) {
             </div>
 
             <div className="flex items-center gap-4 pt-2 text-xs font-mono text-stone-500 flex-wrap">
-              <span className="flex items-center gap-1">
-                <CheckCircle className="w-3.5 h-3.5 text-vintage-accent" />
-                Gasket Mount
-              </span>
-              <span className="flex items-center gap-1">
-                <CheckCircle className="w-3.5 h-3.5 text-vintage-accent" />
-                Латунный плейт 1.5мм
-              </span>
-              <span className="flex items-center gap-1">
-                <CheckCircle className="w-3.5 h-3.5 text-vintage-accent" />
-                Массив ореха
-              </span>
-              <span className="flex items-center gap-1">
-                <CheckCircle className="w-3.5 h-3.5 text-vintage-accent" />
-                PBT пластик
-              </span>
+              {FEATURES.map((f) => (
+                <span key={f} className="flex items-center gap-1">
+                  <CheckCircle className="w-3.5 h-3.5 text-vintage-accent" />
+                  {f}
+                </span>
+              ))}
             </div>
           </div>
 
@@ -402,8 +372,7 @@ export function HeroExplodedParallax({ onExploreCatalog, onOpenChatBot }) {
                   ref={stage3dRef}
                   className="relative w-[340px] sm:w-[410px] h-[92px] sm:h-[110px] transition-transform duration-75 ease-out"
                   style={{
-                    transformStyle: 'preserve-3d',
-                    WebkitTransformStyle: 'preserve-3d',
+                    ...PRESERVE_3D,
                     transform: 'rotateX(50deg) rotateZ(-26deg)',
                     willChange: 'transform',
                   }}
@@ -412,64 +381,30 @@ export function HeroExplodedParallax({ onExploreCatalog, onOpenChatBot }) {
                   {explosion > 0.3 && (
                     <div 
                       className="absolute inset-0 pointer-events-none opacity-35"
-                      style={{
-                        transformStyle: 'preserve-3d',
-                        WebkitTransformStyle: 'preserve-3d',
-                      }}
+                      style={PRESERVE_3D}
                     >
-                      {/* Corner 1 (Top Left) */}
-                      <div 
-                        className="absolute left-1 top-1 w-[1px] bg-stone-400 border-l border-dashed border-stone-500"
-                        style={{
-                          height: `${(125 + 125) * explosion}px`,
-                          transform: `translate3d(0, 0, ${(-125 * explosion).toFixed(1)}px) rotateX(-90deg)`,
-                          transformOrigin: 'top center',
-                        }}
-                      />
-                      {/* Corner 2 (Top Right) */}
-                      <div 
-                        className="absolute right-1 top-1 w-[1px] bg-stone-400 border-l border-dashed border-stone-500"
-                        style={{
-                          height: `${(125 + 125) * explosion}px`,
-                          transform: `translate3d(0, 0, ${(-125 * explosion).toFixed(1)}px) rotateX(-90deg)`,
-                          transformOrigin: 'top center',
-                        }}
-                      />
-                      {/* Corner 3 (Bottom Left) */}
-                      <div 
-                        className="absolute left-1 bottom-1 w-[1px] bg-stone-400 border-l border-dashed border-stone-500"
-                        style={{
-                          height: `${(125 + 125) * explosion}px`,
-                          transform: `translate3d(0, 0, ${(-125 * explosion).toFixed(1)}px) rotateX(-90deg)`,
-                          transformOrigin: 'top center',
-                        }}
-                      />
-                      {/* Corner 4 (Bottom Right) */}
-                      <div 
-                        className="absolute right-1 bottom-1 w-[1px] bg-stone-400 border-l border-dashed border-stone-500"
-                        style={{
-                          height: `${(125 + 125) * explosion}px`,
-                          transform: `translate3d(0, 0, ${(-125 * explosion).toFixed(1)}px) rotateX(-90deg)`,
-                          transformOrigin: 'top center',
-                        }}
-                      />
+                      {CORNERS.map((pos) => (
+                        <div
+                          key={pos}
+                          className={`absolute ${pos} w-[1px] bg-stone-400 border-l border-dashed border-stone-500`}
+                          style={{
+                            height: `${250 * explosion}px`,
+                            transform: `translate3d(0, 0, ${(-125 * explosion).toFixed(1)}px) rotateX(-90deg)`,
+                            transformOrigin: 'top center',
+                          }}
+                        />
+                      ))}
                     </div>
                   )}
 
                   {/* 6 Perspective Layers - Clicking pops the layer UPWARDS for full inspection */}
                   {KEYBOARD_LAYERS.map((layer) => {
                     const isSelected = activeLayerId === layer.id;
-                    const baseZ = layer.assembledZ + (layer.explodedZ - layer.assembledZ) * explosion;
-                    
-                    // Selected layer pops UP (+50px in Z, -8px in Y) for clear inspection of the entire surface
-                    const liftZ = isSelected ? 50 : 0;
+                    // Выбранный слой приподнимается (+50px по Z, -8px по Y)
+                    const z = layer.assembledZ + (layer.explodedZ - layer.assembledZ) * explosion + (isSelected ? 50 : 0);
                     const liftY = isSelected ? -8 : 0;
-                    const z = baseZ + liftZ;
+                    const opacity = isolateActiveLayer && !isSelected ? 0.22 : 1;
                     const { Component } = layer;
-
-                    const opacity = isolateActiveLayer
-                      ? (isSelected ? 1 : 0.22)
-                      : 1;
 
                     return (
                       <div
@@ -477,8 +412,7 @@ export function HeroExplodedParallax({ onExploreCatalog, onOpenChatBot }) {
                         onClick={() => setActiveLayerId(layer.id)}
                         className="absolute inset-0 cursor-pointer transition-all duration-300 ease-out"
                         style={{
-                          transformStyle: 'preserve-3d',
-                          WebkitTransformStyle: 'preserve-3d',
+                          ...PRESERVE_3D,
                           transform: `translate3d(0, ${liftY}px, ${z.toFixed(1)}px)`,
                           zIndex: isSelected ? 35 : 10,
                           opacity,

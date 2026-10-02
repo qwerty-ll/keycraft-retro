@@ -1,38 +1,85 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { X, Send, Bot, ShoppingBag, Check } from 'lucide-react';
 import { PRODUCTS } from '../data/products';
 import { useCart } from '../context/CartContext';
+import { useTimedValue } from '../hooks/useTimedValue';
+import { rub } from '../utils/format';
 
-export function ClackBotModal({ isOpen, onClose, onQuickView }) {
+const byIds = (...ids) => ids.map((id) => PRODUCTS.find((p) => p.id === id)).filter(Boolean);
+
+const FIRST_BUILD = 'Собрать первую клавиатуру 🎹';
+const QUIET = 'Тихий сетап для работы 🌙';
+const THOCK = 'Хочу глубокий Thock 🔊';
+
+const INITIAL_MESSAGES = [{
+  id: 1,
+  sender: 'bot',
+  text: 'Привет! Я виртуальный консультант KeyCraft. Помогу выбрать свитчи, клавиатуру или аксессуары для моддинга.',
+  options: [FIRST_BUILD, QUIET, 'Линейные свитчи для игр ⚡', 'Как смазывать свитчи? 🧪'],
+}];
+
+// Сценарии: ключевые слова → ответ, товары, подсказки
+const RULES = [
+  {
+    keys: ['первую', 'собрать'],
+    text: 'Для первой сборки отлично подходит формат 75% — есть стрелки и функциональные клавиши при компактных размерах:',
+    products: ['kb-lumina-75'],
+    options: ['Какие свитчи взять?', 'Кейкапы Retro 9009'],
+  },
+  {
+    keys: ['тих', 'ноч', 'офис'],
+    text: 'Для бесшумной работы рекомендую свитчи Durock Silent T1 и войлочный дескпад — уровень шума ниже 28 дБ:',
+    products: ['sw-durock-silent', 'pad-felt-wool'],
+    options: ['А шумоизоляция?', 'Подобрать кейкапы'],
+  },
+  {
+    keys: ['thock', 'бас'],
+    text: 'Для басовитого "Thock" отлично подходят линейные свитчи Gateron Oil King и пороновая изоляция:',
+    products: ['sw-oil-king', 'mod-poron-sheet'],
+    options: ['Промокод на скидку', 'Собрать первую клавиатуру'],
+  },
+  {
+    keys: ['смаз', 'krytox'],
+    text: 'Для смазки штока и рельсов используйте оригинальную Krytox 205g0 тонким слоем. Вот всё необходимое:',
+    products: ['tool-krytox-205g0', 'tool-switch-opener'],
+    options: ['Свитч-филмы', 'Готовые клавиатуры'],
+  },
+  {
+    keys: ['промокод', 'скидк'],
+    text: 'Используйте промокод VINTAGE10 в корзине для получения скидки 10% на весь заказ!',
+    products: [],
+    options: [FIRST_BUILD, THOCK],
+  },
+];
+
+function botReply(query) {
+  const q = query.toLowerCase();
+  const rule = RULES.find((r) => r.keys.some((k) => q.includes(k)));
+  if (rule) return { text: rule.text, products: byIds(...rule.products), options: rule.options };
+
+  const matches = PRODUCTS.filter((p) =>
+    [p.title, p.categoryName, p.description].some((f) => f.toLowerCase().includes(q))
+  ).slice(0, 2);
+  return matches.length > 0
+    ? { text: 'Вот подходящие товары по вашему запросу:', products: matches, options: [] }
+    : {
+        text: 'Я могу помочь с выбором переключателей по звуку, посоветовать клавиатуру или подсказать промокод.',
+        products: [],
+        options: [FIRST_BUILD, QUIET, THOCK],
+      };
+}
+
+export function ClackBotModal({ isOpen, onClose, onOpenProduct }) {
   const { addToCart } = useCart();
   const messagesEndRef = useRef(null);
   const [inputVal, setInputVal] = useState('');
-  const [addedItems, setAddedItems] = useState({});
-
-  const initialMessages = [
-    {
-      id: 1,
-      sender: 'bot',
-      text: 'Привет! Я виртуальный консультант KeyCraft. Помогу выбрать свитчи, клавиатуру или аксессуары для моддинга.',
-      options: [
-        'Собрать первую клавиатуру 🎹',
-        'Тихий сетап для работы 🌙',
-        'Линейные свитчи для игр ⚡',
-        'Как смазывать свитчи? 🧪',
-      ],
-    },
-  ];
-
-  const [messages, setMessages] = useState(initialMessages);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  const [addedId, flashAdded] = useTimedValue(1800);
+  const [messages, setMessages] = useState(INITIAL_MESSAGES);
 
   useEffect(() => {
-    if (isOpen) {
-      setTimeout(scrollToBottom, 100);
-    }
+    if (!isOpen) return;
+    const t = setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
+    return () => clearTimeout(t);
   }, [isOpen, messages]);
 
   if (!isOpen) return null;
@@ -41,96 +88,20 @@ export function ClackBotModal({ isOpen, onClose, onQuickView }) {
     const query = (textToSend || inputVal).trim();
     if (!query) return;
 
-    const userMsg = {
-      id: Date.now(),
-      sender: 'user',
-      text: query,
-    };
-
-    setMessages((prev) => [...prev, userMsg]);
+    setMessages((prev) => [...prev, { id: Date.now(), sender: 'user', text: query }]);
     if (!textToSend) setInputVal('');
-
     setTimeout(() => {
-      generateBotResponse(query);
+      setMessages((prev) => [...prev, { id: Date.now() + 1, sender: 'bot', ...botReply(query) }]);
     }, 300);
-  };
-
-  const generateBotResponse = (query) => {
-    const q = query.toLowerCase();
-    let replyText = '';
-    let recommendedProducts = [];
-    let nextOptions = [];
-
-    if (q.includes('первую') || q.includes('собрать')) {
-      replyText = 'Для первой сборки отлично подходит формат 75% — есть стрелки и функциональные клавиши при компактных размерах:';
-      recommendedProducts = [PRODUCTS.find((p) => p.id === 'kb-lumina-75')];
-      nextOptions = ['Какие свитчи взять?', 'Кейкапы Retro 9009'];
-    } else if (q.includes('тих') || q.includes('ноч') || q.includes('офис')) {
-      replyText = 'Для бесшумной работы рекомендую свитчи Durock Silent T1 и войлочный дескпад — уровень шума ниже 28 дБ:';
-      recommendedProducts = [
-        PRODUCTS.find((p) => p.id === 'sw-durock-silent'),
-        PRODUCTS.find((p) => p.id === 'pad-felt-wool'),
-      ];
-      nextOptions = ['А шумоизоляция?', 'Подобрать кейкапы'];
-    } else if (q.includes('thock') || q.includes('бас')) {
-      replyText = 'Для басовитого "Thock" отлично подходят линейные свитчи Gateron Oil King и пороновая изоляция:';
-      recommendedProducts = [
-        PRODUCTS.find((p) => p.id === 'sw-oil-king'),
-        PRODUCTS.find((p) => p.id === 'mod-poron-sheet'),
-      ];
-      nextOptions = ['Промокод на скидку', 'Собрать первую клавиатуру'];
-    } else if (q.includes('смаз') || q.includes('krytox')) {
-      replyText = 'Для смазки штока и рельсов используйте оригинальную Krytox 205g0 тонким слоем. Вот всё необходимое:';
-      recommendedProducts = [
-        PRODUCTS.find((p) => p.id === 'tool-krytox-205g0'),
-        PRODUCTS.find((p) => p.id === 'tool-switch-opener'),
-      ];
-      nextOptions = ['Свитч-филмы', 'Готовые клавиатуры'];
-    } else if (q.includes('промокод') || q.includes('скидк')) {
-      replyText = 'Используйте промокод VINTAGE10 в корзине для получения скидки 10% на весь заказ!';
-      nextOptions = ['Собрать первую клавиатуру 🎹', 'Хочу глубокий Thock 🔊'];
-    } else {
-      const matches = PRODUCTS.filter(
-        (p) =>
-          p.title.toLowerCase().includes(q) ||
-          p.categoryName.toLowerCase().includes(q) ||
-          p.description.toLowerCase().includes(q)
-      ).slice(0, 2);
-
-      if (matches.length > 0) {
-        replyText = 'Вот подходящие товары по вашему запросу:';
-        recommendedProducts = matches;
-      } else {
-        replyText = 'Я могу помочь с выбором переключателей по звуку, посоветовать клавиатуру или подсказать промокод.';
-        nextOptions = [
-          'Собрать первую клавиатуру 🎹',
-          'Тихий сетап для работы 🌙',
-          'Хочу глубокий Thock 🔊',
-        ];
-      }
-    }
-
-    const botMsg = {
-      id: Date.now(),
-      sender: 'bot',
-      text: replyText,
-      products: recommendedProducts.filter(Boolean),
-      options: nextOptions,
-    };
-
-    setMessages((prev) => [...prev, botMsg]);
   };
 
   const handleAddDirect = (prod) => {
     addToCart(prod, 1);
-    setAddedItems((prev) => ({ ...prev, [prod.id]: true }));
-    setTimeout(() => {
-      setAddedItems((prev) => ({ ...prev, [prod.id]: false }));
-    }, 1800);
+    flashAdded(prod.id);
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden select-none animate-fadeIn flex items-end sm:items-center justify-center sm:justify-end sm:p-6 pointer-events-none">
+    <div className="fixed inset-0 z-50 overflow-hidden select-none flex items-end sm:items-center justify-center sm:justify-end sm:p-6 pointer-events-none">
       <div 
         className="fixed inset-0 bg-stone-900/40 sm:hidden pointer-events-auto"
         onClick={onClose}
@@ -173,18 +144,18 @@ export function ClackBotModal({ isOpen, onClose, onQuickView }) {
                 className={`max-w-[85%] p-2.5 rounded-xl text-xs leading-relaxed ${
                   msg.sender === 'user'
                     ? 'bg-vintage-accent text-white font-medium'
-                    : 'bg-white text-stone-800 border border-stone-200 shadow-xs'
+                    : 'bg-white text-stone-800 border border-stone-200'
                 }`}
               >
                 {msg.text}
               </div>
 
-              {msg.products && msg.products.length > 0 && (
+              {msg.products?.length > 0 && (
                 <div className="w-full mt-1.5 space-y-1.5">
                   {msg.products.map((prod) => (
                     <div
                       key={prod.id}
-                      className="p-2 rounded-lg border border-stone-200 bg-white flex items-center justify-between gap-2 shadow-xs"
+                      className="p-2 rounded-lg border border-stone-200 bg-white flex items-center justify-between gap-2"
                     >
                       <img
                         src={prod.image}
@@ -196,13 +167,13 @@ export function ClackBotModal({ isOpen, onClose, onQuickView }) {
                           {prod.title}
                         </div>
                         <div className="text-[10px] font-mono font-bold text-vintage-accent">
-                          {prod.price.toLocaleString('ru-RU')} ₽
+                          {rub(prod.price)}
                         </div>
                       </div>
                       <div className="flex items-center gap-1">
                         <button
                           onClick={() => {
-                            onQuickView(prod);
+                            onOpenProduct(prod.id);
                             onClose();
                           }}
                           className="btn-retro text-[10px] py-0.5 px-1.5"
@@ -212,12 +183,12 @@ export function ClackBotModal({ isOpen, onClose, onQuickView }) {
                         <button
                           onClick={() => handleAddDirect(prod)}
                           className={`btn-retro text-[10px] py-0.5 px-1.5 ${
-                            addedItems[prod.id]
+                            addedId === prod.id
                               ? 'bg-emerald-600 text-white'
                               : 'bg-stone-900 text-white'
                           }`}
                         >
-                          {addedItems[prod.id] ? <Check className="w-3 h-3" /> : <ShoppingBag className="w-3 h-3" />}
+                          {addedId === prod.id ? <Check className="w-3 h-3" /> : <ShoppingBag className="w-3 h-3" />}
                         </button>
                       </div>
                     </div>
@@ -225,7 +196,7 @@ export function ClackBotModal({ isOpen, onClose, onQuickView }) {
                 </div>
               )}
 
-              {msg.options && msg.options.length > 0 && (
+              {msg.options?.length > 0 && (
                 <div className="flex flex-wrap gap-1 mt-1.5 max-w-[95%]">
                   {msg.options.map((opt, i) => (
                     <button
